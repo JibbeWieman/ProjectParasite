@@ -98,11 +98,11 @@ public class CustomBullet : MonoBehaviour
         //Deal base damage if bullet hits the player directly
         if (collision.gameObject.layer == LayerMask.NameToLayer("Player"))
         {
-            var parasiteHPScript = collision.gameObject.GetComponent<ParasiteHP>();
-            if (parasiteHPScript != null)
-            {
-                parasiteHPScript.TakeDamage(bulletDamage);
-            }
+            //var parasiteHPScript = collision.gameObject.GetComponent<ParasiteHP>();
+            //if (parasiteHPScript != null)
+            //{
+            //    parasiteHPScript.TakeDamage(bulletDamage);
+            //}
         }
 
         //Explode if bullet hits an enemy directly and explodeOnTouch is activated
