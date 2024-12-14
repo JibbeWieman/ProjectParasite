@@ -145,7 +145,7 @@ public class ProjectileGun : MonoBehaviour
         //Instantiate bullet/projectile
         GameObject currentBullet = Instantiate(bullet, attackPoint.position, Quaternion.identity); //Store instantiated bullet
         // Set the shooter in the bullet script
-        currentBullet.GetComponent<CustomBullet>().shooter = shooter;
+        //currentBullet.GetComponent<CustomBullet>().shooter = shooter;
 
         //Pull bullet from object pool
         //GameObject currentBullet = ObjectPooler.Instance.SpawnFromPool(bulletTag, attackPoint.position, Quaternion.identity);

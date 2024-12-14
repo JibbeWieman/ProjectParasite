@@ -151,15 +151,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2dba7827444e9d743a24f6240fa9ea93,
         type: 3}
       insertIndex: -1
+      addedObject: {fileID: 7410159411462268086}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2dba7827444e9d743a24f6240fa9ea93,
+        type: 3}
+      insertIndex: -1
       addedObject: {fileID: 4452397796599485977}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2dba7827444e9d743a24f6240fa9ea93,
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3013527778971006692}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2dba7827444e9d743a24f6240fa9ea93,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 359004998057995384}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2dba7827444e9d743a24f6240fa9ea93,
         type: 3}
       insertIndex: -1
@@ -171,6 +171,29 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5485000841637356424}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7410159411462268086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4674678025320554201}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9f4f5ab7d4247c458c9fe43fa0c8727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseDMG: 0
+  bounciness: 0
+  maxLifetime: 0
+  maxCollisions: 0
+  useGravity: 0
+  explodes: 0
+  explosion: {fileID: 0}
+  explosionDMG: 0
+  explosionRange: 0
+  explosionForce: 0
+  explodeOnTouch: 1
 --- !u!54 &4452397796599485977
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -219,34 +242,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.035
   m_Center: {x: 0.001, y: 0, z: 0}
---- !u!114 &359004998057995384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4674678025320554201}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dbb93a934517f647b76d29327c2e064, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rb: {fileID: 4452397796599485977}
-  explosion: {fileID: 0}
-  whatIsEnemies:
-    serializedVersion: 2
-    m_Bits: 128
-  bounciness: 0.1
-  useGravity: 0
-  bulletDamage: 40
-  explosionDamage: 10
-  explosionRange: 0
-  explosionForce: 0
-  maxCollisions: 1
-  maxLifetime: 4
-  explodeOnTouch: 0
-  shooter: {fileID: 0}
-  friendlyFire: 0
 --- !u!96 &6221386371880662797
 TrailRenderer:
   serializedVersion: 3

@@ -45,12 +45,12 @@ public class InfectAbility : AbilityBase
         isLeeching = false;
         inHost = true;
 
-        Infected newScript = host.GetComponent<Infected>();
-        if (newScript == null)
-        {
-            newScript = host.AddComponent<Infected>();
-        }
-        CopyScriptProperties(this, newScript);
+        //Infected newScript = host.GetComponent<Infected>();
+        //if (newScript == null)
+        //{
+        //    newScript = host.AddComponent<Infected>();
+        //}
+        //CopyScriptProperties(this, newScript);
 
         //Make the host persistent
         host.transform.SetParent(persistentHosts.transform);
@@ -72,11 +72,11 @@ public class InfectAbility : AbilityBase
         parasite.SetActive(false);
         parasite.GetComponent<PlayerMovement>().enabled = false;
 
-        CameraSwitcher.SwitchCamera(host.GetComponent<Infected>().HostBasicCam);
+        //CameraSwitcher.SwitchCamera(host.GetComponent<Infected>().HostBasicCam);
 
         Debug.Log("Entering host.");
     } 
-    IEnumerator Leeching()
+    private IEnumerator Leeching()
     {
         isLeeching = true;
         Debug.Log("Leeching started");
@@ -89,20 +89,21 @@ public class InfectAbility : AbilityBase
     
     void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Host") && isLeeching)
+        if (collision.gameObject.layer == LayerMask.NameToLayer("AI") && isLeeching)
         {
             //Blood particle effect
             ParticleSystem instantiatedBlood = Instantiate(blood, collision.contacts[0].point, Quaternion.LookRotation(collision.contacts[0].normal));
             instantiatedBlood.transform.SetParent(collision.gameObject.transform);
             Destroy(instantiatedBlood, 1);
 
-            host = collision.gameObject; // Update the host reference to the correct host object
+            //host = collision.gameObject; // Update the host reference to the correct host object
+            Events.ActorPossesedEvent.CurrentActor = collision.gameObject.GetComponent<Actor>().id;
 
             TriggerAbility();
         }
     }
 
-    private void CopyScriptProperties(MonoBehaviour sourceScript, MonoBehaviour targetScript)
+    /*private void CopyScriptProperties(MonoBehaviour sourceScript, MonoBehaviour targetScript)
     {
         // Use reflection to copy serialized fields
         var sourceFields = sourceScript.GetType().GetFields(System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
@@ -120,5 +121,5 @@ public class InfectAbility : AbilityBase
                 }
             }
         }
-    }
+    }*/
 }
