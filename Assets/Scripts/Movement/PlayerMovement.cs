@@ -85,9 +85,9 @@ public class PlayerMovement : MonoBehaviour
         m_Animator = GetComponentInChildren<Animator>();
         rb = GetComponent<Rigidbody>();
 
-        ActorsManager actorsManager = FindObjectOfType<ActorsManager>();
-        if (actorsManager != null)
-            actorsManager.SetPlayer(gameObject);
+        //ActorsManager actorsManager = FindObjectOfType<ActorsManager>();
+        //if (actorsManager != null)
+            //actorsManager.SetPlayer(gameObject);
     }
 
     private void Start()

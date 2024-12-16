@@ -1,9 +1,14 @@
+using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.Events;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(AudioSource))]
 public class ActorCharacterController : MonoBehaviour
 {
+    protected static ActorCharacterController s_Instance;
+    public static ActorCharacterController Instance { get { return s_Instance; } }
+
     public bool IsPlayer;
     
     [Header("References")]
@@ -12,6 +17,8 @@ public class ActorCharacterController : MonoBehaviour
 
     [Tooltip("Audio source for footsteps, jump, etc...")]
     public AudioSource AudioSource;
+
+    public AbilityBase[] m_Abilities;
 
     [Header("General")]
     [Tooltip("Force applied downward when in the air")]
@@ -150,23 +157,41 @@ public class ActorCharacterController : MonoBehaviour
     //Vector3 m_CharacterVelocity;
     Vector3 m_LatestImpactSpeed;
     float m_LastTimeJumped = 0f;
-    float m_CameraVerticalAngle = 0f;
+    //float m_CameraVerticalAngle = 0f;
     float m_FootstepDistanceCounter;
     float m_TargetCharacterHeight;
 
     const float k_JumpGroundingPreventionTime = 0.2f;
     const float k_GroundCheckDistanceInAir = 0.07f;
 
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Destructible"))
+        {
+            hit.gameObject.GetComponent<DestructibleObject>().DestroyObject();
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Item"))
+        {
+            Destroy(other.gameObject);
+        }
+    }
+
     protected virtual void Awake()
     {
         ActorsManager actorsManager = FindObjectOfType<ActorsManager>();
         
-        if (actorsManager != null && IsPlayer)
+        if (actorsManager != null && gameObject.CompareTag("Player"))
             actorsManager.SetPlayer(gameObject);
     }
 
     protected virtual void Start()
     {
+        s_Instance = this;
+        m_Abilities = GetComponents<AbilityBase>();
+        PlayerCamera = Camera.main;
         // fetch components on the same gameObject
         m_Controller = GetComponent<CharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<CharacterController, ActorCharacterController>(m_Controller,

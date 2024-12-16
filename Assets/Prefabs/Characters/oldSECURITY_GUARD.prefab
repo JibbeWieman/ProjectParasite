@@ -843,7 +843,7 @@ GameObject:
   - component: {fileID: 7548288372108457651}
   - component: {fileID: 7569172612865929193}
   m_Layer: 7
-  m_Name: SECURITY_GUARD
+  m_Name: oldSECURITY_GUARD
   m_TagString: Host
   m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0

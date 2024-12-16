@@ -1,6 +1,8 @@
 using UnityEngine;
 using Cinemachine;
 using static HostThirdPersonCam;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
 public class ActorFacade : MonoBehaviour
 {
@@ -11,6 +13,8 @@ public class ActorFacade : MonoBehaviour
     private GameObject player; // Player meaning the parasite
 
     private HostThirdPersonCam hostThirdPersonCam; // Reference to the HostThirdPersonCam
+
+    private Volume globalVolume;
 
     private void Start()
     {
@@ -23,6 +27,12 @@ public class ActorFacade : MonoBehaviour
         // Find and store the HostThirdPersonCam reference
         hostThirdPersonCam = FindObjectOfType<HostThirdPersonCam>();
         if (hostThirdPersonCam == null)
+        {
+            Debug.LogError("HostThirdPersonCam not found in the scene!");
+        }
+
+        globalVolume = FindObjectOfType<Volume>();
+        if (globalVolume == null)
         {
             Debug.LogError("HostThirdPersonCam not found in the scene!");
         }
@@ -42,6 +52,13 @@ public class ActorFacade : MonoBehaviour
             if (targetActor != actorManager.FindActorById(0))
             {
                 player.SetActive(false); // May need further checks here
+                
+                if (globalVolume.profile.TryGet<DepthOfField>(out var depthOfField))
+                {
+                    depthOfField.focusDistance.value = 10f; // Example value for focus distance
+                    depthOfField.aperture.value = 5.6f;     // Example value for aperture
+                    depthOfField.focalLength.value = 50f;   // Example value for focal length
+                }
             }
 
             currentActor = targetActor;

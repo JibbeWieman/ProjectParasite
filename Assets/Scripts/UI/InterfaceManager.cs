@@ -12,10 +12,13 @@ public class InterfaceManager : MonoBehaviour
     public AbilityUI abilityIconPrefab;
     public Transform abilityIconSlot;
 
+    private ActorsManager actorsManager;
+
     private bool m_abilitiesInitialized = false;
 
     private void Start()
     {
+        actorsManager = FindAnyObjectByType<ActorsManager>();
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -58,7 +61,8 @@ public class InterfaceManager : MonoBehaviour
 
     private void InitializeAbilities()
     {
-        PlayerMovement player = PlayerMovement.Instance;
+        ActorCharacterController player = actorsManager.Player.GetComponent<ActorCharacterController>();
+        player = ActorCharacterController.Instance;
 
         // Check if player or its m_Abilities array is null
         if (player == null || player.m_Abilities == null)

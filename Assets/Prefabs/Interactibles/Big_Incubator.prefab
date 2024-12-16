@@ -88,6 +88,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Big_Incubator
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5a0dd5e4c266d3042a81782e51704c4e,
+        type: 3}
+      propertyPath: m_TagString
+      value: Destructible
+      objectReference: {fileID: 0}
     - target: {fileID: 2982408803557973007, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -156,6 +161,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyedVersion: {fileID: 7386270604643168987, guid: 9680b95ab2988a647bf9fdb38be0eafe,
     type: 3}
+  enableSelfDestruct: 1
+  destroyRoot: 0
+  minDestroyTime: 3
+  maxDestroyTime: 10
 --- !u!136 &4565697947411077254
 CapsuleCollider:
   m_ObjectHideFlags: 0

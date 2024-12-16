@@ -12,8 +12,6 @@ public class HostThirdPersonCam : MonoBehaviour
     private Transform CombatLookAt;
     [SerializeField]
     private Transform hostObj;
-    [SerializeField]
-    private CharacterController cc;
 
     public CameraStyle currentStyle;
     public enum CameraStyle
@@ -27,7 +25,6 @@ public class HostThirdPersonCam : MonoBehaviour
         hostObj = hostActor.transform.Find("Model");
         Orientation = hostActor.transform.Find("Orientation");
         CombatLookAt = Orientation?.Find("CombatLookAt");
-        cc = hostActor.GetComponent<CharacterController>();
     }
 
     private void Update()
@@ -98,6 +95,5 @@ public class HostThirdPersonCam : MonoBehaviour
         Orientation = null;
         CombatLookAt = null;
         hostObj = null;
-        cc = null;
     }
 }

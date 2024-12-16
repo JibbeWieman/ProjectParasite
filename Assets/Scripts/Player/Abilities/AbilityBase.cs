@@ -1,12 +1,10 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 public abstract class AbilityBase : MonoBehaviour
 {
     public class MyFloatEvent : UnityEvent<float> { }
-    public MyFloatEvent OnAbilityUse = new MyFloatEvent();
+    public MyFloatEvent OnAbilityUse = new();
 
     [Header("Ability Info")]
     public string title;

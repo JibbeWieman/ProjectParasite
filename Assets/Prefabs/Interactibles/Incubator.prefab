@@ -73,6 +73,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Incubator
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 52b57034da1e50649805f79f2f02cd76,
+        type: 3}
+      propertyPath: m_TagString
+      value: Destructible
+      objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_Range
@@ -204,3 +209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   destroyedVersion: {fileID: 7992317348130125218, guid: 6d0e3db74d72aae48aefecccbee53843,
     type: 3}
+  enableSelfDestruct: 1
+  destroyRoot: 0
+  minDestroyTime: 3
+  maxDestroyTime: 10
