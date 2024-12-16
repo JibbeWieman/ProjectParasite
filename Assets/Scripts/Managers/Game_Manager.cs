@@ -17,7 +17,7 @@ public class Game_Manager : MonoBehaviour
     //[SerializeField] private CharacterWindow characterWindow;
     //readonly Character character = new Character();
 
-    public GameObject player;
+    private GameObject player;
 
     #endregion
 
@@ -42,20 +42,25 @@ public class Game_Manager : MonoBehaviour
     }
     #endregion
 
+    private void Start()
+    {
+        player = GetComponent<ActorsManager>().Player;
+    }
+
     private void Update()
     {
-        if (player == null)
-        {
-            player = GameObject.FindWithTag("Player").transform.root.gameObject;
-        }
+        //if (player == null)
+        //{
+        //    player = GameObject.FindWithTag("Player").transform.root.gameObject;
+        //}
 
         #region Swap to parasite onces host dies
-        if (InfectAbility.inHost && InfectAbility.host == null)
-        {
-            player.SetActive(true);
-            player.GetComponent<PlayerMovement>().enabled = true;
-            InfectAbility.inHost = false;
-        }
+        //if (InfectAbility.inHost && InfectAbility.host == null)
+        //{
+        //    player.SetActive(true);
+        //    player.GetComponent<PlayerMovement>().enabled = true;
+        //    InfectAbility.inHost = false;
+        //}
         #endregion
     }
 

@@ -22,6 +22,7 @@
     public const string k_ButtonNamePauseMenu = "Pause Menu";
     //Jibbe
     public const string k_ButtonNameSkillTree = "SkillTree";
+    public const string k_ButtonNameLeech = "Leech";
     //
     public const string k_ButtonNameSubmit = "Submit";
     public const string k_ButtonNameCancel = "Cancel";

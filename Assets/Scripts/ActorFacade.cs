@@ -1,25 +1,31 @@
 using UnityEngine;
+using Cinemachine;
+using static HostThirdPersonCam;
 
 public class ActorFacade : MonoBehaviour
 {
-    [SerializeField] private ActorsManager actorManager; // Reference to the ActorManager
-    [SerializeField] private PlayerMovement playerController; // Direct controller reference
-
+    private ActorsManager actorManager; // Reference to the ActorManager
+    private ActorCharacterController actorController; // Direct controller reference
     private Actor currentActor;
+
+    private GameObject player; // Player meaning the parasite
+
+    private HostThirdPersonCam hostThirdPersonCam; // Reference to the HostThirdPersonCam
 
     private void Start()
     {
-        if (actorManager == null)
-        {
-            Debug.LogError("ActorManager is not assigned!");
-        }
-
-        if (playerController == null)
-        {
-            Debug.LogError("PlayerCharacterController is not assigned!");
-        }
+        actorManager = GetComponent<ActorsManager>();
+        player = actorManager.Player;
 
         EventManager.AddListener<ActorPossesedEvent>(SwitchActor);
+        Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
+
+        // Find and store the HostThirdPersonCam reference
+        hostThirdPersonCam = FindObjectOfType<HostThirdPersonCam>();
+        if (hostThirdPersonCam == null)
+        {
+            Debug.LogError("HostThirdPersonCam not found in the scene!");
+        }
     }
 
     public void SwitchActor(ActorPossesedEvent evt)
@@ -28,17 +34,33 @@ public class ActorFacade : MonoBehaviour
 
         if (targetActor != null)
         {
-            // Unregister cameras from the current actor
             if (currentActor != null)
             {
                 UnregisterCameras(currentActor);
             }
 
+            if (targetActor != actorManager.FindActorById(0))
+            {
+                player.SetActive(false); // May need further checks here
+            }
+
             currentActor = targetActor;
 
+            actorController = currentActor.GetComponent<ActorCharacterController>();
+
+            if (actorController == null)
+            {
+                Debug.LogError($"ActorCharacterController not found on {currentActor.gameObject.name}!");
+            }
+
+            // Setup host variables in HostThirdPersonCam
+            if (hostThirdPersonCam != null)
+            {
+                hostThirdPersonCam.SetupHostVariables(currentActor);
+            }
+
             // Sync player position and rotation with the new actor
-            playerController.transform.position = currentActor.transform.position;
-            playerController.transform.rotation = currentActor.transform.rotation;
+            actorController.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
 
             // Register cameras of the new actor
             RegisterCameras(currentActor);
@@ -51,34 +73,56 @@ public class ActorFacade : MonoBehaviour
         }
     }
 
-    public void MoveActor(Vector3 direction)
+    private void FixedUpdate()
+    {
+        if (actorController != null)
+        {
+            MoveActor();
+            actorController.AdjustAnimationSpeed();
+        }
+    }
+
+    public void MoveActor()
     {
         if (currentActor != null)
         {
-            //playerController.Move(direction);
+            actorController.HandleCharacterMovement();
         }
         else
         {
             Debug.LogWarning("No actor is currently active!");
         }
     }
+    //private void SwitchCameraStyle(CameraStyle newStyle)
+    //{
+    //    CombatCam.Priority = 0;
+    //    BasicCam.Priority = 0;
 
-    public void JumpActor(float jumpForce)
+    //    if (newStyle == CameraStyle.Basic) BasicCam.Priority = 10;
+    //    if (newStyle == CameraStyle.Combat) CombatCam.Priority = 10;
+
+    //    currentStyle = newStyle;
+    //}
+    private void Update()
     {
-        if (currentActor != null)
-        {
-            //playerController.Jump(jumpForce);
-        }
-        else
-        {
-            Debug.LogWarning("No actor is currently active!");
-        }
+        if (Input.GetKeyDown(KeyCode.F) && InfectAbility.inHost)
+            LeaveHost();
     }
 
-    /// <summary>
-    /// Registers the cameras for the specified actor.
-    /// </summary>
-    /// <param name="actor">The actor whose cameras should be registered.</param>
+    private void LeaveHost()
+    {
+        // Set parasite to the host's position and rotation
+        player.transform.position = currentActor.transform.position;
+        player.transform.rotation = currentActor.transform.rotation;
+
+        player.SetActive(true);
+
+        this.transform.SetParent(GameObject.FindWithTag("HostRefugeCamp").transform);
+
+        InfectAbility.inHost = false;
+        Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
+    }
+
     private void RegisterCameras(Actor actor)
     {
         if (actor.BasicCam != null)
@@ -92,10 +136,6 @@ public class ActorFacade : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Unregisters the cameras for the specified actor.
-    /// </summary>
-    /// <param name="actor">The actor whose cameras should be unregistered.</param>
     private void UnregisterCameras(Actor actor)
     {
         if (actor.BasicCam != null)

@@ -6,8 +6,8 @@ public class PlayerMovement : MonoBehaviour
 {
     #region VARIABLES
     protected static PlayerMovement s_Instance;
-    public static PlayerMovement instance { get { return s_Instance; } }
-    public bool respawning { get { return m_Respawning; } }
+    public static PlayerMovement Instance { get { return s_Instance; } }
+    public bool Respawning { get { return m_Respawning; } }
 
     [Header("Movement")]
     private float moveSpeed;
@@ -260,7 +260,7 @@ public class PlayerMovement : MonoBehaviour
         //on slope
         if (OnSlope() && !m_ExitingSlope)
         {
-            rb.AddForce(GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
+            rb.AddForce(20f * moveSpeed * GetSlopeMoveDirection(moveDirection), ForceMode.Force);
 
             if(rb.velocity.y > 0)
             {
@@ -271,13 +271,13 @@ public class PlayerMovement : MonoBehaviour
         //on ground
         if (grounded)
         {
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+            rb.AddForce(10f * moveSpeed * moveDirection.normalized, ForceMode.Force);
         }
 
         //in air
         else if(!grounded)
         {
-            rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+            rb.AddForce(10f * airMultiplier * moveSpeed * moveDirection.normalized, ForceMode.Force);
         }
 
         //turn gravity off while on slope
@@ -298,7 +298,7 @@ public class PlayerMovement : MonoBehaviour
         //limiting speed on ground or in air
         else
         {
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            Vector3 flatVel = new(rb.velocity.x, 0f, rb.velocity.z);
 
             //limit velocity if needed
             if (flatVel.magnitude > moveSpeed)

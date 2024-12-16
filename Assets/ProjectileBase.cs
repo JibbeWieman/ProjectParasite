@@ -58,8 +58,6 @@ public abstract class ProjectileBase : MonoBehaviour
     protected virtual void Start()
     {
         SetupPhysicsMaterial();
-
-        rb = GetComponent<Rigidbody>();
     }
 
     /// <summary>
@@ -96,6 +94,8 @@ public abstract class ProjectileBase : MonoBehaviour
 
     private void SetupPhysicsMaterial()
     {
+        rb = GetComponent<Rigidbody>();
+
         physicsMat = new PhysicMaterial
         {
             bounciness = bounciness,

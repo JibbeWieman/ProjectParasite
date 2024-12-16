@@ -5,6 +5,7 @@ public class ActorsManager : MonoBehaviour
 {
     private int ActorAmount = 0;
 
+    [Tooltip("List of all actors in the scene.")]
     public List<Actor> Actors { get; private set; } = new();
     public GameObject Player { get; private set; }
 
@@ -17,6 +18,8 @@ public class ActorsManager : MonoBehaviour
 
     private void AssignActorID()
     {
+        Player.GetComponent<Actor>().SetID(0);
+
         foreach (Actor actor in Actors)
         {
             actor.SetID(ActorAmount);

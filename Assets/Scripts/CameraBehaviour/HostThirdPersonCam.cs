@@ -4,15 +4,16 @@ using Cinemachine;
 public class HostThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
-    public static Transform hostOrientation;
-    public static Transform hostCombatLookAt;
-    public static Transform hostObj;
-    public static Rigidbody hostRb;
-
-    public static CinemachineFreeLook hostBasicCam;
-    public static CinemachineFreeLook hostCombatCam;
-
-    public float rotationSpeed;
+    [SerializeField, Tooltip("The rotation speed of the host character.")]
+    private float rotationSpeed;
+    [SerializeField]
+    private Transform Orientation;
+    [SerializeField]
+    private Transform CombatLookAt;
+    [SerializeField]
+    private Transform hostObj;
+    [SerializeField]
+    private CharacterController cc;
 
     public CameraStyle currentStyle;
     public enum CameraStyle
@@ -21,101 +22,82 @@ public class HostThirdPersonCam : MonoBehaviour
         Combat
     }
 
+    public void SetupHostVariables(Actor hostActor)
+    {
+        hostObj = hostActor.transform.Find("Model");
+        Orientation = hostActor.transform.Find("Orientation");
+        CombatLookAt = Orientation?.Find("CombatLookAt");
+        cc = hostActor.GetComponent<CharacterController>();
+    }
+
     private void Update()
     {
-        if (InfectAbility.inHost == true && InfectAbility.host != null)
+        if (InfectAbility.inHost && hostObj != null)
         {
-            SetHostVariables();
-
-            //switch styles
-            if (!InfectAbility.host.GetComponentInChildren<ProjectileGun>()
-                || (InfectAbility.host.GetComponentInChildren<ProjectileGun>() && Input.GetKeyUp(KeyCode.Mouse1)))
-            {
-                SwitchCameraStyle(CameraStyle.Basic);
-            }
-            if (InfectAbility.host.GetComponentInChildren<ProjectileGun>() && Input.GetKeyDown(KeyCode.Mouse1))
-            {
-                SwitchCameraStyle(CameraStyle.Combat);
-            }
-
-            //rotate orientation
-            Vector3 viewDir = InfectAbility.host.transform.position - transform.position;
-            viewDir.y = 0f;
-            hostOrientation.forward = viewDir.normalized;
-
-            //rotate player object
-            if (currentStyle == CameraStyle.Basic)
-            {
-                float horizontalInput = Input.GetAxis("Horizontal");
-                float verticalInput = Input.GetAxis("Vertical");
-                Vector3 inputDir = hostOrientation.forward * verticalInput + hostOrientation.right * horizontalInput;
-
-                if (inputDir != Vector3.zero)
-                {
-                    hostObj.forward = Vector3.Slerp(hostObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
-                }
-            }
-
-            else if (currentStyle == CameraStyle.Combat)
-            {
-                Vector3 dirToCombatLookAt = hostCombatLookAt.position - transform.position;
-                dirToCombatLookAt.y = 0f;
-                hostOrientation.forward = dirToCombatLookAt.normalized;
-
-                hostObj.forward = dirToCombatLookAt.normalized;
-            }
+            //HandleCameraSwitching();
+            HandleHostRotation();
         }
         else
         {
-            //Set variables to null so the next time you enterHost you get the right variables
-            if (hostBasicCam != null || hostCombatCam != null)
-            {
-                hostCombatCam.Priority = 0;
-                hostBasicCam.Priority = 0;
-            }
-
-            hostOrientation = null;
-            hostCombatLookAt = null;
-            hostObj = null;
-            hostRb = null;
-            hostBasicCam = null;
-            hostCombatCam = null;
+            ResetHostVariables();
         }
     }
 
-    private void SwitchCameraStyle(CameraStyle newStyle)
+    //private void HandleCameraSwitching()
+    //{
+    //    if (Input.GetKeyUp(KeyCode.Mouse1))
+    //    {
+    //        SwitchCameraStyle(CameraStyle.Basic);
+    //    }
+
+    //    if (Input.GetKeyDown(KeyCode.Mouse1))
+    //    {
+    //        SwitchCameraStyle(CameraStyle.Combat);
+    //    }
+    //}
+
+    private void HandleHostRotation()
     {
-        hostCombatCam.Priority = 0;
-        hostBasicCam.Priority = 0;
+        Vector3 viewDir = hostObj.position - transform.position;
+        viewDir.y = 0f;
+        Orientation.forward = viewDir.normalized;
 
-        if (newStyle == CameraStyle.Basic) hostBasicCam.Priority = 10;
-        if (newStyle == CameraStyle.Combat) hostCombatCam.Priority = 10;
+        if (currentStyle == CameraStyle.Basic)
+        {
+            float horizontalInput = Input.GetAxis("Horizontal");
+            float verticalInput = Input.GetAxis("Vertical");
+            Vector3 inputDir = Orientation.forward * verticalInput + Orientation.right * horizontalInput;
 
-        currentStyle = newStyle;
+            if (inputDir != Vector3.zero)
+            {
+                hostObj.forward = Vector3.Slerp(hostObj.forward, inputDir.normalized, Time.deltaTime * rotationSpeed);
+            }
+        }
+        else if (currentStyle == CameraStyle.Combat)
+        {
+            Vector3 dirToCombatLookAt = CombatLookAt.position - transform.position;
+            dirToCombatLookAt.y = 0f;
+            Orientation.forward = dirToCombatLookAt.normalized;
+            hostObj.forward = dirToCombatLookAt.normalized;
+        }
     }
 
-    private void SetHostVariables()
+    //private void SwitchCameraStyle(CameraStyle newStyle)
+    //{
+    //    CombatCam.Priority = 0;
+    //    BasicCam.Priority = 0;
+
+    //    if (newStyle == CameraStyle.Basic) BasicCam.Priority = 10;
+    //    if (newStyle == CameraStyle.Combat) CombatCam.Priority = 10;
+
+    //    currentStyle = newStyle;
+    //}
+
+    private void ResetHostVariables()
     {
-        //Set hostObj transform
-        if (hostObj == null)
-            hostObj = InfectAbility.host.transform.Find("Body");
-
-        //Set rigidbody
-        if (hostRb == null)
-            hostRb = InfectAbility.host.GetComponent<Rigidbody>();
-
-        //Set orientation and combatLookAt
-        if (hostOrientation == null)
-            hostOrientation = InfectAbility.host.transform.Find("Orientation");
-
-        if (hostCombatLookAt == null)
-            hostCombatLookAt = hostOrientation.transform.Find("CombatLookAt");
-
-        //Set camera variables
-        if (hostBasicCam == null)
-            hostBasicCam = InfectAbility.host.transform.Find("Host_BasicCam").GetComponent<CinemachineFreeLook>();
-
-        if (hostCombatCam == null)
-            hostCombatCam = InfectAbility.host.transform.Find("Host_CombatCam").GetComponent<CinemachineFreeLook>(); ;
+        Orientation = null;
+        CombatLookAt = null;
+        hostObj = null;
+        cc = null;
     }
 }

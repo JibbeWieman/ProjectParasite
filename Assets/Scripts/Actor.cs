@@ -5,19 +5,20 @@ using UnityEngine;
 // It is mostly used for AI detection logic and determining if an actor is friend or foe
 public class Actor : MonoBehaviour
 {
+    public int id;
+
     [Tooltip("Represents the affiliation (or team) of the actor. Actors of the same affiliation are friendly to each other")]
     public int Affiliation;
 
     [Tooltip("Represents point where other actors will aim when they attack this actor")]
     public Transform AimPoint;
-    public int id; // Public and readonly after assignment
 
     ActorsManager m_ActorsManager;
 
-    [Tooltip("The basic camera for this actor")]
+    [Tooltip("The basic camera for this actor"), HideInInspector]
     public CinemachineFreeLook BasicCam;
 
-    [Tooltip("The combat camera for this actor (if applicable)")]
+    [Tooltip("The combat camera for this actor (if applicable)"), HideInInspector]
     public CinemachineFreeLook CombatCam;
 
     void Awake()

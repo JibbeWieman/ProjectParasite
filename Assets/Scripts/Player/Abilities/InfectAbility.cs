@@ -6,7 +6,7 @@ public class InfectAbility : AbilityBase
 {
     #region VARIABLES
     [Header("References")]
-    public GameObject parasite;
+    private GameObject parasite;
     public static GameObject host;
     public GameObject persistentHosts;
 
@@ -16,9 +16,6 @@ public class InfectAbility : AbilityBase
     public static bool inHost = false;
 
     public ParticleSystem blood;
-
-    [Header("Keybinds")]
-    private KeyCode key = KeyCode.Space;
     #endregion
 
     #region CAMERA MANAGEMENT
@@ -33,15 +30,25 @@ public class InfectAbility : AbilityBase
         CameraSwitcher.Unregister(ParasiteBasicCam);
     }
     #endregion 
+    private void Start()
+    {
+        parasite = gameObject;
+    }
 
     private void Update()
     {
-        if (Input.GetKeyDown(key) && !isLeeching && !inHost && canUse)
-            StartCoroutine(Leeching());
+        if (Input.GetButtonDown(GameConstants.k_ButtonNameLeech))
+        {
+            if (!isLeeching && !inHost && canUse)
+            {
+                StartCoroutine(Leeching());
+            }
+        }
     }
 
     public override void Ability()
     {
+        //Debug.Log($"3 Should be different: {Events.ActorPossesedEvent.CurrentActor}");
         isLeeching = false;
         inHost = true;
 
@@ -55,22 +62,7 @@ public class InfectAbility : AbilityBase
         //Make the host persistent
         host.transform.SetParent(persistentHosts.transform);
 
-        var hostAI = host.GetComponent<EnemyAI>();
-        var hostMovement = host.GetComponent<PlayerMovement>();
-        var hostRb = host.GetComponent<Rigidbody>();
-
-        if (!hostAI.m_IsDead)
-        {
-            hostMovement.enabled = true;
-            hostRb.interpolation = RigidbodyInterpolation.Interpolate;
-        }
-        else
-        {
-            hostRb.constraints = RigidbodyConstraints.FreezeAll;
-        }
-
         parasite.SetActive(false);
-        parasite.GetComponent<PlayerMovement>().enabled = false;
 
         //CameraSwitcher.SwitchCamera(host.GetComponent<Infected>().HostBasicCam);
 
@@ -86,9 +78,33 @@ public class InfectAbility : AbilityBase
         isLeeching = false;
         Debug.Log("Leeching ended");
     }
-    
-    void OnCollisionEnter(Collision collision)
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        Debug.Log($"Player hit: {hit.gameObject.name}");
+
+        if (hit.gameObject.layer == LayerMask.NameToLayer("AI") && isLeeching)
+        {
+            // Play blood particle effect
+            ParticleSystem instantiatedBlood = Instantiate(blood, hit.point, Quaternion.LookRotation(hit.normal));
+            instantiatedBlood.transform.SetParent(hit.gameObject.transform);
+            Destroy(instantiatedBlood, 1);
+
+            parasite.SetActive(false);
+            Debug.Log("Trying to possess");
+            //Debug.Log($"1: { Events.ActorPossesedEvent.CurrentActor}");
+            Events.ActorPossesedEvent.CurrentActor = hit.gameObject.GetComponent<Actor>().id;
+
+            TriggerAbility();
+            //Debug.Log($"2 Trigger: {Events.ActorPossesedEvent.CurrentActor}");
+
+            host = hit.gameObject;
+        }
+    }
+
+    /*void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log($"Player collided with: {collision.gameObject.name}");
         if (collision.gameObject.layer == LayerMask.NameToLayer("AI") && isLeeching)
         {
             //Blood particle effect
@@ -96,12 +112,13 @@ public class InfectAbility : AbilityBase
             instantiatedBlood.transform.SetParent(collision.gameObject.transform);
             Destroy(instantiatedBlood, 1);
 
+            Debug.Log("Trying to posses");
             //host = collision.gameObject; // Update the host reference to the correct host object
             Events.ActorPossesedEvent.CurrentActor = collision.gameObject.GetComponent<Actor>().id;
 
             TriggerAbility();
         }
-    }
+    } */
 
     /*private void CopyScriptProperties(MonoBehaviour sourceScript, MonoBehaviour targetScript)
     {

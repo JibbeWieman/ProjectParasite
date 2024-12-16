@@ -58,7 +58,7 @@ public class InterfaceManager : MonoBehaviour
 
     private void InitializeAbilities()
     {
-        PlayerMovement player = PlayerMovement.instance;
+        PlayerMovement player = PlayerMovement.Instance;
 
         // Check if player or its m_Abilities array is null
         if (player == null || player.m_Abilities == null)

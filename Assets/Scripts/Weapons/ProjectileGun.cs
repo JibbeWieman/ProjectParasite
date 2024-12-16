@@ -173,7 +173,7 @@ public class ProjectileGun : MonoBehaviour
             allowInvoke = false;
 
             //Add recoil to player
-            HostThirdPersonCam.hostRb.AddForce(-directionWithSpread.normalized * recoilForce, ForceMode.Impulse);
+            //HostThirdPersonCam.hostRb.AddForce(-directionWithSpread.normalized * recoilForce, ForceMode.Impulse);
         }
 
         //if more than one bulletsPerTap make sure to repeat shoot function

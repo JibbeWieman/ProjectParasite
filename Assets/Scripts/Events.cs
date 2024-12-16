@@ -36,7 +36,7 @@ public class ActorAssignedEvent : GameEvent
 
 public class ActorPossesedEvent : GameEvent
 {
-    private int currentActor; // Backing field
+    private int currentActor = 0; // Backing field
 
     public int CurrentActor
     {

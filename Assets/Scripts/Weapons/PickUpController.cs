@@ -49,8 +49,8 @@ public class PickUpController : MonoBehaviour
             if (player == null)
                 player = InfectAbility.host;
             //Set orientation to that of the host
-            if (orientation == null)
-                orientation = HostThirdPersonCam.hostCombatLookAt;
+           // if (orientation == null)
+                //orientation = HostThirdPersonCam.hostCombatLookAt;
 
             //Check if player is in range and "E" is pressed
             Vector3 distanceToPlayer = player.transform.position - transform.position;
