@@ -70,7 +70,7 @@ public class Infected : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(exitHost) && InfectAbility.inHost)
+        if (Input.GetKeyDown(exitHost) && Events.ActorPossesedEvent.InHost)
             LeaveHost();
 
         // Bug fix for when host dies while inHost :D
@@ -96,8 +96,6 @@ public class Infected : MonoBehaviour
         {
             Destroy(scriptToRemove);
         }
-
-        InfectAbility.inHost = false;
     }
 
     private void OnTriggerEnter(Collider collider)

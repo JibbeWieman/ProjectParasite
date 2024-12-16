@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 571937182794627211}
   - component: {fileID: 4858135360361194785}
   - component: {fileID: 1292010311959600606}
-  - component: {fileID: 1515678631150490818}
   - component: {fileID: 2543040939826518872}
   m_Layer: 0
   m_Name: GameManager
@@ -121,24 +120,6 @@ MonoBehaviour:
   DelayBeforeWinMessage: 2
   VictorySound: {fileID: 0}
   LoseSceneName: LoseScene
---- !u!114 &1515678631150490818
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1818275759406187966}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ef468a5c2e76fb40afd2cdb57a7b26c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parasiteReticle: {fileID: 0}
-  hostReticle: {fileID: 0}
-  ammoCount: {fileID: 0}
-  abilityIconPrefab: {fileID: 1400770794262128457, guid: 3c3cee235a273c243a13cd72d4097851,
-    type: 3}
-  abilityIconSlot: {fileID: 0}
 --- !u!82 &2543040939826518872
 AudioSource:
   m_ObjectHideFlags: 0

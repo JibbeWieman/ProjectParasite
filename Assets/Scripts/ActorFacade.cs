@@ -6,36 +6,43 @@ using UnityEngine.Rendering.Universal;
 
 public class ActorFacade : MonoBehaviour
 {
-    private ActorsManager actorManager; // Reference to the ActorManager
-    private ActorCharacterController actorController; // Direct controller reference
-    private Actor currentActor;
+    #region VARIABLES
+    private ActorsManager actorManager;
+    private ActorCharacterController actorController;
 
-    private GameObject player; // Player meaning the parasite
+    public Actor currentActor;
 
-    private HostThirdPersonCam hostThirdPersonCam; // Reference to the HostThirdPersonCam
+    [Tooltip("AKA the parasite")]
+    private GameObject player;
 
-    private Volume globalVolume;
+    private HostThirdPersonCam hostCam;
+    #endregion
 
     private void Start()
     {
         actorManager = GetComponent<ActorsManager>();
-        player = actorManager.Player;
+        player = actorManager?.Player;
 
         EventManager.AddListener<ActorPossesedEvent>(SwitchActor);
         Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
 
-        // Find and store the HostThirdPersonCam reference
-        hostThirdPersonCam = FindObjectOfType<HostThirdPersonCam>();
-        if (hostThirdPersonCam == null)
-        {
-            Debug.LogError("HostThirdPersonCam not found in the scene!");
-        }
+        hostCam = FindObjectOfType<HostThirdPersonCam>();
+        DebugUtility.HandleErrorIfNullFindObject<HostThirdPersonCam, ActorFacade>(hostCam, this);
+    }
+    private void FixedUpdate()
+    {
+        actorController?.HandleCharacterMovement();
+        actorController?.AdjustAnimationSpeed();
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.F) && Events.ActorPossesedEvent.InHost)
+            LeaveHost();
+    }
 
-        globalVolume = FindObjectOfType<Volume>();
-        if (globalVolume == null)
-        {
-            Debug.LogError("HostThirdPersonCam not found in the scene!");
-        }
+    private void OnDestroy()
+    {
+        EventManager.RemoveListener<ActorPossesedEvent>(SwitchActor);
     }
 
     public void SwitchActor(ActorPossesedEvent evt)
@@ -52,13 +59,7 @@ public class ActorFacade : MonoBehaviour
             if (targetActor != actorManager.FindActorById(0))
             {
                 player.SetActive(false); // May need further checks here
-                
-                if (globalVolume.profile.TryGet<DepthOfField>(out var depthOfField))
-                {
-                    depthOfField.focusDistance.value = 10f; // Example value for focus distance
-                    depthOfField.aperture.value = 5.6f;     // Example value for aperture
-                    depthOfField.focalLength.value = 50f;   // Example value for focal length
-                }
+                Events.ActorPossesedEvent.InHost = true;
             }
 
             currentActor = targetActor;
@@ -71,9 +72,9 @@ public class ActorFacade : MonoBehaviour
             }
 
             // Setup host variables in HostThirdPersonCam
-            if (hostThirdPersonCam != null)
+            if (hostCam != null)
             {
-                hostThirdPersonCam.SetupHostVariables(currentActor);
+                hostCam.SetupHostVariables(currentActor);
             }
 
             // Sync player position and rotation with the new actor
@@ -90,54 +91,17 @@ public class ActorFacade : MonoBehaviour
         }
     }
 
-    private void FixedUpdate()
-    {
-        if (actorController != null)
-        {
-            MoveActor();
-            actorController.AdjustAnimationSpeed();
-        }
-    }
-
-    public void MoveActor()
-    {
-        if (currentActor != null)
-        {
-            actorController.HandleCharacterMovement();
-        }
-        else
-        {
-            Debug.LogWarning("No actor is currently active!");
-        }
-    }
-    //private void SwitchCameraStyle(CameraStyle newStyle)
-    //{
-    //    CombatCam.Priority = 0;
-    //    BasicCam.Priority = 0;
-
-    //    if (newStyle == CameraStyle.Basic) BasicCam.Priority = 10;
-    //    if (newStyle == CameraStyle.Combat) CombatCam.Priority = 10;
-
-    //    currentStyle = newStyle;
-    //}
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.F) && InfectAbility.inHost)
-            LeaveHost();
-    }
-
     private void LeaveHost()
     {
-        // Set parasite to the host's position and rotation
-        player.transform.position = currentActor.transform.position;
-        player.transform.rotation = currentActor.transform.rotation;
-
+        player.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
         player.SetActive(true);
 
-        this.transform.SetParent(GameObject.FindWithTag("HostRefugeCamp").transform);
+        Transform refugeCamp = GameObject.FindWithTag("HostRefugeCamp")?.transform;
+        if (refugeCamp != null)
+            transform.SetParent(refugeCamp);
 
-        InfectAbility.inHost = false;
         Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
+        Events.ActorPossesedEvent.InHost = false;
     }
 
     private void RegisterCameras(Actor actor)

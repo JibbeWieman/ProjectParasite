@@ -1,4 +1,5 @@
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 // The Game Events used across the Game.
 // Anytime there is a need for a new event, it should be added here.
@@ -14,30 +15,18 @@ public static class Events
     public static DisplayMessageEvent DisplayMessageEvent = new();
         
     // Jibbe's Events
-    public static ActorAssignedEvent ActorAssignedEvent = new();    
     public static ActorPossesedEvent ActorPossesedEvent = new();    
 }
 
 // Jibbe's Events
-public class ActorAssignedEvent : GameEvent
-{
-    private int actorAmount; // Backing field
-
-    public int ActorAmount
-    {
-        get { return actorAmount; }
-        set
-        {
-            actorAmount = value;
-            EventManager.Broadcast(Events.ActorAssignedEvent);
-        }
-    }
-}
-
 public class ActorPossesedEvent : GameEvent
 {
     private int currentActor = 0; // Backing field
 
+    /// <summary>
+    /// Gets or sets the ID of the currently possessed actor.
+    /// Broadcasts the event whenever the value changes.
+    /// </summary>
     public int CurrentActor
     {
         get { return currentActor; }
@@ -45,8 +34,15 @@ public class ActorPossesedEvent : GameEvent
         {
             currentActor = value;
             EventManager.Broadcast(Events.ActorPossesedEvent);
+            Debug.Log($"Setting CurrentActor. Old Value: {currentActor}, New Value: {value}");
         }
     }
+
+    /// <summary>
+    /// Indicates if the current actor is the host.
+    /// Returns true if CurrentActor is 0, otherwise false.
+    /// </summary>
+    public bool InHost;
 }
 
 // FPS Micro

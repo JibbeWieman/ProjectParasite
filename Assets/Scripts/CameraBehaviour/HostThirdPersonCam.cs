@@ -29,7 +29,7 @@ public class HostThirdPersonCam : MonoBehaviour
 
     private void Update()
     {
-        if (InfectAbility.inHost && hostObj != null)
+        if (Events.ActorPossesedEvent.InHost && hostObj != null)
         {
             //HandleCameraSwitching();
             HandleHostRotation();

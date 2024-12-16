@@ -11,6 +11,8 @@ TagManager:
   - AmmoCount
   - InteractText
   - Bullet
+  - Destructible
+  - ElevatorDoor
   layers:
   - Default
   - TransparentFX

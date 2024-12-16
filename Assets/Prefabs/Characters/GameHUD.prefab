@@ -392,6 +392,7 @@ GameObject:
   - component: {fileID: 6864161327009132507}
   - component: {fileID: 1775766859803111285}
   - component: {fileID: 4487133201719622523}
+  - component: {fileID: 4317564921854976483}
   m_Layer: 5
   m_Name: GameHUD
   m_TagString: Untagged
@@ -485,6 +486,24 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &4317564921854976483
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4431445727059152068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ef468a5c2e76fb40afd2cdb57a7b26c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parasiteReticle: {fileID: 4823129951123131961}
+  hostReticle: {fileID: 6921155734733401579}
+  ammoCount: {fileID: 5412868077022897063}
+  abilityIconPrefab: {fileID: 1400770794262128457, guid: 3c3cee235a273c243a13cd72d4097851,
+    type: 3}
+  abilityIconSlot: {fileID: 221930859885229476}
 --- !u!1 &4823129951123131961
 GameObject:
   m_ObjectHideFlags: 0

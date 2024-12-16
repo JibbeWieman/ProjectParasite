@@ -5,7 +5,9 @@ using UnityEngine;
 public class HighAuthorityPass : MonoBehaviour
 {
     // Reference to the Animator component
-    [SerializeField] private Animator animator;
+    private Animator animator;
+
+    private bool hasInteractedWithElevator = false;
 
     private void OnTriggerEnter(Collider collider)
     {
@@ -17,7 +19,25 @@ public class HighAuthorityPass : MonoBehaviour
             animator.SetBool("OpenDoor", true);
             StartCoroutine(CloseDoor());
         }
+
+        // Check if the colliding object has the tag "Player"
+        if (collider.CompareTag("ElevatorDoor"))
+        {
+            // Trigger the animation
+            animator = collider.GetComponent<Animator>();
+            if (!hasInteractedWithElevator)
+            {
+                animator.SetInteger("TimesInteracted",+1);
+            }
+            if (animator.GetInteger("TimesInteracted") >= 2)
+            {
+                animator.SetBool("OpenDoor", true);
+            }
+
+            StartCoroutine(CloseDoor());
+        }
     }
+
 
     private IEnumerator CloseDoor()
     {

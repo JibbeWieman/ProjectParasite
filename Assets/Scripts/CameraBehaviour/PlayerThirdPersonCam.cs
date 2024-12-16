@@ -14,7 +14,7 @@ public class PlayerThirdPersonCam : MonoBehaviour
 
     private void Update()
     {
-        if (InfectAbility.inHost == false)
+        if (Events.ActorPossesedEvent.InHost == false)
         {
             //rotate orientation
             Vector3 viewDir = player.position - transform.position;
