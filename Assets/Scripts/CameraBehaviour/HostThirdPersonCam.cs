@@ -1,19 +1,16 @@
 using UnityEngine;
-using Cinemachine;
 
 public class HostThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField, Tooltip("The rotation speed of the host character.")]
+    [Tooltip("The rotation speed of the host character.")]
     private float rotationSpeed;
-    [SerializeField]
+
     private Transform Orientation;
-    [SerializeField]
+
     private Transform CombatLookAt;
-    [SerializeField]
+
     private Transform hostObj;
-    [SerializeField]
-    private CharacterController cc;
 
     public CameraStyle currentStyle;
     public enum CameraStyle
@@ -27,14 +24,12 @@ public class HostThirdPersonCam : MonoBehaviour
         hostObj = hostActor.transform.Find("Model");
         Orientation = hostActor.transform.Find("Orientation");
         CombatLookAt = Orientation?.Find("CombatLookAt");
-        cc = hostActor.GetComponent<CharacterController>();
     }
 
     private void Update()
     {
-        if (InfectAbility.inHost && hostObj != null)
+        if (Events.ActorPossesedEvent.InHost && hostObj != null)
         {
-            //HandleCameraSwitching();
             HandleHostRotation();
         }
         else
@@ -42,19 +37,6 @@ public class HostThirdPersonCam : MonoBehaviour
             ResetHostVariables();
         }
     }
-
-    //private void HandleCameraSwitching()
-    //{
-    //    if (Input.GetKeyUp(KeyCode.Mouse1))
-    //    {
-    //        SwitchCameraStyle(CameraStyle.Basic);
-    //    }
-
-    //    if (Input.GetKeyDown(KeyCode.Mouse1))
-    //    {
-    //        SwitchCameraStyle(CameraStyle.Combat);
-    //    }
-    //}
 
     private void HandleHostRotation()
     {
@@ -82,22 +64,11 @@ public class HostThirdPersonCam : MonoBehaviour
         }
     }
 
-    //private void SwitchCameraStyle(CameraStyle newStyle)
-    //{
-    //    CombatCam.Priority = 0;
-    //    BasicCam.Priority = 0;
-
-    //    if (newStyle == CameraStyle.Basic) BasicCam.Priority = 10;
-    //    if (newStyle == CameraStyle.Combat) CombatCam.Priority = 10;
-
-    //    currentStyle = newStyle;
-    //}
-
     private void ResetHostVariables()
     {
         Orientation = null;
         CombatLookAt = null;
         hostObj = null;
-        cc = null;
+        //cc = null;
     }
 }

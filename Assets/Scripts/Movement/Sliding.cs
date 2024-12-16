@@ -33,7 +33,7 @@ public class Sliding : MonoBehaviour
 
     private void Update()
     {
-        if (InfectAbility.inHost)
+        if (Events.ActorPossesedEvent.InHost)
         {
             horizontalInput = Input.GetAxisRaw("Horizontal");
             verticalInput = Input.GetAxisRaw("Vertical");

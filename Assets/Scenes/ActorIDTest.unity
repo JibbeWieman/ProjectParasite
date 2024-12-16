@@ -222,7 +222,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 22167175}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.03180753, y: -0.4163753, z: -0.0829128, w: 0.90484554}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -301,7 +301,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 52379881}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.013072787, y: -0.41800216, z: -0.07427717, w: 0.90531003}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -418,6 +418,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec9ec045812d0ac48a70423eb0272164, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentActor: {fileID: 0}
 --- !u!114 &55559816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -987,8 +988,6 @@ MonoBehaviour:
   id: 0
   Affiliation: 0
   AimPoint: {fileID: 3118500776580283849}
-  BasicCam: {fileID: 0}
-  CombatCam: {fileID: 0}
 --- !u!1 &212833003
 GameObject:
   m_ObjectHideFlags: 3
@@ -1247,7 +1246,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408719805}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.050464734, y: -0.41457647, z: -0.09148361, w: 0.90399694}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1453,7 +1452,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 557239564}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.008123483, y: 0.60422796, z: 0.10231666, w: 0.7901734}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.000004218964, y: -0.00000009795991, z: 0.0000006169637}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3182,8 +3181,6 @@ MonoBehaviour:
   id: 0
   Affiliation: 1
   AimPoint: {fileID: 741446782}
-  BasicCam: {fileID: 0}
-  CombatCam: {fileID: 0}
 --- !u!143 &1368024978
 CharacterController:
   m_ObjectHideFlags: 0
@@ -4225,11 +4222,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33789c2fd6da50c409a706fb47d2941a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 7
-  Orientation: {fileID: 0}
-  CombatLookAt: {fileID: 0}
-  hostObj: {fileID: 0}
-  cc: {fileID: 0}
   currentStyle: 0
 --- !u!1 &1764966397
 GameObject:
@@ -6829,10 +6821,10 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: beefb963d5214324cae07eac7d0dccf2, type: 3}
   cooldownTime: 3
   canUse: 1
+  bloodParticles: {fileID: 2236759683813918769, guid: 56c090e6179380748bb5428d878cf7c6,
+    type: 3}
   persistentHosts: {fileID: 806746519}
   ParasiteBasicCam: {fileID: 5843807138670683342}
-  isLeeching: 0
-  blood: {fileID: 2236759683813918769, guid: 56c090e6179380748bb5428d878cf7c6, type: 3}
 --- !u!143 &8269569396260877815
 CharacterController:
   m_ObjectHideFlags: 0

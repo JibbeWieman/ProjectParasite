@@ -5,39 +5,42 @@ using UnityEngine;
 // It is mostly used for AI detection logic and determining if an actor is friend or foe
 public class Actor : MonoBehaviour
 {
+    #region VARIABLES
     public int id;
 
     [Tooltip("Represents the affiliation (or team) of the actor. Actors of the same affiliation are friendly to each other")]
     public int Affiliation;
 
-    [Tooltip("Represents point where other actors will aim when they attack this actor")]
+    [Tooltip("Point where other actors will aim when they attack this actor")]
     public Transform AimPoint;
 
-    ActorsManager m_ActorsManager;
-
     [Tooltip("The basic camera for this actor"), HideInInspector]
-    public CinemachineFreeLook BasicCam;
+    public CinemachineFreeLook BasicCam { get; private set; }
 
     [Tooltip("The combat camera for this actor (if applicable)"), HideInInspector]
-    public CinemachineFreeLook CombatCam;
+    public CinemachineFreeLook CombatCam { get; private set; }
 
-    void Awake()
+    private ActorsManager m_ActorsManager;
+    #endregion
+
+    #region UNITY METHODS
+    private void Awake()
     {
-        m_ActorsManager = GameObject.FindObjectOfType<ActorsManager>();
+        m_ActorsManager = FindObjectOfType<ActorsManager>();
         DebugUtility.HandleErrorIfNullFindObject<ActorsManager, Actor>(m_ActorsManager, this);
 
-        // Automatically assign cameras based on child names
         AssignCameras();
 
-        // Register as an actor
         if (!m_ActorsManager.Actors.Contains(this))
-        {
             m_ActorsManager.Actors.Add(this);
-        }
     }
 
+    private void OnDestroy() => m_ActorsManager?.Actors.Remove(this);
+    #endregion
+
+    #region CAMERA ASSIGNMENT
     /// <summary>
-    /// Assigns the cameras based on child names or tags to ensure correct assignment.
+    /// Assigns cameras automatically based on child names or tags.
     /// </summary>
     private void AssignCameras()
     {
@@ -45,39 +48,16 @@ public class Actor : MonoBehaviour
 
         foreach (CinemachineFreeLook cam in cameras)
         {
-            if (cam.gameObject.name.Contains("Basic"))
-            {
-                BasicCam = cam;
-            }
-            else if (cam.gameObject.name.Contains("Combat"))
-            {
-                CombatCam = cam;
-            }
-        }
+            if (cam.name.Contains("Basic")) BasicCam = cam;
+            else if (cam.name.Contains("Combat")) CombatCam = cam;
 
-        // Optional: Log a warning if the expected cameras are missing
-        if (!BasicCam)
-        {
-            Debug.LogWarning($"Basic Camera not found for {gameObject.name}");
-        }
-
-        if (!CombatCam && Affiliation != 0) // Assume the player only has a Basic Cam (Affiliation 0)
-        {
-            Debug.LogWarning($"Combat Camera not found for {gameObject.name}");
+            DebugUtility.HandleErrorIfNullGetComponent<CinemachineFreeLook, Actor>(cam, this, gameObject);
         }
     }
+    #endregion
 
     public void SetID(int idNumber)
     {
         id = idNumber;
-    }
-
-    void OnDestroy()
-    {
-        // Unregister as an actor
-        if (m_ActorsManager)
-        {
-            m_ActorsManager.Actors.Remove(this);
-        }
     }
 }

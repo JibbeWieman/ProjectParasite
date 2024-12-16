@@ -13,7 +13,7 @@ public class LevelLoader : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player") || other.gameObject.GetComponent<Infected>())
+        if (other.gameObject.CompareTag("Player"))
             LoadLevel(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

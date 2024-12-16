@@ -3,18 +3,14 @@ using UnityEngine;
 public class PlayerThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
+    public float rotationSpeed = 7f;
     public Transform orientation;
     public Transform player;
     public Transform playerObj;
 
-    public float rotationSpeed;
-
-    public GameObject basicCam;
-
-
     private void Update()
     {
-        if (InfectAbility.inHost == false)
+        if (Events.ActorPossesedEvent.InHost == false)
         {
             //rotate orientation
             Vector3 viewDir = player.position - transform.position;

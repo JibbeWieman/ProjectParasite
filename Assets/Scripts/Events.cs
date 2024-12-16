@@ -38,6 +38,10 @@ public class ActorPossesedEvent : GameEvent
 {
     private int currentActor = 0; // Backing field
 
+    /// <summary>
+    /// Gets or sets the ID of the currently possessed actor.
+    /// Broadcasts the event whenever the value changes.
+    /// </summary>
     public int CurrentActor
     {
         get { return currentActor; }
@@ -46,6 +50,15 @@ public class ActorPossesedEvent : GameEvent
             currentActor = value;
             EventManager.Broadcast(Events.ActorPossesedEvent);
         }
+    }
+
+    /// <summary>
+    /// Indicates if the current actor is the host.
+    /// Returns true if CurrentActor is 0, otherwise false.
+    /// </summary>
+    public bool InHost
+    {
+        get { return currentActor == 0; }
     }
 }
 

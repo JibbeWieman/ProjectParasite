@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PickUpController : MonoBehaviour
 {
-    public ProjectileGun gunScript;
+    //public ProjectileGun gunScript;
     public Rigidbody rb;
     public BoxCollider coll;
     public GameObject player = null;
@@ -23,13 +23,13 @@ public class PickUpController : MonoBehaviour
         //Setup
         if (!equipped)
         {
-            gunScript.enabled = false;
+            //gunScript.enabled = false;
             rb.isKinematic = false;
             coll.isTrigger = false;
         }
         if (equipped)
         {
-            gunScript.enabled = true;
+            //gunScript.enabled = true;
             rb.isKinematic = true;
             coll.isTrigger = true;
             slotFull = true;
@@ -43,11 +43,11 @@ public class PickUpController : MonoBehaviour
             Drop();
         }
 
-        if (GetComponentInParent<Infected>() != null)
-        {
+        //if (GetComponentInParent<Infected>() != null)
+        //{
             //Set player to whoever host the parasite is controlling
-            if (player == null)
-                player = InfectAbility.host;
+            //if (player == null)
+            //    player = InfectAbility.host;
             //Set orientation to that of the host
            // if (orientation == null)
                 //orientation = HostThirdPersonCam.hostCombatLookAt;
@@ -58,17 +58,17 @@ public class PickUpController : MonoBehaviour
 
             //Drop if equipped and "Q" is pressed
             if (equipped && Input.GetKeyDown(KeyCode.Q)) Drop();
-        }
-        else
-        {
-            if (player != null || orientation != null) // Reset only when exiting host
-            {
-                player = null;
-                orientation = null;
+        //}
+        //else
+        //{
+        //    if (player != null || orientation != null) // Reset only when exiting host
+        //    {
+        //        player = null;
+        //        orientation = null;
 
-                Debug.Log("Reset player and orientation to null");
-            }
-        }
+        //        Debug.Log("Reset player and orientation to null");
+        //    }
+        //}
     }
 
     private void PickUp()
@@ -87,7 +87,7 @@ public class PickUpController : MonoBehaviour
         coll.isTrigger = true;
 
         //Enable script
-        gunScript.enabled = true;
+        //gunScript.enabled = true;
     }
 
     private void Drop()
@@ -113,6 +113,6 @@ public class PickUpController : MonoBehaviour
         rb.AddTorque(new Vector3(random, random, random) * 10);
 
         //Disable script
-        gunScript.enabled = false;
+        //gunScript.enabled = false;
     }
 }

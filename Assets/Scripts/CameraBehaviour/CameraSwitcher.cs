@@ -4,7 +4,7 @@ using Cinemachine;
 
 public class CameraSwitcher : MonoBehaviour
 {
-    static List<CinemachineFreeLook> cameras = new List<CinemachineFreeLook>();
+    static List<CinemachineFreeLook> cameras = new();
 
     public static CinemachineFreeLook ActiveCamera = null;
 

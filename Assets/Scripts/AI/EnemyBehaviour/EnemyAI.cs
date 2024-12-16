@@ -108,10 +108,10 @@ public class EnemyAI : MonoBehaviour
         //Arm the ai with a projectile if it as a gun
         projectile = !m_IsDead || !m_IsStunned || !m_IsScared ? pistolProjectile : null;
 
-        if (GetComponent<Infected>() == null && !m_IsDead && !m_IsStunned)
+        if (!m_IsDead && !m_IsStunned)
         {
             //Set isScared based on if the agent wields a weapon
-            m_IsScared = agent.gameObject.GetComponentInChildren<ProjectileGun>() == null;
+            m_IsScared = agent.gameObject.GetComponentInChildren<ActorWeaponsManager>() == null;
 
             //Check for sight and attack range
             targetInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsTarget);

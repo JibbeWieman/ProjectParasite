@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class InterfaceManager : MonoBehaviour
 {
+    private ActorFacade actorFacade;
     public GameObject parasiteReticle;
     public GameObject hostReticle;
     public GameObject ammoCount;
@@ -16,6 +17,8 @@ public class InterfaceManager : MonoBehaviour
 
     private void Start()
     {
+        actorFacade = FindAnyObjectByType<ActorFacade>();
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
@@ -30,12 +33,12 @@ public class InterfaceManager : MonoBehaviour
         }
 
         #region Reticle swapping
-        if (!InfectAbility.inHost)
+        if (!Events.ActorPossesedEvent.InHost)
         {
             parasiteReticle.SetActive(true);
             hostReticle.SetActive(false);
         }
-        else if (InfectAbility.inHost)
+        else if (Events.ActorPossesedEvent.InHost)
         {
             parasiteReticle.SetActive(false);
             hostReticle.SetActive(true);
@@ -44,9 +47,9 @@ public class InterfaceManager : MonoBehaviour
 
         #region Show Ammo Count
         //Make sure ammo count only shows while holding a gun
-        if (InfectAbility.inHost)
+        if (Events.ActorPossesedEvent.InHost)
         {
-            if (InfectAbility.host.GetComponentInChildren<ProjectileGun>())
+            if (actorFacade.currentActor.GetComponent<ActorWeaponsManager>())
                 ammoCount.SetActive(true);
         }
         else
