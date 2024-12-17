@@ -15,9 +15,7 @@ public class HighAuthorityPass : MonoBehaviour
     // Trigger area detection
     private Collider currentTrigger;
 
-    private ElevatorDoor doorToUnlock; 
-
-
+    private ElevatorDoor doorToUnlock;
 
     private void OnTriggerEnter(Collider collider)
     {
@@ -36,12 +34,22 @@ public class HighAuthorityPass : MonoBehaviour
 
     private void OnTriggerExit(Collider collider)
     {
-        // Clear trigger when player leaves
+        // Clear trigger when player leaves, but don't nullify animator if door coroutine is active
         if (currentTrigger == collider)
         {
             currentTrigger = null;
-            animator = null;
+            if (collider.CompareTag("Door"))
+            {
+                // Ensure animator is cleared only if not mid-operation
+                StartCoroutine(ClearAnimatorAfterCoroutine());
+            }
         }
+    }
+
+    private IEnumerator ClearAnimatorAfterCoroutine()
+    {
+        yield return new WaitForSeconds(2); // Ensure CloseDoor has finished before nullifying
+        animator = null;
     }
 
     private void Update()
@@ -49,7 +57,7 @@ public class HighAuthorityPass : MonoBehaviour
         // Check if player is in a trigger zone and presses the interact key
         if (currentTrigger != null)
         {
-            if (currentTrigger.CompareTag("Door") && animator.GetBool("OpenDoor") == false && animator != null)
+            if (currentTrigger.CompareTag("Door") && animator != null && !animator.GetBool("OpenDoor"))
             {
                 HandleDoorInteraction();
             }
@@ -86,13 +94,14 @@ public class HighAuthorityPass : MonoBehaviour
 
     private IEnumerator CloseDoor()
     {
-        Animator m_Animator = animator;
+        // Cache animator reference for coroutine safety
+        Animator _Animator = animator;
         yield return new WaitForSeconds(2);
 
         // Close the door
-        if (m_Animator != null)
+        if (_Animator != null)
         {
-            animator.SetBool("OpenDoor", false);
+            _Animator.SetBool("OpenDoor", false);
         }
     }
 }
