@@ -12,7 +12,7 @@ TagManager:
   - InteractText
   - Bullet
   - Destructible
-  - ElevatorDoor
+  - KeyHole
   layers:
   - Default
   - TransparentFX

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HighAuthorityPass : MonoBehaviour
@@ -7,42 +6,93 @@ public class HighAuthorityPass : MonoBehaviour
     // Reference to the Animator component
     private Animator animator;
 
-    private bool hasInteractedWithElevator = false;
+    // Track if the key has been inserted
+    public bool hasInsertedKey = false;
+
+    // Player input key for interaction
+    public KeyCode interactKey = KeyCode.E; // Customisable in Inspector
+
+    // Trigger area detection
+    private Collider currentTrigger;
+
+    private ElevatorDoor doorToUnlock; 
+
+
 
     private void OnTriggerEnter(Collider collider)
     {
-        // Check if the colliding object has the tag "Player"
+        // Store the trigger to use in Update
         if (collider.CompareTag("Door"))
         {
-            // Trigger the animation
+            currentTrigger = collider;
             animator = collider.GetComponent<Animator>();
-            animator.SetBool("OpenDoor", true);
-            StartCoroutine(CloseDoor());
         }
 
-        // Check if the colliding object has the tag "Player"
-        if (collider.CompareTag("ElevatorDoor"))
+        if (collider.CompareTag("KeyHole"))
         {
-            // Trigger the animation
-            animator = collider.GetComponent<Animator>();
-            if (!hasInteractedWithElevator)
-            {
-                animator.SetInteger("TimesInteracted",+1);
-            }
-            if (animator.GetInteger("TimesInteracted") >= 2)
-            {
-                animator.SetBool("OpenDoor", true);
-            }
-
-            StartCoroutine(CloseDoor());
+            currentTrigger = collider;
         }
     }
 
+    private void OnTriggerExit(Collider collider)
+    {
+        // Clear trigger when player leaves
+        if (currentTrigger == collider)
+        {
+            currentTrigger = null;
+            animator = null;
+        }
+    }
+
+    private void Update()
+    {
+        // Check if player is in a trigger zone and presses the interact key
+        if (currentTrigger != null)
+        {
+            if (currentTrigger.CompareTag("Door") && animator.GetBool("OpenDoor") == false && animator != null)
+            {
+                HandleDoorInteraction();
+            }
+            else if (currentTrigger.CompareTag("KeyHole") && Input.GetKeyDown(interactKey))
+            {
+                InsertKey();
+            }
+        }
+    }
+
+    private void Start()
+    {
+        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
+    }
+
+    private void HandleDoorInteraction()
+    {
+        // Trigger the door animation
+        animator.SetBool("OpenDoor", true);
+        StartCoroutine(CloseDoor());
+    }
+
+    private void InsertKey()
+    {
+        if (!hasInsertedKey)
+        {
+            Debug.Log("Inserting key");
+            // Mark key as inserted
+            hasInsertedKey = true;
+
+            doorToUnlock.UpdateKeyAmount(1);
+        }
+    }
 
     private IEnumerator CloseDoor()
     {
+        Animator m_Animator = animator;
         yield return new WaitForSeconds(2);
 
-        animator.SetBool("OpenDoor", false);
+        // Close the door
+        if (m_Animator != null)
+        {
+            animator.SetBool("OpenDoor", false);
+        }
     }
 }
