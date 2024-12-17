@@ -65,10 +65,15 @@ public class ActorFacade : MonoBehaviour
             currentActor = targetActor;
 
             actorController = currentActor.GetComponent<ActorCharacterController>();
-
             if (actorController == null)
             {
                 Debug.LogError($"ActorCharacterController not found on {currentActor.gameObject.name}!");
+                return;
+            }
+
+            if (actorController.m_PatrolAgent != null)
+            {
+                actorController.m_PatrolAgent.enabled = false;
             }
 
             // Setup host variables in HostThirdPersonCam
@@ -76,6 +81,7 @@ public class ActorFacade : MonoBehaviour
             {
                 hostCam.SetupHostVariables(currentActor);
             }
+
 
             // Sync player position and rotation with the new actor
             actorController.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
@@ -95,6 +101,8 @@ public class ActorFacade : MonoBehaviour
     {
         player.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
         player.SetActive(true);
+
+        actorController.m_PatrolAgent.enabled = true;
 
         Transform refugeCamp = GameObject.FindWithTag("HostRefugeCamp")?.transform;
         if (refugeCamp != null)

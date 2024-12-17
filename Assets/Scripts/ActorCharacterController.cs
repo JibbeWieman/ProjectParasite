@@ -151,6 +151,7 @@ public class ActorCharacterController : MonoBehaviour
     PlayerInputHandler m_InputHandler;
     CharacterController m_Controller;
     ActorWeaponsManager m_WeaponsManager;
+    public PatrolAgent m_PatrolAgent;
     Actor m_Actor;
 
     Vector3 m_GroundNormal;
@@ -206,6 +207,10 @@ public class ActorCharacterController : MonoBehaviour
             m_WeaponsManager = GetComponent<ActorWeaponsManager>();
             DebugUtility.HandleErrorIfNullGetComponent<ActorWeaponsManager, ActorCharacterController>(
                 m_WeaponsManager, this, gameObject);
+
+            m_PatrolAgent = GetComponent<PatrolAgent>();
+            DebugUtility.HandleErrorIfNullGetComponent<PatrolAgent, ActorCharacterController>(m_PatrolAgent,
+                this, gameObject);
         }
 
         m_Health = GetComponent<Health>();
