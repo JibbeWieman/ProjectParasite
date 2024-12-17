@@ -15,6 +15,7 @@ public class ScreechAbility : AbilityBase
     public float stunDuration = 2f;                               // Duration for which enemies will be stunned
     public float screechRange = 16f;                               // Range within which enemies will be stunned
     public float coneAngle = 16f;                                 // Angle of the cone in degrees
+    public float coneHeight = 3f;
 
     private LayerMask collisionLayer;                              // Layers to detect enemies
     [SerializeField] private KeyCode key = KeyCode.Mouse3;        // Keycode that activates the ability
@@ -57,7 +58,7 @@ public class ScreechAbility : AbilityBase
         yield return new WaitForSeconds(0.5f);
 
         // Detect and stun enemies within cone range
-        List<Collider> hitColliders = ConeCheck.CheckCone(transform.position, parasiteBody.forward, coneAngle, screechRange, collisionLayer);
+        List<Collider> hitColliders = ConeCheck.CheckCone(transform.position, parasiteBody.forward, coneAngle, screechRange, coneHeight, collisionLayer);
 
         foreach (var hitCollider in hitColliders)
         {
@@ -74,7 +75,7 @@ public class ScreechAbility : AbilityBase
     private void OnDrawGizmosSelected()
     {
         // Draw a wire cone in the Scene view for visualizing the range
-        ConeCheck.DrawConeGizmo(transform.position, transform.forward, coneAngle, screechRange);
+        ConeCheck.DrawConeGizmo(transform.position, transform.forward, coneAngle, screechRange, coneHeight);
     }
     #endregion
 }

@@ -648,6 +648,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2642829384971509377}
+  - component: {fileID: 2268559573871086602}
   - component: {fileID: 1368922088118632546}
   - component: {fileID: 3361353248628996987}
   - component: {fileID: 337596034967031145}
@@ -681,6 +682,19 @@ Transform:
   - {fileID: 2596030900384087444}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2268559573871086602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5220795088517806239}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b358b0031eb4da4d8501a6912f5a47e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: {fileID: 11400000, guid: 91c9d415eb497534d9dfc670eb3cc76a, type: 2}
 --- !u!114 &1368922088118632546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -800,6 +814,7 @@ MonoBehaviour:
   bloodParticles: {fileID: 0}
   persistentHosts: {fileID: 0}
   ParasiteBasicCam: {fileID: 3387049651504999583}
+  isLeeching: 0
 --- !u!114 &568264744370386038
 MonoBehaviour:
   m_ObjectHideFlags: 0
