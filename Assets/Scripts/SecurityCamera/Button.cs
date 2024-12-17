@@ -8,4 +8,12 @@ public class Button : MonoBehaviour
     {
         ButtonEvent.Invoke();
     }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (Input.GetButtonDown(GameConstants.k_ButtonNameJump))
+        {
+            ButtonEvent.Invoke();
+        }
+    }
 }

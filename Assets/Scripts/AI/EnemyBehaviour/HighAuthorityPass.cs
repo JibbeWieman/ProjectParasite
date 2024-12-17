@@ -29,6 +29,7 @@ public class HighAuthorityPass : MonoBehaviour
         if (collider.CompareTag("KeyHole"))
         {
             currentTrigger = collider;
+            InsertKey();
         }
     }
 
@@ -61,10 +62,10 @@ public class HighAuthorityPass : MonoBehaviour
             {
                 HandleDoorInteraction();
             }
-            else if (currentTrigger.CompareTag("KeyHole") && Input.GetKeyDown(interactKey))
-            {
-                InsertKey();
-            }
+            //else if (currentTrigger.CompareTag("KeyHole") && Input.GetKeyDown(interactKey))
+            //{
+             //   InsertKey();
+            //}
         }
     }
 
@@ -88,7 +89,7 @@ public class HighAuthorityPass : MonoBehaviour
             // Mark key as inserted
             hasInsertedKey = true;
 
-            doorToUnlock.UpdateKeyAmount(1);
+            doorToUnlock.UpdateKeyAmount();
         }
     }
 

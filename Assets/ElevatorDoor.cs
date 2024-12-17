@@ -14,9 +14,9 @@ public class ElevatorDoor : MonoBehaviour
         trigger.enabled = false;
     }
 
-    public void UpdateKeyAmount(int key)
+    public void UpdateKeyAmount()
     {
-        keyAmount += key;
+        keyAmount++;
 
         if (keyAmount >= keyRequirement)
         {

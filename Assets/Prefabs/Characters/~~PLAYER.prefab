@@ -730,22 +730,25 @@ MonoBehaviour:
   IsPlayer: 1
   PlayerCamera: {fileID: 0}
   AudioSource: {fileID: 0}
+  m_Abilities:
+  - {fileID: 1825301260475720341}
+  - {fileID: 568264744370386038}
   GravityDownForce: 20
   GroundCheckLayers:
     serializedVersion: 2
     m_Bits: 256
   GroundCheckDistance: 0.1
   orientation: {fileID: 906477987175409677}
-  MaxSpeedOnGround: 10
+  MaxSpeedOnGround: 6
   MovementSharpnessOnGround: 20
   MaxSpeedCrouchedRatio: 0.5
   MaxSpeedInAir: 10
   AccelerationSpeedInAir: 25
-  SprintSpeedModifier: 2
+  SprintSpeedModifier: 1.5
   KillHeight: -50
   RotationSpeed: 200
   AimingRotationMultiplier: 0.4
-  JumpForce: 9
+  JumpForce: 5
   CameraHeightRatio: 0.9
   CapsuleHeightStanding: 0.2
   CapsuleHeightCrouching: 0.2
@@ -762,6 +765,7 @@ MonoBehaviour:
   FallDamageAtMinSpeed: 10
   FallDamageAtMaxSpeed: 50
   m_TransitionSpeed: 0.06
+  m_PatrolAgent: {fileID: 0}
 --- !u!114 &2020321848613042653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,10 +797,9 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: beefb963d5214324cae07eac7d0dccf2, type: 3}
   cooldownTime: 3
   canUse: 1
+  bloodParticles: {fileID: 0}
   persistentHosts: {fileID: 0}
   ParasiteBasicCam: {fileID: 3387049651504999583}
-  isLeeching: 0
-  blood: {fileID: 2236759683813918769, guid: 56c090e6179380748bb5428d878cf7c6, type: 3}
 --- !u!114 &568264744370386038
 MonoBehaviour:
   m_ObjectHideFlags: 0

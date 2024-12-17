@@ -15,7 +15,7 @@ public class InfectAbility : AbilityBase
     [SerializeField]
     private CinemachineFreeLook ParasiteBasicCam;
 
-    private bool isLeeching = false;
+    public bool isLeeching = false;
     private GameObject player;
 
     #endregion

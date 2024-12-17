@@ -16,6 +16,7 @@ public class ActorFacade : MonoBehaviour
     private GameObject player;
 
     private HostThirdPersonCam hostCam;
+    private InfectAbility infectAbility;
     #endregion
 
     private void Start()
@@ -28,6 +29,9 @@ public class ActorFacade : MonoBehaviour
 
         hostCam = FindObjectOfType<HostThirdPersonCam>();
         DebugUtility.HandleErrorIfNullFindObject<HostThirdPersonCam, ActorFacade>(hostCam, this);
+
+        infectAbility = FindObjectOfType<InfectAbility>();
+        DebugUtility.HandleErrorIfNullFindObject<InfectAbility, ActorFacade>(infectAbility, this);
     }
     private void FixedUpdate()
     {
@@ -59,6 +63,7 @@ public class ActorFacade : MonoBehaviour
             if (targetActor != actorManager.FindActorById(0))
             {
                 player.SetActive(false); // May need further checks here
+                infectAbility.isLeeching = false;
                 Events.ActorPossesedEvent.InHost = true;
             }
 
@@ -99,7 +104,8 @@ public class ActorFacade : MonoBehaviour
 
     private void LeaveHost()
     {
-        player.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
+        player.transform.SetPositionAndRotation(currentActor.transform.position
+            + new Vector3(-1, 0, 0), currentActor.transform.rotation);
         player.SetActive(true);
 
         actorController.m_PatrolAgent.enabled = true;
