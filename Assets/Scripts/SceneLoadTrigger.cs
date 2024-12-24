@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,17 +8,27 @@ public class SceneLoadTrigger : MonoBehaviour
     [SerializeField] private SceneField[] _scenesToLoad;
 
     private GameObject _player;
-    private GameObject _infectedHost;
+    private GameObject[] _hosts;
 
     private void Awake()
     {
         _player = GameObject.FindGameObjectWithTag("Player");
-        _infectedHost = GameObject.FindGameObjectWithTag("Host");
+        _hosts = GameObject.FindGameObjectsWithTag("Host");
     }
 
     private void OnTriggerEnter(Collider collision)
     {
-        if (collision.gameObject == _player || collision.gameObject == _infectedHost)
+        if (collision.gameObject == _player || _hosts.Contains<GameObject>(collision.gameObject))
+        {
+            //Load and unload the scenes we want
+            LoadScene();
+            UnloadScene();
+        }
+    }
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject == _player || _hosts.Contains<GameObject>(hit.gameObject))
         {
             //Load and unload the scenes we want
             LoadScene();

@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 /// <summary>
 /// Moves an agent along a patrol path with optional looping and random fallback movement.
@@ -114,9 +113,9 @@ public class PatrolAgent : MonoBehaviour
     private void RandomPacing()
     {
         Vector3 randomPosition = new Vector3(
-            Random.Range(-randomPaceRange, randomPaceRange),
+            UnityEngine.Random.Range(-randomPaceRange, randomPaceRange),
             transform.position.y,
-            Random.Range(-randomPaceRange, randomPaceRange));
+            UnityEngine.Random.Range(-randomPaceRange, randomPaceRange));
 
         MoveTowards(randomPosition);
     }

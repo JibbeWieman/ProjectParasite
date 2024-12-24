@@ -34,6 +34,7 @@ public class SecurityCameraBehaviour : MonoBehaviour
         initialRotation = camBody.transform.localRotation;
     }
 
+
     private void Update()
     {
         RotateCameraBody();
@@ -74,27 +75,8 @@ public class SecurityCameraBehaviour : MonoBehaviour
     }
     #endregion
 
-    /*#region SIGHT & VISIBILITY CHECK
-    private bool IsTargetVisible()
-    {
-        if (player == null) return false;
-
-        Vector3 directionToTarget = (player.transform.position - transform.position).normalized;
-
-        if (Physics.Raycast(transform.position, directionToTarget, out RaycastHit hitInfo, range))
-        {
-            // Check if the raycast hit the player
-            if (hitInfo.collider.gameObject.CompareTag("Player"))
-            {
-                return true; // Player is visible
-            }
-        }
-        return false; // Player is not visible (obstacle in the way)
-    }
-    #endregion */
-
     #region GIZMOS
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         ConeCheck.DrawConeGizmo(camBody.transform.position + new Vector3(0, 0, -1), camBody.transform.forward, angle, range, height);
     }

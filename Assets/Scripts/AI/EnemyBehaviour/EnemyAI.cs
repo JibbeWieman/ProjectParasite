@@ -377,9 +377,6 @@ public class EnemyAI : MonoBehaviour
     #endregion
 
     #region GIZMOS
-    /// <summary>
-    /// Visualize attack and sight range.
-    /// </summary>
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;

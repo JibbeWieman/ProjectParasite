@@ -9,6 +9,7 @@ public class ActorFacade : MonoBehaviour
     #region VARIABLES
     private ActorsManager actorManager;
     private ActorCharacterController actorController;
+    private ActorWeaponsManager actorWeaponsManager;
 
     public Actor currentActor;
 
@@ -19,6 +20,7 @@ public class ActorFacade : MonoBehaviour
     private InfectAbility infectAbility;
     #endregion
 
+    #region UNITY METHODS
     private void Start()
     {
         actorManager = GetComponent<ActorsManager>();
@@ -33,11 +35,13 @@ public class ActorFacade : MonoBehaviour
         infectAbility = FindObjectOfType<InfectAbility>();
         DebugUtility.HandleErrorIfNullFindObject<InfectAbility, ActorFacade>(infectAbility, this);
     }
+
     private void FixedUpdate()
     {
         actorController?.HandleCharacterMovement();
         actorController?.AdjustAnimationSpeed();
     }
+
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F) && Events.ActorPossesedEvent.InHost)
@@ -48,76 +52,93 @@ public class ActorFacade : MonoBehaviour
     {
         EventManager.RemoveListener<ActorPossesedEvent>(SwitchActor);
     }
+    #endregion
 
+    #region ACTOR MANAGEMENT
     public void SwitchActor(ActorPossesedEvent evt)
     {
         Actor targetActor = actorManager.FindActorById(evt.CurrentActor);
 
-        if (targetActor != null)
+        if (targetActor == null)
         {
-            if (currentActor != null)
-            {
-                UnregisterCameras(currentActor);
-            }
+            Debug.LogError($"Actor with ID {evt.CurrentActor} not found!");
+            return;
+        }
 
-            if (targetActor != actorManager.FindActorById(0))
-            {
-                player.SetActive(false); // May need further checks here
-                infectAbility.isLeeching = false;
-                Events.ActorPossesedEvent.InHost = true;
-            }
+        if (currentActor != null)
+        {
+            UnregisterCameras(currentActor);
+        }
 
-            currentActor = targetActor;
+        EnterActor(targetActor);
 
-            actorController = currentActor.GetComponent<ActorCharacterController>();
-            if (actorController == null)
-            {
-                Debug.LogError($"ActorCharacterController not found on {currentActor.gameObject.name}!");
-                return;
-            }
-
-            if (actorController.m_PatrolAgent != null)
-            {
-                actorController.m_PatrolAgent.enabled = false;
-            }
-
-            // Setup host variables in HostThirdPersonCam
-            if (hostCam != null)
-            {
-                hostCam.SetupHostVariables(currentActor);
-            }
-
-
-            // Sync player position and rotation with the new actor
-            actorController.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
-
-            // Register cameras of the new actor
-            RegisterCameras(currentActor);
-
-            CameraSwitcher.SwitchCamera(targetActor.BasicCam);
+        // Is new actor the parasite check
+        if (targetActor != actorManager.FindActorById(0))
+        {
+            player.SetActive(false);
+            infectAbility.isLeeching = false;
+            Events.ActorPossesedEvent.InHost = true;
         }
         else
         {
-            Debug.LogError($"Actor with ID {evt.CurrentActor} not found!");
+            Events.ActorPossesedEvent.InHost = false;
         }
+
+        CameraSwitcher.SwitchCamera(targetActor.BasicCam);
+    }
+
+    private void EnterActor(Actor targetActor)
+    {
+        currentActor = targetActor;
+
+        actorController = currentActor.GetComponent<ActorCharacterController>();
+        if (actorController == null)
+        {
+            Debug.LogError($"ActorCharacterController not found on {currentActor.gameObject.name}!");
+            return;
+        }
+
+        if (actorController.m_PatrolAgent != null)
+        {
+            actorController.m_PatrolAgent.enabled = false;
+        }
+
+        actorWeaponsManager = currentActor.GetComponent<ActorWeaponsManager>();
+        if (actorWeaponsManager)
+        {
+            actorWeaponsManager.enabled = true;
+        }
+
+        hostCam?.SetupHostVariables(currentActor);
+        actorController.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
+        RegisterCameras(currentActor);
     }
 
     private void LeaveHost()
     {
-        player.transform.SetPositionAndRotation(currentActor.transform.position
-            + new Vector3(-1, 0, 0), currentActor.transform.rotation);
+        player.transform.SetPositionAndRotation(currentActor.transform.position + new Vector3(-1, 0, 0), currentActor.transform.rotation);
         player.SetActive(true);
 
-        actorController.m_PatrolAgent.enabled = true;
+        if (actorController?.m_PatrolAgent != null)
+        {
+            actorController.m_PatrolAgent.enabled = true;
+        }
+        if (actorWeaponsManager != null)
+        {
+            actorWeaponsManager.enabled = false;
+        }
 
         Transform refugeCamp = GameObject.FindWithTag("HostRefugeCamp")?.transform;
         if (refugeCamp != null)
+        {
             transform.SetParent(refugeCamp);
+        }
 
         Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
-        Events.ActorPossesedEvent.InHost = false;
     }
+    #endregion
 
+    #region CAMERA MANAGEMENT
     private void RegisterCameras(Actor actor)
     {
         if (actor.BasicCam != null)
@@ -143,4 +164,5 @@ public class ActorFacade : MonoBehaviour
             CameraSwitcher.Unregister(actor.CombatCam);
         }
     }
+    #endregion
 }

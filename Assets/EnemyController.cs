@@ -115,13 +115,15 @@ public class EnemyController : MonoBehaviour
     RendererIndexData m_EyeRendererData;
     MaterialPropertyBlock m_EyeColorMaterialPropertyBlock;
 
-    public PatrolPath PatrolPath { get; set; }
+    [SerializeField]
+    private PatrolAgent m_PatrolAgent;
     public GameObject KnownDetectedTarget => DetectionModule.KnownDetectedTarget;
     public bool IsTargetInAttackRange => DetectionModule.IsTargetInAttackRange;
     public bool IsSeeingTarget => DetectionModule.IsSeeingTarget;
     public bool HadKnownTarget => DetectionModule.HadKnownTarget;
     public NavMeshAgent NavMeshAgent { get; private set; }
-    public DetectionModule DetectionModule { get; private set; }
+    [SerializeField]
+    private DetectionModule DetectionModule;
 
     int m_PathDestinationNodeIndex;
     EnemyManager m_EnemyManager;
@@ -139,6 +141,7 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+
         m_EnemyManager = FindObjectOfType<EnemyManager>();
         DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
 
@@ -154,6 +157,7 @@ public class EnemyController : MonoBehaviour
         DebugUtility.HandleErrorIfNullGetComponent<Actor, EnemyController>(m_Actor, this, gameObject);
 
         NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_PatrolAgent = GetComponent<PatrolAgent>();
         m_SelfColliders = GetComponentsInChildren<Collider>();
 
         m_GameFlowManager = FindObjectOfType<GameFlowManager>();
@@ -235,16 +239,6 @@ public class EnemyController : MonoBehaviour
         m_WasDamagedThisFrame = false;
     }
 
-    //public void IncreaseDMGTaken(BlasterDMGIncreasedEvent evt)
-    //{
-    //    m_Health.dmgBuff += evt.DMGBuff;
-    //}
-
-    //private void OnDestroy()
-    //{
-    //    EventManager.RemoveListener<BlasterDMGIncreasedEvent>(IncreaseDMGTaken);
-    //}
-
     void EnsureIsWithinLevelBounds()
     {
         // at every frame, this tests for conditions to kill the enemy
@@ -292,49 +286,10 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    //bool IsPathValid()
-    //{
-    //    return PatrolPath && PatrolPath.PathNodes.Count > 0;
-    //}
-
     public void ResetPathDestination()
     {
         m_PathDestinationNodeIndex = 0;
     }
-
-    /*public void SetPathDestinationToClosestNode()
-    {
-        if (IsPathValid())
-        {
-            int closestPathNodeIndex = 0;
-            for (int i = 0; i < PatrolPath.PathNodes.Count; i++)
-            {
-                float distanceToPathNode = PatrolPath.GetDistanceToNode(transform.position, i);
-                if (distanceToPathNode < PatrolPath.GetDistanceToNode(transform.position, closestPathNodeIndex))
-                {
-                    closestPathNodeIndex = i;
-                }
-            }
-
-            m_PathDestinationNodeIndex = closestPathNodeIndex;
-        }
-        else
-        {
-            m_PathDestinationNodeIndex = 0;
-        }
-    }*/
-
-    /*public Vector3 GetDestinationOnPath()
-    {
-        if (IsPathValid())
-        {
-            return PatrolPath.GetPositionOfPathNode(m_PathDestinationNodeIndex);
-        }
-        else
-        {
-            return transform.position;
-        }
-    }*/
 
     public void SetNavDestination(Vector3 destination)
     {
@@ -343,29 +298,6 @@ public class EnemyController : MonoBehaviour
             NavMeshAgent.SetDestination(destination);
         }
     }
-
-    /*public void UpdatePathDestination(bool inverseOrder = false)
-    {
-        if (IsPathValid())
-        {
-            // Check if reached the path destination
-            if ((transform.position - GetDestinationOnPath()).magnitude <= PathReachingRadius)
-            {
-                // increment path destination index
-                m_PathDestinationNodeIndex =
-                    inverseOrder ? (m_PathDestinationNodeIndex - 1) : (m_PathDestinationNodeIndex + 1);
-                if (m_PathDestinationNodeIndex < 0)
-                {
-                    m_PathDestinationNodeIndex += PatrolPath.PathNodes.Count;
-                }
-
-                if (m_PathDestinationNodeIndex >= PatrolPath.PathNodes.Count)
-                {
-                    m_PathDestinationNodeIndex -= PatrolPath.PathNodes.Count;
-                }
-            }
-        }
-    }*/
 
     void OnDamaged(float damage, GameObject damageSource)
     {
@@ -395,40 +327,9 @@ public class EnemyController : MonoBehaviour
         // tells the game flow manager to handle the enemy destuction
         m_EnemyManager.UnregisterEnemy(this);
 
-        // loot an object
-        if (TryDropItem())
-        {
-            Instantiate(LootPrefab, transform.position, Quaternion.identity);
-            //DropXP();
-        }
-
         // this will call the OnDestroy function
         Destroy(gameObject, DeathDuration);
     }
-
-    /*private void DropXP()
-    {
-        // Calculate a random variance factor in the range [-XpVariance%, +XpVariance%]
-        float varianceFactor = Random.Range(-m_XpVariance, m_XpVariance) / 100f;
-
-        // Apply variance to the base XP amount
-        int finalXpAmount = Mathf.RoundToInt(m_XpAmount * (1 + varianceFactor));
-
-        for (int i = 0; i < finalXpAmount; i++)
-        {
-            float randomPosX = Random.value; // Random value for X position offset
-            float randomPosZ = Random.value; // Random value for Z position offset
-
-            // Adjust the X and Z components of the transform's position with the random values
-            Vector3 randomPosition = new Vector3(transform.position.x + randomPosX,
-                                                    transform.position.y,
-                                                    transform.position.z + randomPosZ);
-
-            // Instantiate the XP prefab at the new randomized position
-            Instantiate(XpPrefab, randomPosition, Quaternion.identity);
-        }
-    }*/
-
 
     void OnDrawGizmosSelected()
     {
@@ -483,16 +384,6 @@ public class EnemyController : MonoBehaviour
         }
 
         return didFire;
-    }
-
-    public bool TryDropItem()
-    {
-        if (DropRate == 0 || LootPrefab == null)
-            return false;
-        else if (DropRate == 1)
-            return true;
-        else
-            return (Random.value <= DropRate);
     }
 
     void FindAndInitializeAllWeapons()

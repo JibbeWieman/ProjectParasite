@@ -50,7 +50,7 @@ public class WeaponController : MonoBehaviour
     [Tooltip("The type of weapon wil affect how it shoots")]
     public WeaponShootType ShootType;
 
-    //[Tooltip("The projectile prefab")] public ProjectileBase ProjectilePrefab;
+    [Tooltip("The projectile prefab")] public ProjectileBase ProjectilePrefab;
 
     [Tooltip("Minimum duration between two shots")]
     public float DelayBetweenShots = 0.5f;
@@ -448,10 +448,10 @@ public class WeaponController : MonoBehaviour
         // spawn all bullets with random direction
         for (int i = 0; i < bulletsPerShotFinal; i++)
         {
-            //Vector3 shotDirection = GetShotDirectionWithinSpread(WeaponMuzzle);
-            //ProjectileBase newProjectile = Instantiate(ProjectilePrefab, WeaponMuzzle.position,
-            //    Quaternion.LookRotation(shotDirection));
-            //newProjectile.Shoot(this);
+            Vector3 shotDirection = GetShotDirectionWithinSpread(WeaponMuzzle);
+            ProjectileBase newProjectile = Instantiate(ProjectilePrefab, WeaponMuzzle.position,
+                Quaternion.LookRotation(shotDirection));
+            newProjectile.Shoot(this);
         }
 
         // muzzle flash

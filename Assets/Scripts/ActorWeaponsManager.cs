@@ -33,18 +33,18 @@ public class ActorWeaponsManager : MonoBehaviour
     [Tooltip("Position for innactive weapons")]
     public Transform DownWeaponPosition;
 
-    [Header("Weapon Bob")]
-    [Tooltip("Frequency at which the weapon will move around in the screen when the player is in movement")]
-    public float BobFrequency = 10f;
+    //[Header("Weapon Bob")]
+    //[Tooltip("Frequency at which the weapon will move around in the screen when the player is in movement")]
+    //public float BobFrequency = 10f;
 
-    [Tooltip("How fast the weapon bob is applied, the bigger value the fastest")]
-    public float BobSharpness = 10f;
+    //[Tooltip("How fast the weapon bob is applied, the bigger value the fastest")]
+    //public float BobSharpness = 10f;
 
-    [Tooltip("Distance the weapon bobs when not aiming")]
-    public float DefaultBobAmount = 0.05f;
+    //[Tooltip("Distance the weapon bobs when not aiming")]
+    //public float DefaultBobAmount = 0.05f;
 
-    [Tooltip("Distance the weapon bobs when aiming")]
-    public float AimingBobAmount = 0.02f;
+    //[Tooltip("Distance the weapon bobs when aiming")]
+    //public float AimingBobAmount = 0.02f;
 
     [Header("Weapon Recoil")]
     [Tooltip("This will affect how fast the recoil moves the weapon, the bigger the value, the fastest")]
@@ -121,6 +121,9 @@ public class ActorWeaponsManager : MonoBehaviour
 
     void Update()
     {
+        if (Events.ActorPossesedEvent.CurrentActor != GetComponent<Actor>().id && Events.ActorPossesedEvent.InHost)
+            return;
+
         // shoot handling
         WeaponController activeWeapon = GetActiveWeapon();
 
@@ -193,8 +196,11 @@ public class ActorWeaponsManager : MonoBehaviour
     // Update various animated features in LateUpdate because it needs to override the animated arm position
     void LateUpdate()
     {
-        UpdateWeaponAiming();
-        UpdateWeaponBob();
+        if (Events.ActorPossesedEvent.CurrentActor != GetComponent<Actor>().id && Events.ActorPossesedEvent.InHost)
+            return;
+
+        //UpdateWeaponAiming();
+        //UpdateWeaponBob();
         UpdateWeaponRecoil();
         UpdateWeaponSwitching();
 
@@ -206,7 +212,7 @@ public class ActorWeaponsManager : MonoBehaviour
     // Sets the FOV of the main camera and the weapon camera simultaneously
     public void SetFov(float fov)
     {
-        m_PlayerCharacterController.PlayerCamera.fieldOfView = fov;
+        m_PlayerCharacterController.ActorCamera.fieldOfView = fov;
         WeaponCamera.m_Lens.FieldOfView = fov * WeaponFovMultiplier;
     }
 
@@ -285,24 +291,19 @@ public class ActorWeaponsManager : MonoBehaviour
             WeaponController activeWeapon = GetActiveWeapon();
             if (IsAiming && activeWeapon)
             {
-                m_WeaponMainLocalPosition = Vector3.Lerp(m_WeaponMainLocalPosition,
-                    AimingWeaponPosition.localPosition + activeWeapon.AimOffset,
-                    AimingAnimationSpeed * Time.deltaTime);
-                SetFov(Mathf.Lerp(m_PlayerCharacterController.PlayerCamera.fieldOfView,
-                    activeWeapon.AimZoomRatio * DefaultFov, AimingAnimationSpeed * Time.deltaTime));
+                CameraSwitcher.SwitchCamera(WeaponCamera);
             }
             else
             {
-                m_WeaponMainLocalPosition = Vector3.Lerp(m_WeaponMainLocalPosition,
-                    DefaultWeaponPosition.localPosition, AimingAnimationSpeed * Time.deltaTime);
-                SetFov(Mathf.Lerp(m_PlayerCharacterController.PlayerCamera.fieldOfView, DefaultFov,
+                CameraSwitcher.SwitchCamera(WeaponCamera);
+                SetFov(Mathf.Lerp(WeaponCamera.m_Lens.FieldOfView, DefaultFov,
                     AimingAnimationSpeed * Time.deltaTime));
             }
         }
     }
 
     // Updates the weapon bob animation based on character speed
-    void UpdateWeaponBob()
+    /* void UpdateWeaponBob()
     {
         if (Time.deltaTime > 0f)
         {
@@ -335,7 +336,7 @@ public class ActorWeaponsManager : MonoBehaviour
 
             m_LastCharacterPosition = m_PlayerCharacterController.transform.position;
         }
-    }
+    } */
 
     // Updates the weapon recoil animation
     void UpdateWeaponRecoil()

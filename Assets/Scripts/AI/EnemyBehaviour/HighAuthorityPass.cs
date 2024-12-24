@@ -3,106 +3,110 @@ using UnityEngine;
 
 public class HighAuthorityPass : MonoBehaviour
 {
-    // Reference to the Animator component
+    public enum KeycardType
+    {
+        None,
+        Red,
+        Green,
+        Blue,
+        Yellow
+    }
+
     private Animator animator;
 
-    // Track if the key has been inserted
     public bool hasInsertedKey = false;
 
-    // Player input key for interaction
     public KeyCode interactKey = KeyCode.E; // Customisable in Inspector
 
-    // Trigger area detection
     private Collider currentTrigger;
 
     private ElevatorDoor doorToUnlock;
 
+    private MovingPlatform Elevator;
+
+    private void Start()
+    {
+        // Cache the reference to the elevator door
+        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
+        Elevator = FindAnyObjectByType<MovingPlatform>();
+    }
+
     private void OnTriggerEnter(Collider collider)
     {
-        // Store the trigger to use in Update
-        if (collider.CompareTag("Door"))
-        {
-            currentTrigger = collider;
-            animator = collider.GetComponent<Animator>();
-        }
+        // Set the current trigger to the collider entered
+        currentTrigger = collider;
 
-        if (collider.CompareTag("KeyHole"))
+        // Cache animator if it's a door
+        if (currentTrigger.CompareTag("Door"))
         {
-            currentTrigger = collider;
-            InsertKey();
+            animator = collider.GetComponent<Animator>();
+            HandleDoorInteraction();
         }
     }
 
     private void OnTriggerExit(Collider collider)
     {
-        // Clear trigger when player leaves, but don't nullify animator if door coroutine is active
+        // Clear the trigger if leaving the collider
         if (currentTrigger == collider)
         {
             currentTrigger = null;
-            if (collider.CompareTag("Door"))
-            {
-                // Ensure animator is cleared only if not mid-operation
-                StartCoroutine(ClearAnimatorAfterCoroutine());
-            }
         }
-    }
 
-    private IEnumerator ClearAnimatorAfterCoroutine()
-    {
-        yield return new WaitForSeconds(2); // Ensure CloseDoor has finished before nullifying
-        animator = null;
+        // Clear animator if leaving a door
+        if (collider.CompareTag("Door"))
+        {
+            StartCoroutine(CloseDoor());
+        }
     }
 
     private void Update()
     {
-        // Check if player is in a trigger zone and presses the interact key
-        if (currentTrigger != null)
+        // No trigger to interact with
+        if (currentTrigger == null) return;
+
+        // Interact when the player presses the interact key
+        if (Input.GetKeyDown(interactKey))
         {
-            if (currentTrigger.CompareTag("Door") && animator != null && !animator.GetBool("OpenDoor"))
+            if (currentTrigger.CompareTag("KeyHole"))
             {
-                HandleDoorInteraction();
+                HandleKeyHoleInteraction(currentTrigger.GetComponent<Keyhole>());
             }
-            //else if (currentTrigger.CompareTag("KeyHole") && Input.GetKeyDown(interactKey))
-            //{
-             //   InsertKey();
-            //}
         }
     }
 
-    private void Start()
+    private void HandleKeyHoleInteraction(Keyhole keyhole)
     {
-        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
+        if (keyhole == null || hasInsertedKey) return;
+
+        Debug.Log("Inserting key into keyhole...");
+        keyhole.InsertKey();
+        InsertKey();
     }
 
     private void HandleDoorInteraction()
     {
-        // Trigger the door animation
+        if (animator == null || animator.GetBool("OpenDoor") || Elevator.isMoving) return;
+
+        Debug.Log("Opening door...");
         animator.SetBool("OpenDoor", true);
-        StartCoroutine(CloseDoor());
+        //StartCoroutine(CloseDoor());
     }
 
     private void InsertKey()
     {
-        if (!hasInsertedKey)
-        {
-            Debug.Log("Inserting key");
-            // Mark key as inserted
-            hasInsertedKey = true;
+        if (hasInsertedKey) return;
 
-            doorToUnlock.UpdateKeyAmount();
-        }
+        hasInsertedKey = true;
+        doorToUnlock.UpdateKeyAmount();
     }
 
     private IEnumerator CloseDoor()
     {
-        // Cache animator reference for coroutine safety
-        Animator _Animator = animator;
-        yield return new WaitForSeconds(2);
-
-        // Close the door
-        if (_Animator != null)
+        yield return new WaitForSeconds(.5f);
+        if (animator != null)
         {
-            _Animator.SetBool("OpenDoor", false);
+            Debug.Log("Closing door...");
+            animator.SetBool("OpenDoor", false);
         }
     }
 }

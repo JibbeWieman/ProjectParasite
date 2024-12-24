@@ -12,8 +12,8 @@ public class ActorCharacterController : MonoBehaviour
     public bool IsPlayer;
     
     [Header("References")]
-    [Tooltip("Reference to the main camera used for the player")]
-    public Camera PlayerCamera;
+    [Tooltip("Reference to the main camera used for the actor")]
+    public Camera ActorCamera;
 
     [Tooltip("Audio source for footsteps, jump, etc...")]
     public AudioSource AudioSource;
@@ -24,10 +24,10 @@ public class ActorCharacterController : MonoBehaviour
     [Tooltip("Force applied downward when in the air")]
     public float GravityDownForce = 20f;
 
-    [Tooltip("Physic layers checked to consider the player grounded")]
+    [Tooltip("Physic layers checked to consider the actor grounded")]
     public LayerMask GroundCheckLayers = -1;
 
-    [Tooltip("distance from the bottom of the character controller capsule to test for grounded")]
+    [Tooltip("Distance from the bottom of the character controller capsule to test for grounded")]
     public float GroundCheckDistance = 0.05f;
 
     [Header("Movement")]
@@ -38,7 +38,7 @@ public class ActorCharacterController : MonoBehaviour
     public float MaxSpeedOnGround = 10f;
 
     [Tooltip(
-        "Sharpness for the movement when grounded, a low value will make the player accelerate and decelerate slowly, a high value will do the opposite")]
+        "Sharpness for the movement when grounded, a low value will make the actor accelerate and decelerate slowly, a high value will do the opposite")]
     public float MovementSharpnessOnGround = 15;
 
     [Tooltip("Max movement speed when crouching")]
@@ -60,7 +60,7 @@ public class ActorCharacterController : MonoBehaviour
     //public float MovementSpeedModifier = 1f;
     //
 
-    [Tooltip("Height at which the player dies instantly when falling off the map")]
+    [Tooltip("Height at which the actor dies instantly when falling off the map")]
     public float KillHeight = -50f;
 
     [Header("Rotation")]
@@ -151,6 +151,7 @@ public class ActorCharacterController : MonoBehaviour
     PlayerInputHandler m_InputHandler;
     CharacterController m_Controller;
     ActorWeaponsManager m_WeaponsManager;
+    [HideInInspector]
     public PatrolAgent m_PatrolAgent;
     Actor m_Actor;
 
@@ -192,7 +193,7 @@ public class ActorCharacterController : MonoBehaviour
     {
         s_Instance = this;
         m_Abilities = GetComponents<AbilityBase>();
-        PlayerCamera = Camera.main;
+        ActorCamera = Camera.main;
         // fetch components on the same gameObject
         m_Controller = GetComponent<CharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<CharacterController, ActorCharacterController>(m_Controller,
@@ -488,7 +489,7 @@ public class ActorCharacterController : MonoBehaviour
         {
             m_Controller.height = m_TargetCharacterHeight;
             m_Controller.center = 0.5f * m_Controller.height * Vector3.up;
-            PlayerCamera.transform.localPosition = CameraHeightRatio * m_TargetCharacterHeight * Vector3.up;
+            ActorCamera.transform.localPosition = CameraHeightRatio * m_TargetCharacterHeight * Vector3.up;
             m_Actor.AimPoint.transform.localPosition = m_Controller.center;
         }
         // Update smooth height
@@ -498,7 +499,7 @@ public class ActorCharacterController : MonoBehaviour
             m_Controller.height = Mathf.Lerp(m_Controller.height, m_TargetCharacterHeight,
                 CrouchingSharpness * Time.deltaTime);
             m_Controller.center = 0.5f * m_Controller.height * Vector3.up;
-            PlayerCamera.transform.localPosition = Vector3.Lerp(PlayerCamera.transform.localPosition,
+            ActorCamera.transform.localPosition = Vector3.Lerp(ActorCamera.transform.localPosition,
                 CameraHeightRatio * m_TargetCharacterHeight * Vector3.up, CrouchingSharpness * Time.deltaTime);
             m_Actor.AimPoint.transform.localPosition = m_Controller.center;
         }
