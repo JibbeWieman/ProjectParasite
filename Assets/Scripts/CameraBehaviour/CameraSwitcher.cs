@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using static HostThirdPersonCam;
 
 public class CameraSwitcher : MonoBehaviour
 {

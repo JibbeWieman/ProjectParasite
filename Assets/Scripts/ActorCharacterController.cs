@@ -1,5 +1,6 @@
 using Unity.Burst.CompilerServices;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.Events;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
@@ -147,13 +148,17 @@ public class ActorCharacterController : MonoBehaviour
         }
     }
 
+    Actor m_Actor;
     Health m_Health;
     PlayerInputHandler m_InputHandler;
     CharacterController m_Controller;
     ActorWeaponsManager m_WeaponsManager;
+
     [HideInInspector]
     public PatrolAgent m_PatrolAgent;
-    Actor m_Actor;
+
+    [HideInInspector]
+    public NavMeshAgent m_NavMeshAgent;
 
     Vector3 m_GroundNormal;
     //Vector3 m_CharacterVelocity;
@@ -211,6 +216,10 @@ public class ActorCharacterController : MonoBehaviour
 
             m_PatrolAgent = GetComponent<PatrolAgent>();
             DebugUtility.HandleErrorIfNullGetComponent<PatrolAgent, ActorCharacterController>(m_PatrolAgent,
+                this, gameObject);
+
+            m_NavMeshAgent = GetComponent<NavMeshAgent>();
+            DebugUtility.HandleErrorIfNullGetComponent<NavMeshAgent, ActorCharacterController>(m_NavMeshAgent,
                 this, gameObject);
         }
 

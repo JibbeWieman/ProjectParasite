@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using Unity.Services.Analytics.Internal;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using static EnemyAI;
 
 [RequireComponent(typeof(Health), typeof(Actor), typeof(NavMeshAgent))]
 public class EnemyController : MonoBehaviour
@@ -32,6 +34,11 @@ public class EnemyController : MonoBehaviour
     [Tooltip("Delay after death where the GameObject is destroyed (to allow for animation)")]
     public float DeathDuration = 0f;
 
+    [Space(5)]
+    [SerializeField]
+    private DetectionModule DetectionModule;
+    public NavMeshAgent NavMeshAgent { get; private set; }
+
 
     [Header("Weapons Parameters")]
     [Tooltip("Allow weapon swapping for this enemy")]
@@ -39,18 +46,6 @@ public class EnemyController : MonoBehaviour
 
     [Tooltip("Time delay between a weapon swap and the next attack")]
     public float DelayAfterWeaponSwap = 0f;
-
-    [Header("Eye color")]
-    [Tooltip("Material for the eye color")]
-    public Material EyeColorMaterial;
-
-    [Tooltip("The default color of the bot's eye")]
-    [ColorUsageAttribute(true, true)]
-    public Color DefaultEyeColor;
-
-    [Tooltip("The attack color of the bot's eye")]
-    [ColorUsageAttribute(true, true)]
-    public Color AttackEyeColor;
 
     [Header("Flash on hit")]
     [Tooltip("The material used for the body of the hoverbot")]
@@ -74,25 +69,6 @@ public class EnemyController : MonoBehaviour
     [Tooltip("The point at which the death VFX is spawned")]
     public Transform DeathVfxSpawnPoint;
 
-    [Header("Loot")]
-    [Tooltip("The object this enemy can drop when dying")]
-    public GameObject LootPrefab;
-
-    [Tooltip("The chance the object has to drop")]
-    [Range(0, 1)]
-    public float DropRate = 1f;
-
-    [Header("XP")]
-    [Tooltip("The object this enemy drops when dying")]
-    public GameObject XpPrefab;
-
-    [Tooltip("The amount of xp this enemy drops when dying")]
-    public int m_XpAmount;
-
-    [Tooltip("The percentage variance in XP amount (0-100). For example, 20 means +/- 20%.")]
-    [Range(0, 100)]
-    public float m_XpVariance = 20f; // 20% variance
-
     [Header("Debug Display")]
     [Tooltip("Color of the sphere gizmo representing the path reaching range")]
     public Color PathReachingRangeColor = Color.yellow;
@@ -112,18 +88,12 @@ public class EnemyController : MonoBehaviour
     MaterialPropertyBlock m_BodyFlashMaterialPropertyBlock;
     float m_LastTimeDamaged = float.NegativeInfinity;
 
-    RendererIndexData m_EyeRendererData;
-    MaterialPropertyBlock m_EyeColorMaterialPropertyBlock;
-
     [SerializeField]
     private PatrolAgent m_PatrolAgent;
     public GameObject KnownDetectedTarget => DetectionModule.KnownDetectedTarget;
     public bool IsTargetInAttackRange => DetectionModule.IsTargetInAttackRange;
     public bool IsSeeingTarget => DetectionModule.IsSeeingTarget;
     public bool HadKnownTarget => DetectionModule.HadKnownTarget;
-    public NavMeshAgent NavMeshAgent { get; private set; }
-    [SerializeField]
-    private DetectionModule DetectionModule;
 
     int m_PathDestinationNodeIndex;
     EnemyManager m_EnemyManager;
@@ -141,7 +111,6 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
-
         m_EnemyManager = FindObjectOfType<EnemyManager>();
         DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
 
@@ -199,11 +168,6 @@ public class EnemyController : MonoBehaviour
         {
             for (int i = 0; i < renderer.sharedMaterials.Length; i++)
             {
-                if (renderer.sharedMaterials[i] == EyeColorMaterial)
-                {
-                    m_EyeRendererData = new RendererIndexData(renderer, i);
-                }
-
                 if (renderer.sharedMaterials[i] == BodyMaterial)
                 {
                     m_BodyRenderers.Add(new RendererIndexData(renderer, i));
@@ -212,15 +176,18 @@ public class EnemyController : MonoBehaviour
         }
 
         m_BodyFlashMaterialPropertyBlock = new MaterialPropertyBlock();
+    }
 
-        // Check if we have an eye renderer for this enemy
-        if (m_EyeRendererData.Renderer != null)
-        {
-            m_EyeColorMaterialPropertyBlock = new MaterialPropertyBlock();
-            m_EyeColorMaterialPropertyBlock.SetColor("_EmissionColor", DefaultEyeColor);
-            m_EyeRendererData.Renderer.SetPropertyBlock(m_EyeColorMaterialPropertyBlock,
-                m_EyeRendererData.MaterialIndex);
-        }
+    private void OnEnable()
+    {
+        onDetectedTarget += HandleDetectedTarget;
+        onLostTarget += HandleLostTarget;
+    }
+
+    private void OnDisable()
+    {
+        onDetectedTarget -= HandleDetectedTarget;
+        onLostTarget -= HandleLostTarget;
     }
 
     void Update()
@@ -252,27 +219,41 @@ public class EnemyController : MonoBehaviour
     void OnLostTarget()
     {
         onLostTarget.Invoke();
-
-        // Set the eye attack color and property block if the eye renderer is set
-        if (m_EyeRendererData.Renderer != null)
-        {
-            m_EyeColorMaterialPropertyBlock.SetColor("_EmissionColor", DefaultEyeColor);
-            m_EyeRendererData.Renderer.SetPropertyBlock(m_EyeColorMaterialPropertyBlock,
-                m_EyeRendererData.MaterialIndex);
-        }
     }
+    void HandleLostTarget()
+    {
+        m_PatrolAgent.enabled = true;
+    }
+
+    //private void Flee()
+    //{
+    //    m_NavigationModule.speed = m_FleeSpeed;
+
+    //    agent.enabled = true;
+    //    waypointMover.enabled = false;
+    //    rb.isKinematic = false;
+
+    //    float distance = Vector3.Distance(transform.position, player.transform.position);
+
+    //    if (distance < enemyDistanceFlee)
+    //    {
+    //        //Vector player to me
+    //        Vector3 dirToPlayer = transform.position - enemyTarget.transform.position;
+
+    //        Vector3 newPos = transform.position + dirToPlayer;
+
+    //        SetAgentDestination(newPos);
+    //    }
+    //}
 
     void OnDetectedTarget()
     {
         onDetectedTarget.Invoke();
-
-        // Set the eye default color and property block if the eye renderer is set
-        if (m_EyeRendererData.Renderer != null)
-        {
-            m_EyeColorMaterialPropertyBlock.SetColor("_EmissionColor", AttackEyeColor);
-            m_EyeRendererData.Renderer.SetPropertyBlock(m_EyeColorMaterialPropertyBlock,
-                m_EyeRendererData.MaterialIndex);
-        }
+    }
+    void HandleDetectedTarget()
+    {
+        OrientTowards(m_ActorsManager.Player.transform.position);
+        m_PatrolAgent.enabled = false;
     }
 
     public void OrientTowards(Vector3 lookPosition)

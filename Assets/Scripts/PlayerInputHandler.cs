@@ -151,6 +151,7 @@ public class PlayerInputHandler : MonoBehaviour
             bool i = isGamepad
                 ? (Input.GetAxis(GameConstants.k_ButtonNameGamepadAim) > 0f)
                 : Input.GetButton(GameConstants.k_ButtonNameAim);
+
             return i;
         }
 

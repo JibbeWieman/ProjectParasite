@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using UnityEngine;
+using static HostThirdPersonCam;
 
 // This class contains general information describing an actor (player or enemies).
 // It is mostly used for AI detection logic and determining if an actor is friend or foe
@@ -34,6 +35,9 @@ public class Actor : MonoBehaviour
         {
             m_ActorsManager.Actors.Add(this);
         }
+
+        EventManager.AddListener<IsAimingEvent>(ToCombatCamera);
+        EventManager.AddListener<QuitAimingEvent>(ToBasicCamera);
     }
 
     /// <summary>
@@ -72,6 +76,23 @@ public class Actor : MonoBehaviour
         id = idNumber;
     }
 
+    public void ToCombatCamera(IsAimingEvent evt)
+    {
+        BasicCam.Priority = 0;
+        CombatCam.Priority = 10;
+        CameraSwitcher.ActiveCamera = CombatCam;
+        Debug.Log("TO Combat!");
+    }
+
+    public void ToBasicCamera(QuitAimingEvent evt)
+    {
+        BasicCam.Priority = 10;
+        CombatCam.Priority = 0;
+
+        CameraSwitcher.ActiveCamera = BasicCam;
+        Debug.Log("TO Basic!");
+    }
+
     void OnDestroy()
     {
         // Unregister as an actor
@@ -79,5 +100,8 @@ public class Actor : MonoBehaviour
         {
             m_ActorsManager.Actors.Remove(this);
         }
+
+        EventManager.RemoveListener<IsAimingEvent>(ToCombatCamera);
+        EventManager.RemoveListener<QuitAimingEvent>(ToBasicCamera);
     }
 }

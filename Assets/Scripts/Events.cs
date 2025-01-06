@@ -15,7 +15,9 @@ public static class Events
     public static DisplayMessageEvent DisplayMessageEvent = new();
         
     // Jibbe's Events
-    public static ActorPossesedEvent ActorPossesedEvent = new();    
+    public static ActorPossesedEvent ActorPossesedEvent = new();
+    public static IsAimingEvent IsAimingEvent = new();
+    public static QuitAimingEvent QuitAimingEvent = new();
 }
 
 // Jibbe's Events
@@ -43,6 +45,12 @@ public class ActorPossesedEvent : GameEvent
     /// Returns true if CurrentActor is 0, otherwise false.
     /// </summary>
     public bool InHost;
+}
+public class IsAimingEvent : GameEvent
+{
+}
+public class QuitAimingEvent : GameEvent
+{
 }
 
 // FPS Micro

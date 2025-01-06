@@ -102,6 +102,10 @@ public class ActorFacade : MonoBehaviour
         {
             actorController.m_PatrolAgent.enabled = false;
         }
+        if (actorController.m_NavMeshAgent != null)
+        {
+            actorController.m_NavMeshAgent.enabled = false; 
+        }
 
         actorWeaponsManager = currentActor.GetComponent<ActorWeaponsManager>();
         if (actorWeaponsManager)
@@ -122,6 +126,10 @@ public class ActorFacade : MonoBehaviour
         if (actorController?.m_PatrolAgent != null)
         {
             actorController.m_PatrolAgent.enabled = true;
+        }
+        if (actorController?.m_PatrolAgent != null)
+        {
+            actorController.m_NavMeshAgent.enabled = true;
         }
         if (actorWeaponsManager != null)
         {

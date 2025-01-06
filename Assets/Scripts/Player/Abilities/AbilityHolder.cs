@@ -10,7 +10,7 @@
 
 //    enum AbilityState
 //    {
-//        ready, 
+//        ready,
 //        active,
 //        cooldown
 //    }
@@ -31,7 +31,7 @@
 //                }
 //                break;
 //            case AbilityState.active:
-//                if(activeTime > 0)
+//                if (activeTime > 0)
 //                {
 //                    activeTime -= Time.deltaTime;
 //                }

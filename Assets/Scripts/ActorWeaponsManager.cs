@@ -141,6 +141,14 @@ public class ActorWeaponsManager : MonoBehaviour
             // handle aiming down sights
             IsAiming = m_InputHandler.GetAimInputHeld();
 
+            if (Events.ActorPossesedEvent.CurrentActor == GetComponent<Actor>().id)
+            {
+                if (IsAiming)
+                    EventManager.Broadcast(Events.IsAimingEvent);
+                else
+                    EventManager.Broadcast(Events.QuitAimingEvent);
+            }
+
             // handle shooting
             bool hasFired = activeWeapon.HandleShootInputs(
                 m_InputHandler.GetFireInputDown(),

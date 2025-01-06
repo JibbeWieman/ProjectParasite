@@ -13,6 +13,7 @@ public class HostThirdPersonCam : MonoBehaviour
     [SerializeField]
     private Transform hostObj;
 
+
     public CameraStyle currentStyle;
     public enum CameraStyle
     {

@@ -1,4 +1,6 @@
+using Unity.Services.Analytics.Internal;
 using UnityEngine;
+using static EnemyAI;
 
 /// <summary>
 /// Moves an agent along a patrol path with optional looping and random fallback movement.
@@ -105,6 +107,8 @@ public class PatrolAgent : MonoBehaviour
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
     }
+
+
 
     #endregion
 
