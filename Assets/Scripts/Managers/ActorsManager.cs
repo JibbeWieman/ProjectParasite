@@ -20,7 +20,6 @@ public class ActorsManager : MonoBehaviour
     {
         foreach (Actor actor in Actors)
         {
-
             actor.SetID(ActorAmount);
             ActorAmount++;
         }

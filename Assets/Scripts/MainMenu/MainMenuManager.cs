@@ -11,8 +11,10 @@ public class MainMenuManager : MonoBehaviour
 {
     [Header("Main Menu Objects")]
     [SerializeField] private GameObject _loadingBarObject;
+    [SerializeField] private Image _menuBackground;
     [SerializeField] private Image _loadingBar;
-    [SerializeField] private GameObject[] _objectsToHide;
+    [SerializeField, Tooltip("MainMenu UI elements which need to be hidden upon clicking start")] 
+    private GameObject[] _objectsToHide;
 
     [Header("Scenes to Load")]
     [SerializeField] private SceneField _persistentGameplay;
@@ -57,6 +59,12 @@ public class MainMenuManager : MonoBehaviour
             {
                 loadProgress += _scenesToLoad[i].progress;
                 _loadingBar.fillAmount = loadProgress / _scenesToLoad.Count;
+
+                if (loadProgress >= 0.95f)
+                {
+                    _menuBackground.color = Color.black;
+                }
+
                 yield return null;
             }
         }

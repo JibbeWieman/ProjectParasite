@@ -781,6 +781,7 @@ MonoBehaviour:
   FallDamageAtMaxSpeed: 50
   m_TransitionSpeed: 0.06
   m_PatrolAgent: {fileID: 0}
+  m_NavMeshAgent: {fileID: 0}
 --- !u!114 &2020321848613042653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -793,8 +794,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec85f10b3ef0857469ecc52ecfa47226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 10
+  currentHealth: 0
+  MaxHealth: 1
   CriticalHealthRatio: 0.3
+  floatingText: {fileID: 1753476971608805732, guid: 40abd14457aaab44abded72fd5971d7c,
+    type: 3}
   dmgBuff: 0
 --- !u!114 &1825301260475720341
 MonoBehaviour:
@@ -812,7 +816,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: beefb963d5214324cae07eac7d0dccf2, type: 3}
   cooldownTime: 3
   canUse: 1
-  bloodParticles: {fileID: 0}
+  bloodVfx: {fileID: 0}
   persistentHosts: {fileID: 0}
   ParasiteBasicCam: {fileID: 3387049651504999583}
   isLeeching: 0
@@ -1581,7 +1585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7721391653316643547}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.021555316, y: 0.836193, z: 0.032950174, w: 0.54702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -5.218499, y: 0.07412279, z: 1.018602}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1635,7 +1639,7 @@ MonoBehaviour:
     Value: 0.054519445
     m_SpeedMode: 0
     m_MaxSpeed: 2
-    m_AccelTime: 0.2
+    m_AccelTime: 0.1
     m_DecelTime: 0.1
     m_InputAxisName: Mouse Y
     m_InputAxisValue: 0

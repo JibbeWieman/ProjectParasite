@@ -1,12 +1,19 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
+    [SerializeField]
+    private float currentHealth;
+
     [Tooltip("Maximum amount of health")] public float MaxHealth = 10f;
 
     [Tooltip("Health ratio at which the critical health vignette starts appearing")]
     public float CriticalHealthRatio = 0.3f;
+
+    [SerializeField] 
+    private GameObject floatingText;
 
     public UnityAction<float, GameObject> OnDamaged;
     public UnityAction<float> OnHealed;
@@ -15,7 +22,12 @@ public class Health : MonoBehaviour
     [HideInInspector]
     public float dmgBuff;
 
-    public float CurrentHealth { get; set; }
+
+    public float CurrentHealth
+    {
+        get => currentHealth;
+        set => currentHealth = value;
+    }
     public bool Invincible { get; set; }
     public bool CanPickup() => CurrentHealth < MaxHealth;
 
@@ -62,6 +74,10 @@ public class Health : MonoBehaviour
         CurrentHealth -= damage;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
 
+        //Trigger floating text
+        if (floatingText && CurrentHealth > 0f)
+            ShowFloatingText($"{damage}");
+
         // call OnDamage action
         float trueDamageAmount = healthBefore - CurrentHealth;
         if (trueDamageAmount > 0f)
@@ -93,5 +109,12 @@ public class Health : MonoBehaviour
             m_IsDead = true;
             OnDie?.Invoke();
         }
+    }
+
+    private void ShowFloatingText(string textToShow)
+    {
+        //Can be optimized by Object Pooling
+        var go = Instantiate(floatingText, transform.position, Quaternion.identity, transform);
+        go.GetComponent<TextMeshPro>().text = textToShow;
     }
 }

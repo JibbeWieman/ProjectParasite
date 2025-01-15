@@ -1,7 +1,4 @@
-using Unity.Services.Analytics.Internal;
 using UnityEngine;
-using static EnemyAI;
-
 /// <summary>
 /// Moves an agent along a patrol path with optional looping and random fallback movement.
 /// </summary>
@@ -27,7 +24,7 @@ public class PatrolAgent : MonoBehaviour
 
     private int currentWaypointIndex = 0;
     private bool isReversing = false;
-    private CharacterController characterController;
+    private CharacterController cc;
 
     #endregion
 
@@ -35,7 +32,7 @@ public class PatrolAgent : MonoBehaviour
 
     private void Start()
     {
-        characterController = GetComponent<CharacterController>();
+        cc = GetComponent<CharacterController>();
         if (patrolPath == null || patrolPath.NodeCount == 0)
         {
             Debug.LogWarning($"{name} has no patrol path assigned. Switching to random pacing.");
@@ -101,7 +98,7 @@ public class PatrolAgent : MonoBehaviour
     private void MoveTowards(Vector3 targetPosition)
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
-        characterController.Move(direction * speed * Time.deltaTime);
+        cc.Move(direction * speed * Time.deltaTime);
 
         // Smooth rotation
         Quaternion targetRotation = Quaternion.LookRotation(direction);

@@ -680,8 +680,9 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   FlashOnHitDuration: 0.5
   DamageTick: {fileID: 0}
-  DeathVfx: {fileID: 0}
-  DeathVfxSpawnPoint: {fileID: 0}
+  DeathVfx: {fileID: 7246230740726344286, guid: 56c090e6179380748bb5428d878cf7c6,
+    type: 3}
+  DeathVfxSpawnPoint: {fileID: 1139253828824653868}
   PathReachingRangeColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   AttackRangeColor: {r: 1, g: 0, b: 0, a: 1}
   DetectionRangeColor: {r: 0, g: 0, b: 1, a: 1}
@@ -727,8 +728,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec85f10b3ef0857469ecc52ecfa47226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MaxHealth: 10
+  currentHealth: 0
+  MaxHealth: 100
   CriticalHealthRatio: 0.3
+  floatingText: {fileID: 1753476971608805732, guid: 40abd14457aaab44abded72fd5971d7c,
+    type: 3}
   dmgBuff: 0
 --- !u!143 &731837853576629225
 CharacterController:

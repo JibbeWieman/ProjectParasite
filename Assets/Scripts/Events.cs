@@ -16,8 +16,8 @@ public static class Events
         
     // Jibbe's Events
     public static ActorPossesedEvent ActorPossesedEvent = new();
-    public static IsAimingEvent IsAimingEvent = new();
-    public static QuitAimingEvent QuitAimingEvent = new();
+    public static AimEvent AimEvent = new();
+    public static GameStartEvent GameStartEvent = new();
 }
 
 // Jibbe's Events
@@ -46,11 +46,25 @@ public class ActorPossesedEvent : GameEvent
     /// </summary>
     public bool InHost;
 }
-public class IsAimingEvent : GameEvent
+public class AimEvent : GameEvent
 {
+    private bool isAiming = false; // Backing field
+
+    public bool IsAiming
+    {
+        get { return isAiming; }
+        set
+        {
+            isAiming = value;
+            EventManager.Broadcast(Events.ActorPossesedEvent);
+            Debug.Log($"I'm Aiming! Old Value: {isAiming}, New Value: {value}");
+        }
+    }
 }
-public class QuitAimingEvent : GameEvent
+
+public class GameStartEvent : GameEvent
 {
+    public bool GameStarted;
 }
 
 // FPS Micro

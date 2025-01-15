@@ -1,8 +1,4 @@
 using UnityEngine;
-using Cinemachine;
-using static HostThirdPersonCam;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 
 public class ActorFacade : MonoBehaviour
 {
@@ -55,37 +51,72 @@ public class ActorFacade : MonoBehaviour
     #endregion
 
     #region ACTOR MANAGEMENT
+    //public void SwitchActor(ActorPossesedEvent evt)
+    //{
+    //    Actor targetActor = actorManager.FindActorById(evt.CurrentActor);
+
+    //    if (targetActor == null)
+    //    {
+    //        Debug.LogError($"Actor with ID {evt.CurrentActor} not found!");
+    //        return;
+    //    }
+
+    //    if (currentActor != null)
+    //    {
+    //        UnregisterCameras(currentActor);
+    //    }
+
+    //    EnterActor(targetActor);
+
+    //    // Is new actor the parasite check
+    //    if (targetActor != actorManager.FindActorById(0))
+    //    {
+    //        player.SetActive(false);
+    //        infectAbility.isLeeching = false;
+    //        Events.ActorPossesedEvent.InHost = true;
+    //    }
+    //    else
+    //    {
+    //        Events.ActorPossesedEvent.InHost = false;
+    //    }
+
+    //    CameraSwitcher.SwitchCamera(targetActor.BasicCam);
+    //}
     public void SwitchActor(ActorPossesedEvent evt)
     {
+        // Find the target actor by ID
         Actor targetActor = actorManager.FindActorById(evt.CurrentActor);
-
         if (targetActor == null)
         {
             Debug.LogError($"Actor with ID {evt.CurrentActor} not found!");
             return;
         }
 
+        // Unregister cameras of the current actor
         if (currentActor != null)
         {
             UnregisterCameras(currentActor);
         }
 
+        // Enter the new actor
         EnterActor(targetActor);
 
-        // Is new actor the parasite check
-        if (targetActor != actorManager.FindActorById(0))
+        // Set host/player-specific logic
+        if (targetActor != actorManager.FindActorById(0)) // Not the player
         {
             player.SetActive(false);
             infectAbility.isLeeching = false;
             Events.ActorPossesedEvent.InHost = true;
         }
-        else
+        else // Player
         {
             Events.ActorPossesedEvent.InHost = false;
         }
 
+        // Switch to the new actor's camera
         CameraSwitcher.SwitchCamera(targetActor.BasicCam);
     }
+
 
     private void EnterActor(Actor targetActor)
     {
@@ -96,6 +127,11 @@ public class ActorFacade : MonoBehaviour
         {
             Debug.LogError($"ActorCharacterController not found on {currentActor.gameObject.name}!");
             return;
+        }
+
+        if(currentActor.GetComponent<Health>().CurrentHealth <= 0)
+        {
+            currentActor.GetComponent<Health>().Heal(1);
         }
 
         if (actorController.m_PatrolAgent != null)
@@ -120,22 +156,26 @@ public class ActorFacade : MonoBehaviour
 
     private void LeaveHost()
     {
+        //Kill host
+        currentActor.GetComponent<Health>().TakeDamage(1000, player);
+
         player.transform.SetPositionAndRotation(currentActor.transform.position + new Vector3(-1, 0, 0), currentActor.transform.rotation);
         player.SetActive(true);
 
-        if (actorController?.m_PatrolAgent != null)
-        {
-            actorController.m_PatrolAgent.enabled = true;
-        }
-        if (actorController?.m_PatrolAgent != null)
-        {
-            actorController.m_NavMeshAgent.enabled = true;
-        }
+        //if (actorController?.m_PatrolAgent != null)
+        //{
+        //    actorController.m_PatrolAgent.enabled = true;
+        //}
+        //if (actorController?.m_PatrolAgent != null)
+        //{
+        //    actorController.m_NavMeshAgent.enabled = true;
+        //}
         if (actorWeaponsManager != null)
         {
             actorWeaponsManager.enabled = false;
         }
 
+        //Set host gameobject to a parent
         Transform refugeCamp = GameObject.FindWithTag("HostRefugeCamp")?.transform;
         if (refugeCamp != null)
         {
@@ -144,6 +184,7 @@ public class ActorFacade : MonoBehaviour
 
         Events.ActorPossesedEvent.CurrentActor = 0; // Player actor ID is 0
     }
+
     #endregion
 
     #region CAMERA MANAGEMENT

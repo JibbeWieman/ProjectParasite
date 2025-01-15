@@ -66,7 +66,7 @@ public class ScreechAbility : AbilityBase
             if (enemy != null)
             {
                 Debug.Log($"Stunning enemy: {enemy.name}");
-                enemy.Stun(stunDuration);
+                //enemy.Stun(stunDuration);
             }
         }
     }

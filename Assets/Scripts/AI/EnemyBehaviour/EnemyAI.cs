@@ -3,34 +3,44 @@ using UnityEngine.AI;
 using TMPro;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEngine.Events;
+using UnityEngine.ProBuilder.MeshOperations;
 
 public class EnemyAI : MonoBehaviour
 {
     #region VARIABLES
     [Header("References")]
-    public GameObject player;
-    public GameObject enemyTarget;
-    public Rigidbody rb;
-    public NavMeshAgent agent;
-    public GameObject floatingText;
+    [SerializeField]
+    private SceneTypeObject ST_Player;
+    private GameObject player;
+    private GameObject enemyTarget;
     public AudioSource enemyAudioHurt;
-    public LayerMask whatIsGround, whatIsTarget;
+    private LayerMask TargetLayer;
+    float m_LastTimeDamaged = float.NegativeInfinity;
+    bool m_WasDamagedThisFrame;
+
     [Space(5)]
-    [SerializeField] private WaypointMover waypointMover;
+
+    public UnityAction onAttackTarget;
+    public UnityAction onDetectedTarget;
+    public UnityAction onLostTarget;
+    public UnityAction onDamaged;
+
+    private Actor m_Actor;
+    private PatrolAgent m_PatrolAgent;
+    private EnemyManager m_EnemyManager;
+    private ActorsManager m_ActorsManager;
+    private Health m_Health;
+    private DetectionModule DetectionModule;
+    public NavMeshAgent NavMeshAgent { get; private set; }
 
     [Header("Variables")]
-    public float m_MaxHealth;
-    public float m_CurrentHealth;
-    public bool m_IsDead = false;
-    public bool m_IsScared; //If the AI isn't armed they get scared and try to flee
-    private bool m_IsStunned;
-    
-    private float m_Speed;
-    [Space(10)]
     [SerializeField] private float m_PatrolSpeed;
     [SerializeField] private float m_ChaseSpeed;
     [SerializeField] private float m_AttackSpeed;
     [SerializeField] private float m_FleeSpeed;
+
+    private bool IsStunned;
 
     // Properties to access them if needed elsewhere
     [HideInInspector] public float PatrolSpeed { get => m_PatrolSpeed; private set => m_PatrolSpeed = value; }
@@ -45,30 +55,35 @@ public class EnemyAI : MonoBehaviour
     public GameObject pistolProjectile;
     public GameObject GunContainer;
     [HideInInspector] public bool friendlyFire = false;
-
-    [Header("Fleeing")]
-    private float enemyDistanceFlee;
+    Collider[] m_SelfColliders;
 
     [Header("States")]
     public EnemyState state;
-    [Space(5)]
-    public float sightRange;
-    public float attackRange;
-    public float fleeRange;
-    [Space(5)]
-    public bool targetVisible;
-    public bool targetInSightRange, targetInAttackRange, targetInFleeRange;
 
-    /*[Header("Vignette Effect")]
-    [SerializeField] private VolumeProfile volumeProfile;
-    [SerializeField] private float vignetteRedIntensity = 0.2f;
-    [SerializeField] private float redVignetteShowTime = 1f;
-    [SerializeField] private float vignetteBlackIntensity = 0.25f;
+    [Header("Parameters")]
+    [Tooltip("The Y height at which the enemy will be automatically killed (if it falls off of the level)")]
+    public float SelfDestructYHeight = -20f;
 
-    private Volume volume;
-    private Vignette vignette;
-    private Color myRed;
-    private Color black = Color.black;*/
+    [Header("Sounds")]
+    [Tooltip("Sound played when recieving damages")]
+    public AudioClip DamageTick;
+
+    [Header("VFX")]
+    [Tooltip("The VFX prefab spawned when the enemy dies")]
+    public GameObject DeathVfx;
+
+    [Tooltip("The point at which the death VFX is spawned")]
+    public Transform DeathVfxSpawnPoint;
+
+    [Header("Debug Display")]
+    [Tooltip("Color of the sphere gizmo representing the path reaching range")]
+    public Color PathReachingRangeColor = Color.yellow;
+
+    [Tooltip("Color of the sphere gizmo representing the attack range")]
+    public Color AttackRangeColor = Color.red;
+
+    [Tooltip("Color of the sphere gizmo representing the detection range")]
+    public Color DetectionRangeColor = Color.blue;
 
     public enum EnemyState
     {
@@ -79,130 +94,240 @@ public class EnemyAI : MonoBehaviour
     }
     #endregion
 
-    private void Awake()
+    private void Start()
     {
-        agent = GetComponent<NavMeshAgent>();
-        rb = GetComponent<Rigidbody>();
-        enemyDistanceFlee = fleeRange;
-        rb.isKinematic = true;
-        rb.interpolation = RigidbodyInterpolation.None;
+        player = ST_Player.Objects[0];
 
-        whatIsTarget = LayerMask.GetMask("Player");
+        m_Health = GetComponent<Health>();
+        DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyController>(m_Health, this, gameObject);
 
-        // Initialize vignette effect
-        /*volume = FindObjectOfType<Volume>();
-        volume.profile = volumeProfile;
-        volumeProfile.TryGet(out vignette);
-        if (ColorUtility.TryParseHtmlString("#E51E25", out myRed)) // Red
-            vignette.color.value = myRed;*/
+        m_Actor = GetComponent<Actor>();
+        DebugUtility.HandleErrorIfNullGetComponent<Actor, EnemyController>(m_Actor, this, gameObject);
+
+        NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_PatrolAgent = GetComponent<PatrolAgent>();
+        m_SelfColliders = GetComponentsInChildren<Collider>();
+
+        TargetLayer = LayerMask.GetMask("Player");
+
+        m_EnemyManager = FindObjectOfType<EnemyManager>();
+        DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
+
+        m_ActorsManager = FindObjectOfType<ActorsManager>();
+        DebugUtility.HandleErrorIfNullFindObject<ActorsManager, EnemyController>(m_ActorsManager, this);
+
+        m_EnemyManager.RegisterEnemy(this);
+
+        var detectionModules = GetComponentsInChildren<DetectionModule>();
+        DebugUtility.HandleErrorIfNoComponentFound<DetectionModule, EnemyController>(detectionModules.Length, this,
+            gameObject);
+        DebugUtility.HandleWarningIfDuplicateObjects<DetectionModule, EnemyController>(detectionModules.Length,
+            this, gameObject);
+        // Initialize detection module
+        DetectionModule = detectionModules[0];
+        DetectionModule.onDetectedTarget += OnDetectedTarget;
+        DetectionModule.onLostTarget += OnLostTarget;
+        onAttackTarget += DetectionModule.OnAttack;
+
+        m_WasDamagedThisFrame = false;
     }
+
+    private void OnEnable()
+    {
+        onDetectedTarget += HandleDetectedTarget;
+        onAttackTarget -= Attack;
+        onLostTarget += Patrol;
+    }
+    private void OnDisable()
+    {
+        onDetectedTarget -= HandleDetectedTarget;
+        onAttackTarget -= Attack;
+        onLostTarget -= Patrol;
+    }
+
+    void OnDetectedTarget()
+    {
+        onDetectedTarget.Invoke();
+    }
+    void OnAttackTarget()
+    {
+        onAttackTarget.Invoke();
+    }
+    void OnLostTarget()
+    {
+        onLostTarget.Invoke();
+    }
+    
+    private void HandleDetectedTarget()
+    {
+        if (!IsScared())
+        {
+            Debug.Log("Target detected: Chasing.");
+            Chase();
+        }
+        else
+        {
+            Debug.Log("Target detected: Fleeing.");
+            Flee();
+        }
+    }
+    private bool IsScared()
+    {
+        if (GetComponentInChildren<ActorWeaponsManager>().GetActiveWeapon() == false) //.ActiveWeaponIndex != 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void EnsureIsWithinLevelBounds()
+    {
+        // at every frame, this tests for conditions to kill the enemy
+        if (transform.position.y < SelfDestructYHeight)
+        {
+            Destroy(gameObject);
+            return;
+        }
+    }
+
+    void OnDamaged(float damage, GameObject damageSource)
+    {
+        // test if the damage source is the player
+        if (damageSource && !damageSource.GetComponent<EnemyController>())
+        {
+            // pursue the player
+            DetectionModule.OnDamaged(damageSource);
+
+            onDamaged?.Invoke();
+            m_LastTimeDamaged = Time.time;
+
+            // play the damage tick sound
+            if (DamageTick && !m_WasDamagedThisFrame)
+                AudioUtility.CreateSFX(DamageTick, transform.position, AudioUtility.AudioGroups.DamageTick, 0f);
+
+            m_WasDamagedThisFrame = true;
+        }
+    }
+
+    void OnDie()
+    {
+        // spawn a particle system when dying
+        var vfx = Instantiate(DeathVfx, DeathVfxSpawnPoint.position, Quaternion.identity);
+        Destroy(vfx, 5f);
+
+        // tells the game flow manager to handle the enemy destuction
+        m_EnemyManager.UnregisterEnemy(this);
+
+        // this will call the OnDestroy function
+        //Destroy(gameObject, DeathDuration);
+        NavMeshAgent = null;
+        m_PatrolAgent = null;
+        DetectionModule = null;
+    }
+
+    //private void Update()
+    //{
+    //        if (DetectionModule.IsTargetInDetectionRange && DetectionModule.IsSeeingTarget)
+    //        {
+    //            if (!m_IsScared)
+    //            {
+    //                if (DetectionModule.IsTargetInAttackRange) Attack();
+    //                else Chase();
+    //            }
+    //            else Flee();
+    //        }
+    //        else Patrol();
+    //    }
+    //}
 
     private void Update()
     {
-        if (player == null)
-        {
-            player = GameObject.FindWithTag("Player").transform.root.gameObject;
-            enemyTarget = player;
-        }
+        EnsureIsWithinLevelBounds();
+
+        DetectionModule?.HandleTargetDetection(m_Actor, m_SelfColliders);
+
+        enemyTarget = player;
 
         //Arm the ai with a projectile if it as a gun
-        projectile = !m_IsDead || !m_IsStunned || !m_IsScared ? pistolProjectile : null;
+        projectile = !IsStunned || !IsScared() ? pistolProjectile : null;
 
-        if (GetComponent<Infected>() == null && !m_IsDead && !m_IsStunned)
+        if (!IsStunned && Events.ActorPossesedEvent.CurrentActor != GetComponent<Actor>().id)
         {
-            //Set isScared based on if the agent wields a weapon
-            m_IsScared = agent.gameObject.GetComponentInChildren<ProjectileGun>() == null;
-
-            //Check for sight and attack range
-            targetInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsTarget);
-            targetInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsTarget);
-            targetInFleeRange = Physics.CheckSphere(transform.position, fleeRange, whatIsTarget);
-
-            // Perform a raycast to check if the target is visible (not blocked by obstacles)
-            targetVisible = IsTargetVisible(enemyTarget);
-
-            if (IsTargetVisible(player))
+            if (DetectionModule.IsSeeingTarget)
             {
                 enemyTarget = player;
             }
 
-            if (targetInSightRange && targetVisible) {
-                if (!m_IsScared) {
-                    if (!targetInAttackRange) ChaseTarget();
-                    else AttackTarget();
-                }
-                else if (targetInFleeRange && m_IsScared) Fleeing();
-            }
-            else Patrolling();
-        }
-        else
-        {
-            //Handle infected state
-            agent.enabled = false;
-            rb.isKinematic = false;
-            waypointMover.enabled = false;
-        }
-
-        if (m_IsDead)
-        {
-            gameObject.GetComponent<PlayerMovement>().enabled = false;
-            gameObject.GetComponent<NavMeshAgent>().enabled = false;
-            gameObject.GetComponent<Sliding>().enabled = false;
-            gameObject.GetComponent<WaypointMover>().enabled = false;
-
-            rb.freezeRotation = false;
-            rb.isKinematic = false;
-            //Invoke(nameof(DestroyEnemy), 0.5f);
-        }
-    }
-
-    #region SIGHT & VISIBILITY CHECK
-    private bool IsTargetVisible(GameObject target)
-    {
-        if (target == null) return false;
-
-        Vector3 directionToTarget = (target.transform.position - transform.position).normalized;
-
-        if (Physics.Raycast(transform.position, directionToTarget, out RaycastHit hitInfo, sightRange))
-        {
-            // Check if the raycast hit the player
-            if (hitInfo.collider.gameObject.CompareTag("Player") || 
-                hitInfo.collider.gameObject.CompareTag("Host"))
+            switch (state)
             {
-                return true; // Player is visible
+                case EnemyState.patrolling:
+                    NavMeshAgent.enabled = false;
+                    NavMeshAgent.speed = m_PatrolSpeed;
+                    m_PatrolAgent.enabled = true;
+
+                    Patrol();
+                    break;
+
+                case EnemyState.chasing:
+                    NavMeshAgent.enabled = true;
+                    NavMeshAgent.speed = m_ChaseSpeed;
+                    m_PatrolAgent.enabled = false;
+
+                    Chase();
+                    break;
+
+                case EnemyState.attacking:
+                    NavMeshAgent.enabled = true;
+                    NavMeshAgent.speed = m_AttackSpeed;
+                    m_PatrolAgent.enabled = false;
+
+                    Attack();
+                    break;
+
+                case EnemyState.fleeing:
+                    NavMeshAgent.enabled = true;
+                    NavMeshAgent.speed = m_FleeSpeed;
+                    m_PatrolAgent.enabled = false;
+
+                    Flee();
+                    break;
+
+                default:
+                    // Optional: handle unexpected states
+                    Debug.LogWarning($"Unhandled state: {state}");
+                    break;
+            }
+
+            if (m_Health.CurrentHealth <= 0f)
+            {
+                NavMeshAgent.enabled = false;
+                m_PatrolAgent.enabled = false;
             }
         }
-        return false; // Player is not visible (obstacle in the way)
     }
-    #endregion
 
     #region STATE FUNCTIONS
-    private void Patrolling()
+    private void Patrol()
     {
         state = EnemyState.patrolling;
 
-        agent.enabled = false;
-        rb.isKinematic = true;
-        waypointMover.enabled = true;
+        Debug.Log("Patrolling.");
     }
 
-    private void ChaseTarget()
+    private void Chase()
     {
         state = EnemyState.chasing;
-        SetAgentDestination(enemyTarget.transform.position);
 
-        agent.enabled = true;
-        rb.isKinematic = false;
-        waypointMover.enabled = false;
+        Debug.Log("Chasing Player");
+        SetAgentDestination(enemyTarget.transform.position);
     }
 
-    private void AttackTarget()
+    private void Attack()
     {
         state = EnemyState.attacking;
-
-        agent.enabled = true;
-        rb.isKinematic = false;
-        waypointMover.enabled = false;
 
         Debug.Log("Attacking player");
 
@@ -232,7 +357,7 @@ public class EnemyAI : MonoBehaviour
 
         // Set the enemytarget to the shooter
         enemyTarget = shooter;
-        whatIsTarget = LayerMask.GetMask("Host");
+        TargetLayer = LayerMask.GetMask("Host");
         StopAllCoroutines();
         StartCoroutine(SwitchTarget(shooter));
     }
@@ -258,39 +383,35 @@ public class EnemyAI : MonoBehaviour
 
         // After the focus time, switch back to the player
         enemyTarget = player;
-        whatIsTarget = LayerMask.GetMask("Player");
+        TargetLayer = LayerMask.GetMask("Player");
     }
 
-    private void Fleeing()
+    private void Flee()
     {
         state = EnemyState.fleeing;
-        agent.speed = m_FleeSpeed;
-
-        agent.enabled = true;
-        waypointMover.enabled = false;
-        rb.isKinematic = false;
 
         float distance = Vector3.Distance(transform.position, player.transform.position);
 
-        if (distance < enemyDistanceFlee)
+        if (distance < DetectionModule.DetectionRange)
         {
             //Vector player to me
             Vector3 dirToPlayer = transform.position - enemyTarget.transform.position;
 
             Vector3 newPos = transform.position + dirToPlayer;
-            
+
             SetAgentDestination(newPos);
         }
     }
     private void SetAgentDestination(Vector3 destination)
     {
-        if (agent.enabled && agent.isOnNavMesh)
+        if (NavMeshAgent && NavMeshAgent.isOnNavMesh)
         {
-            agent.SetDestination(destination);
+            NavMeshAgent.SetDestination(destination);
         }
     }
     #endregion
 
+    /*
     public void Stun(float stunDuration)
     {
         Debug.Log(this.name + "is stunned for" + stunDuration + " seconds");
@@ -299,7 +420,7 @@ public class EnemyAI : MonoBehaviour
             m_IsStunned = true;
 
             gameObject.GetComponent<NavMeshAgent>().enabled = false;
-            gameObject.GetComponent<WaypointMover>().enabled = false;
+            m_PatrolAgent.enabled = false;
 
             StartCoroutine(EndStunAfterDuration(stunDuration));
         }
@@ -309,82 +430,31 @@ public class EnemyAI : MonoBehaviour
         yield return new WaitForSeconds(stunDuration);
         m_IsStunned = false;
 
-        gameObject.GetComponent<NavMeshAgent>().enabled = true;
-        gameObject.GetComponent<WaypointMover>().enabled = true;
+        NavMeshAgent.enabled = true;
+        m_PatrolAgent.enabled = true;
     }
-
-    #region HEALTH & DMG FUNCTIONS
-    public void TakeDamage(int damage)
-    {
-        Debug.Log($"TakeDamage called with {damage} damage.");
-        if (damage <= 0) return;
-
-        m_CurrentHealth -= damage;
-
-        //Play hurt sound effect
-        //enemyAudioHurt.Play();
-
-        //Trigger floating text
-        if (floatingText && m_CurrentHealth > 0)
-            ShowFloatingText($"{damage}");
-
-        if (m_CurrentHealth <= 0)
-        {
-            m_IsDead = true;
-        }
-
-        // Show vignette effect on hit
-        //StartCoroutine(ShowVignetteOnHitCoroutine());
-    }
-    private void DestroyEnemy()
-    {
-        Destroy(gameObject);
-    }
-    private void ShowFloatingText(string textToShow)
-    {
-        //Can be optimized by Object Pooling
-        var go = Instantiate(floatingText, transform.position, Quaternion.identity, transform);
-        go.GetComponent<TextMeshPro>().text = textToShow;
-    }
-    /*private IEnumerator ShowVignetteOnHitCoroutine()
-    {
-        float originalIntensity = vignette.intensity.value;
-
-        // Set vignette to red
-        vignette.color.value = myRed;
-        vignette.intensity.value = vignetteRedIntensity;
-
-        // Wait for the specified time
-        yield return new WaitForSeconds(redVignetteShowTime);
-
-        // Gradually return to original intensity
-        while (vignette.intensity.value > originalIntensity)
-        {
-            vignette.intensity.value -= 0.01f;
-            yield return new WaitForSeconds(0.1f);
-        }
-
-        // Reset vignette to black if still at low health
-        vignette.intensity.value = vignetteBlackIntensity;
-        vignette.color.value = black;
-    }*/
 
     private void OnParticleCollision(GameObject other)
     {
-        TakeDamage(1);
         Stun(5f);
-    }
-    #endregion
+    } */
 
     #region GIZMOS
-    private void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, sightRange);
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, fleeRange);
+        // Path reaching range
+        Gizmos.color = PathReachingRangeColor;
+
+        if (DetectionModule != null)
+        {
+            // Detection range
+            Gizmos.color = DetectionRangeColor;
+            Gizmos.DrawWireSphere(transform.position, DetectionModule.DetectionRange);
+
+            // Attack range
+            Gizmos.color = AttackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, DetectionModule.AttackRange);
+        }
     }
     #endregion
 }

@@ -24,6 +24,7 @@ public class DetectionModule : MonoBehaviour
 
     public GameObject KnownDetectedTarget { get; private set; }
     public bool IsTargetInAttackRange { get; private set; }
+    public bool IsTargetInDetectionRange { get; private set; } // New variable
     public bool IsSeeingTarget { get; private set; }
     public bool HadKnownTarget { get; private set; }
 
@@ -52,6 +53,8 @@ public class DetectionModule : MonoBehaviour
         float sqrDetectionRange = DetectionRange * DetectionRange;
         IsSeeingTarget = false;
         float closestSqrDistance = Mathf.Infinity;
+        IsTargetInDetectionRange = false; // Reset each frame
+
         foreach (Actor otherActor in m_ActorsManager.Actors)
         {
             if (otherActor.Affiliation != actor.Affiliation)
@@ -81,6 +84,7 @@ public class DetectionModule : MonoBehaviour
                         if (hitActor == otherActor)
                         {
                             IsSeeingTarget = true;
+                            IsTargetInDetectionRange = true; // Set to true when target is in detection range
                             closestSqrDistance = sqrDistance;
 
                             TimeLastSeenTarget = Time.time;

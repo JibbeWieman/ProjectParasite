@@ -23,9 +23,9 @@ public class PistolProjectile : ProjectileBase
 
         foreach (var obj in affectedObjects)
         {
-            if (obj.TryGetComponent(out EnemyAI enemy))
+            if (obj.TryGetComponent(out Health enemy))
             {
-                enemy.TakeDamage(explosionDMG);
+                enemy.TakeDamage(explosionDMG, this.transform.root.gameObject);
                 if (obj.attachedRigidbody != null)
                 {
                     obj.attachedRigidbody.AddExplosionForce(explosionForce, transform.position, explosionRange);

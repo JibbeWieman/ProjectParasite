@@ -3,6 +3,7 @@ using Unity.Services.Analytics.Internal;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+using UnityEngine.ProBuilder;
 using static EnemyAI;
 
 [RequireComponent(typeof(Health), typeof(Actor), typeof(NavMeshAgent))]
@@ -117,7 +118,7 @@ public class EnemyController : MonoBehaviour
         m_ActorsManager = FindObjectOfType<ActorsManager>();
         DebugUtility.HandleErrorIfNullFindObject<ActorsManager, EnemyController>(m_ActorsManager, this);
 
-        m_EnemyManager.RegisterEnemy(this);
+        //m_EnemyManager.RegisterEnemy(this);
 
         m_Health = GetComponent<Health>();
         DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyController>(m_Health, this, gameObject);
@@ -194,7 +195,7 @@ public class EnemyController : MonoBehaviour
     {
         EnsureIsWithinLevelBounds();
 
-        DetectionModule.HandleTargetDetection(m_Actor, m_SelfColliders);
+        DetectionModule?.HandleTargetDetection(m_Actor, m_SelfColliders);
 
         Color currentColor = OnHitBodyGradient.Evaluate((Time.time - m_LastTimeDamaged) / FlashOnHitDuration);
         m_BodyFlashMaterialPropertyBlock.SetColor("_EmissionColor", currentColor);
@@ -222,7 +223,10 @@ public class EnemyController : MonoBehaviour
     }
     void HandleLostTarget()
     {
-        m_PatrolAgent.enabled = true;
+        if (Events.ActorPossesedEvent.CurrentActor != m_Actor.id)
+        {
+            m_PatrolAgent.enabled = true;
+        }
     }
 
     //private void Flee()
@@ -252,9 +256,42 @@ public class EnemyController : MonoBehaviour
     }
     void HandleDetectedTarget()
     {
-        OrientTowards(m_ActorsManager.Player.transform.position);
-        m_PatrolAgent.enabled = false;
+        if (m_CurrentWeapon != null)
+        {
+            OrientTowards(m_ActorsManager.Player.transform.position);
+            m_PatrolAgent.enabled = false;
+        }
+        else
+        {
+            Flee();
+        }
     }
+
+    //void Attack()
+    //{
+    //    Debug.Log("Attacking player");
+
+    //    //Make sure enemy doesn't move
+    //    SetNavDestination(transform.position);
+
+    //    transform.LookAt(enemyTarget.transform);
+
+    //    if (!alreadyAttacked)
+    //    {
+    //        ///Attack code here
+    //        Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+    //        rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
+    //        rb.AddForce(transform.up * 8f, ForceMode.Impulse);
+
+    //        alreadyAttacked = true;
+    //        Invoke(nameof(ResetAttack), timeBetweenAttacks);
+    //    }
+    //}
+
+    //private void ResetAttack()
+    //{
+    //    alreadyAttacked = false;
+    //}
 
     public void OrientTowards(Vector3 lookPosition)
     {
@@ -266,15 +303,30 @@ public class EnemyController : MonoBehaviour
                 Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * OrientationSpeed);
         }
     }
-
     public void ResetPathDestination()
     {
         m_PathDestinationNodeIndex = 0;
     }
 
-    public void SetNavDestination(Vector3 destination)
+    private void Flee()
     {
-        if (NavMeshAgent)
+        m_PatrolAgent.enabled = false;
+
+        //float distance = Vector3.Distance(transform.position, m_ActorsManager.Player.transform.position);
+
+        //if (distance < enemyDistanceFlee)
+        //{
+        //Vector player to me
+        Vector3 dirToPlayer = transform.position - m_ActorsManager.Player.transform.position;
+
+        Vector3 newPos = transform.position + dirToPlayer;
+
+        SetNavDestination(newPos);
+        //}
+    }
+    private void SetNavDestination(Vector3 destination)
+    {
+        if (NavMeshAgent.enabled && NavMeshAgent.isOnNavMesh)
         {
             NavMeshAgent.SetDestination(destination);
         }
@@ -306,10 +358,13 @@ public class EnemyController : MonoBehaviour
         Destroy(vfx, 5f);
 
         // tells the game flow manager to handle the enemy destuction
-        m_EnemyManager.UnregisterEnemy(this);
+        //m_EnemyManager.UnregisterEnemy(this);
 
         // this will call the OnDestroy function
-        Destroy(gameObject, DeathDuration);
+        //Destroy(gameObject, DeathDuration);
+        NavMeshAgent = null;
+        m_PatrolAgent = null;
+        DetectionModule = null;
     }
 
     void OnDrawGizmosSelected()

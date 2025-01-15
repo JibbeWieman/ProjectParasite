@@ -1,8 +1,6 @@
-using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
-using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(AudioSource))]
 public class ActorCharacterController : MonoBehaviour
@@ -54,12 +52,6 @@ public class ActorCharacterController : MonoBehaviour
 
     [Tooltip("Multiplicator for the sprint speed (based on grounded speed)")]
     public float SprintSpeedModifier = 2f;
-
-    // Jibbe
-    //[Tooltip("Multiplicator for the base movement speed")]
-    //[Range(1f, 3f)]
-    //public float MovementSpeedModifier = 1f;
-    //
 
     [Tooltip("Height at which the actor dies instantly when falling off the map")]
     public float KillHeight = -50f;
@@ -139,7 +131,7 @@ public class ActorCharacterController : MonoBehaviour
     {
         get
         {
-            if (m_WeaponsManager != null && m_WeaponsManager.IsAiming && !IsPlayer)
+            if (m_WeaponsManager != null && Events.AimEvent.IsAiming && !IsPlayer)
             {
                 return AimingRotationMultiplier;
             }
@@ -309,8 +301,10 @@ public class ActorCharacterController : MonoBehaviour
         // Tell the weapons manager to switch to a non-existing weapon in order to lower the weapon
         if (!IsPlayer)
             m_WeaponsManager.SwitchToWeaponIndex(-1, true);
-
-        EventManager.Broadcast(Events.PlayerDeathEvent);
+        else
+        {
+            EventManager.Broadcast(Events.PlayerDeathEvent);
+        }
     }
 
     protected virtual void GroundCheck()

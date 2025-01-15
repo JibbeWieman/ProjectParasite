@@ -72,7 +72,6 @@ public class ActorWeaponsManager : MonoBehaviour
     [Tooltip("Layer to set FPS weapon gameObjects to")]
     public LayerMask FpsWeaponLayer;
 
-    public bool IsAiming { get; private set; }
     public bool IsPointingAtEnemy { get; private set; }
     public int ActiveWeaponIndex { get; private set; }
 
@@ -134,20 +133,12 @@ public class ActorWeaponsManager : MonoBehaviour
         {
             if (!activeWeapon.AutomaticReload && m_InputHandler.GetReloadButtonDown() && activeWeapon.CurrentAmmoRatio < 1.0f)
             {
-                IsAiming = false;
+                Events.AimEvent.IsAiming = false;
                 activeWeapon.StartReloadAnimation();
                 return;
             }
             // handle aiming down sights
-            IsAiming = m_InputHandler.GetAimInputHeld();
-
-            if (Events.ActorPossesedEvent.CurrentActor == GetComponent<Actor>().id)
-            {
-                if (IsAiming)
-                    EventManager.Broadcast(Events.IsAimingEvent);
-                else
-                    EventManager.Broadcast(Events.QuitAimingEvent);
-            }
+            Events.AimEvent.IsAiming = m_InputHandler.GetAimInputHeld();
 
             // handle shooting
             bool hasFired = activeWeapon.HandleShootInputs(
@@ -164,7 +155,7 @@ public class ActorWeaponsManager : MonoBehaviour
         }
 
         // weapon switch handling
-        if (!IsAiming &&
+        if (!Events.AimEvent.IsAiming &&
             (activeWeapon == null || !activeWeapon.IsCharging) &&
             (m_WeaponSwitchState == WeaponSwitchState.Up || m_WeaponSwitchState == WeaponSwitchState.Down))
         {
@@ -294,10 +285,10 @@ public class ActorWeaponsManager : MonoBehaviour
     // Updates weapon position and camera FoV for the aiming transition
     void UpdateWeaponAiming()
     {
-        if (m_WeaponSwitchState == WeaponSwitchState.Up)
+        if (m_WeaponSwitchState == WeaponSwitchState.Up && Events.ActorPossesedEvent.CurrentActor == GetComponent<Actor>().id)
         {
             WeaponController activeWeapon = GetActiveWeapon();
-            if (IsAiming && activeWeapon)
+            if (Events.AimEvent.IsAiming && activeWeapon)
             {
                 CameraSwitcher.SwitchCamera(WeaponCamera);
             }
