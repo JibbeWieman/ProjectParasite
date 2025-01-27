@@ -7,8 +7,8 @@ public class PatrolAgent : MonoBehaviour
 {
     #region Variables
 
-    [SerializeField, Tooltip("The patrol path this agent will follow.")]
-    private PatrolPath patrolPath;
+    [Tooltip("The patrol path this agent will follow.")]
+    public PatrolPath patrolPath;
 
     [SerializeField, Tooltip("Should the agent loop the path?")]
     private bool loop = true;
@@ -98,7 +98,7 @@ public class PatrolAgent : MonoBehaviour
     private void MoveTowards(Vector3 targetPosition)
     {
         Vector3 direction = (targetPosition - transform.position).normalized;
-        cc.Move(direction * speed * Time.deltaTime);
+        cc.Move(speed * Time.deltaTime * direction);
 
         // Smooth rotation
         Quaternion targetRotation = Quaternion.LookRotation(direction);
@@ -114,9 +114,9 @@ public class PatrolAgent : MonoBehaviour
     private void RandomPacing()
     {
         Vector3 randomPosition = new Vector3(
-            UnityEngine.Random.Range(-randomPaceRange, randomPaceRange),
+            Random.Range(-randomPaceRange, randomPaceRange),
             transform.position.y,
-            UnityEngine.Random.Range(-randomPaceRange, randomPaceRange));
+            Random.Range(-randomPaceRange, randomPaceRange));
 
         MoveTowards(randomPosition);
     }

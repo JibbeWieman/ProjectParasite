@@ -173,7 +173,7 @@ public class EnemyAI : MonoBehaviour
     }
     private bool IsScared()
     {
-        if (GetComponentInChildren<ActorWeaponsManager>().GetActiveWeapon() == false) //.ActiveWeaponIndex != 0)
+        if (GetComponentInChildren<ActorWeaponsManager>().GetActiveWeapon() == false || m_Health.CurrentHealth <= 30) //.ActiveWeaponIndex != 0)
         {
             return true;
         }
@@ -181,6 +181,12 @@ public class EnemyAI : MonoBehaviour
         {
             return false;
         }
+    }
+
+    public void ReGroup(Vector3 position)
+    {
+        m_PatrolAgent.enabled = false;
+        SetAgentDestination(position);
     }
 
     void EnsureIsWithinLevelBounds()
@@ -258,7 +264,16 @@ public class EnemyAI : MonoBehaviour
         {
             if (DetectionModule.IsSeeingTarget)
             {
-                enemyTarget = player;
+                if (DetectionModule.KnownDetectedTarget == player) 
+                {
+                    enemyTarget = player;
+                }
+                else if (DetectionModule.KnownDetectedTarget.layer == LayerMask.NameToLayer("AI") && 
+                    DetectionModule.KnownDetectedTarget.GetComponent<ActorCharacterController>().IsDead &&
+                    DetectionModule.KnownDetectedTarget.GetComponent<Actor>().IsActive())
+                {
+                    enemyTarget = DetectionModule.KnownDetectedTarget;
+                }
             }
 
             switch (state)
@@ -312,24 +327,28 @@ public class EnemyAI : MonoBehaviour
     #region STATE FUNCTIONS
     private void Patrol()
     {
-        state = EnemyState.patrolling;
+        if (state != EnemyState.patrolling)
+            Debug.Log("Patrolling.");
 
-        Debug.Log("Patrolling.");
+        state = EnemyState.patrolling;
     }
 
     private void Chase()
     {
+        if (state != EnemyState.chasing)
+            Debug.Log("Chasing Player");
+
         state = EnemyState.chasing;
 
-        Debug.Log("Chasing Player");
         SetAgentDestination(enemyTarget.transform.position);
     }
 
     private void Attack()
     {
-        state = EnemyState.attacking;
+        if (state != EnemyState.attacking)
+            Debug.Log("Attacking player");
 
-        Debug.Log("Attacking player");
+        state = EnemyState.attacking;
 
         //Make sure enemy doesn't move
         SetAgentDestination(transform.position);
@@ -388,14 +407,16 @@ public class EnemyAI : MonoBehaviour
 
     private void Flee()
     {
+        if (state != EnemyState.fleeing)
+            Debug.Log("Fleeing from player");
+
         state = EnemyState.fleeing;
 
         float distance = Vector3.Distance(transform.position, player.transform.position);
 
         if (distance < DetectionModule.DetectionRange)
         {
-            //Vector player to me
-            Vector3 dirToPlayer = transform.position - enemyTarget.transform.position;
+            Vector3 dirToPlayer = transform.position - enemyTarget.transform.position;          //Vector player to me
 
             Vector3 newPos = transform.position + dirToPlayer;
 

@@ -30,15 +30,15 @@ public class DestructibleObject : MonoBehaviour
     private float maxDestroyTime = 10f;
     public float MaxDestroyTime { get => maxDestroyTime; set => maxDestroyTime = value; }
 
-    private Rigidbody rb;
-    private bool hasCollided = false;
+    //private Rigidbody rb;
+    //private bool hasCollided = false;
     #endregion
 
     #region Unity Methods
-    private void Start()
-    {
-        rb = GetComponent<Rigidbody>();
-    }
+    //private void Start()
+    //{
+    //    rb = GetComponent<Rigidbody>();
+    //}
 
     private void OnCollisionEnter(Collision collision)
     {

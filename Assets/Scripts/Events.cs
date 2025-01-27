@@ -36,7 +36,7 @@ public class ActorPossesedEvent : GameEvent
         {
             currentActor = value;
             EventManager.Broadcast(Events.ActorPossesedEvent);
-            Debug.Log($"Setting CurrentActor. Old Value: {currentActor}, New Value: {value}");
+            //Debug.Log($"Setting CurrentActor. Old Value: {currentActor}, New Value: {value}");
         }
     }
 

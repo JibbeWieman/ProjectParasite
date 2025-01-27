@@ -3,13 +3,13 @@ using UnityEngine;
 public class PlayerThirdPersonCam : MonoBehaviour
 {
     [Header("References")]
-    public Transform orientation;
-    public Transform player;
-    public Transform playerObj;
+    [SerializeField] private Transform orientation;
+    [SerializeField] private Transform player;
+    [SerializeField] private Transform playerObj;
 
-    public float rotationSpeed;
+    [SerializeField] private float rotationSpeed;
 
-    public GameObject basicCam;
+    [SerializeField] private GameObject basicCam;
 
 
     private void Update()

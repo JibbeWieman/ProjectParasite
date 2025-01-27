@@ -3,18 +3,18 @@ using Cinemachine;
 
 public class HostThirdPersonCam : MonoBehaviour
 {
-    [Header("References")]
+    [Header("Values")]
     [SerializeField, Tooltip("The rotation speed of the host character.")]
     private float rotationSpeed;
-    [SerializeField]
+    
     private Transform Orientation;
-    [SerializeField]
+    
     private Transform CombatLookAt;
-    [SerializeField]
+    
     private Transform hostObj;
 
 
-    public CameraStyle currentStyle;
+    private CameraStyle currentStyle;
     public enum CameraStyle
     {
         Basic,
@@ -41,17 +41,17 @@ public class HostThirdPersonCam : MonoBehaviour
         }
     }
 
-    //private void HandleCameraSwitching()
+    //private void HandleCameraSwitching(AimEvent evt)
     //{
-    //    if (Input.GetKeyUp(KeyCode.Mouse1))
-    //    {
-    //        SwitchCameraStyle(CameraStyle.Basic);
-    //    }
+        //if (Input.GetKeyUp(KeyCode.Mouse1))
+        //{
+        //    SwitchCameraStyle(CameraStyle.Basic);
+        //}
 
-    //    if (Input.GetKeyDown(KeyCode.Mouse1))
-    //    {
-    //        SwitchCameraStyle(CameraStyle.Combat);
-    //    }
+        //if (Input.GetKeyDown(KeyCode.Mouse1))
+        //{
+        //    SwitchCameraStyle(CameraStyle.Combat);
+        //}
     //}
 
     private void HandleHostRotation()

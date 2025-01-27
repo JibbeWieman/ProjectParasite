@@ -651,7 +651,7 @@ GameObject:
   - component: {fileID: 2268559573871086602}
   - component: {fileID: 1368922088118632546}
   - component: {fileID: 3361353248628996987}
-  - component: {fileID: 337596034967031145}
+  - component: {fileID: 7303385488956644006}
   - component: {fileID: 2020321848613042653}
   - component: {fileID: 1825301260475720341}
   - component: {fileID: 568264744370386038}
@@ -730,7 +730,7 @@ MonoBehaviour:
   AimPoint: {fileID: 3879651734323978317}
   BasicCam: {fileID: 0}
   CombatCam: {fileID: 0}
---- !u!114 &337596034967031145
+--- !u!114 &7303385488956644006
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -739,12 +739,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 5220795088517806239}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2529b1aab366b644fbbf329df8384bab, type: 3}
+  m_Script: {fileID: 11500000, guid: f4811051cba7feb43b0bb4e2e3241c15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsPlayer: 1
   ActorCamera: {fileID: 0}
-  AudioSource: {fileID: 0}
+  AudioSource: {fileID: 1765793991923264421}
   m_Abilities:
   - {fileID: 1825301260475720341}
   - {fileID: 568264744370386038}
@@ -752,7 +751,7 @@ MonoBehaviour:
   GroundCheckLayers:
     serializedVersion: 2
     m_Bits: 256
-  GroundCheckDistance: 0.1
+  GroundCheckDistance: 0.25
   orientation: {fileID: 906477987175409677}
   MaxSpeedOnGround: 6
   MovementSharpnessOnGround: 20
@@ -764,9 +763,9 @@ MonoBehaviour:
   RotationSpeed: 200
   AimingRotationMultiplier: 0.4
   JumpForce: 5
-  CameraHeightRatio: 0.9
-  CapsuleHeightStanding: 0.2
-  CapsuleHeightCrouching: 0.2
+  CameraHeightRatio: 0.5
+  CapsuleHeightStanding: 0.25
+  CapsuleHeightCrouching: 0.25
   CrouchingSharpness: 10
   FootstepSfxFrequency: 1
   FootstepSfxFrequencyWhileSprinting: 1
@@ -779,6 +778,7 @@ MonoBehaviour:
   MaxSpeedForFallDamage: 30
   FallDamageAtMinSpeed: 10
   FallDamageAtMaxSpeed: 50
+  m_AnimatorAlive: {fileID: 150234741481491105}
   m_TransitionSpeed: 0.06
   m_PatrolAgent: {fileID: 0}
   m_NavMeshAgent: {fileID: 0}
@@ -1917,10 +1917,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 150234741481491105}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a124ca5f05940984e9f86f72a5c2c51e,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3488343093321141223}
   m_SourcePrefab: {fileID: 100100000, guid: a124ca5f05940984e9f86f72a5c2c51e, type: 3}
 --- !u!4 &3879651734323978317 stripped
 Transform:
@@ -1955,25 +1951,3 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!64 &3488343093321141223
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4511650384353934071}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 0}

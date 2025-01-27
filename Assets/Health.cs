@@ -52,7 +52,14 @@ public class Health : MonoBehaviour
         CurrentHealth += healAmount;
         CurrentHealth = Mathf.Clamp(CurrentHealth, 0f, MaxHealth);
 
-        // call OnHeal action
+        // Check if the player was dead and is now being revived
+        if (healthBefore <= 0f && CurrentHealth > 0f)
+        {
+            m_IsDead = false; // Mark the player as no longer dead
+            Debug.Log($"{gameObject.name} has been revived!");
+        }
+
+        // Call OnHealed action if healing occurred
         float trueHealAmount = CurrentHealth - healthBefore;
         if (trueHealAmount > 0f)
         {
@@ -60,15 +67,11 @@ public class Health : MonoBehaviour
         }
     }
 
+
     public void TakeDamage(float damage, GameObject damageSource)
     {
         if (Invincible)
             return;
-
-        //if (damageSource == ActorsManager.)
-        //{
-        //    damage += dmgBuff;
-        //}
 
         float healthBefore = CurrentHealth;
         CurrentHealth -= damage;

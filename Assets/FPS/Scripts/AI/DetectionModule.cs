@@ -17,7 +17,7 @@ public class DetectionModule : MonoBehaviour
     public float KnownTargetTimeout = 4f;
 
     [Tooltip("Optional animator for OnShoot animations")]
-    public Animator Animator;
+    private Animator Animator;
 
     public UnityAction onDetectedTarget;
     public UnityAction onLostTarget;
@@ -48,6 +48,8 @@ public class DetectionModule : MonoBehaviour
         {
             KnownDetectedTarget = null;
         }
+
+        Debug.Log(KnownDetectedTarget);
 
         // Find the closest visible hostile actor
         float sqrDetectionRange = DetectionRange * DetectionRange;

@@ -43,7 +43,6 @@ GameObject:
   - component: {fileID: 6376280596567500149}
   - component: {fileID: 2468991253462338101}
   - component: {fileID: 5741518964826536633}
-  - component: {fileID: 1234419125410247291}
   m_Layer: 11
   m_Name: Gun Glock22
   m_TagString: Untagged
@@ -149,29 +148,6 @@ MonoBehaviour:
   flashLight: {fileID: 0}
   ammoDisplay: {fileID: 0}
   allowInvoke: 1
---- !u!114 &1234419125410247291
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5300362673662936934}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d9784700914868a43b56fe302a55f2c1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gunScript: {fileID: 5741518964826536633}
-  rb: {fileID: 6376280596567500149}
-  coll: {fileID: 2468991253462338101}
-  player: {fileID: 0}
-  gunContainer: {fileID: 0}
-  orientation: {fileID: 0}
-  pickUpRange: 4
-  dropForwardForce: 10
-  dropUpwardsForce: 7
-  equipped: 1
-  objectName: Gun
 --- !u!1 &5886131829967575356
 GameObject:
   m_ObjectHideFlags: 0

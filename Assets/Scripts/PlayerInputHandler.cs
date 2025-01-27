@@ -18,11 +18,13 @@ public class PlayerInputHandler : MonoBehaviour
     public bool InvertXAxis = false;
 
     GameFlowManager m_GameFlowManager;
+    Actor m_Actor;
     ActorCharacterController m_PlayerCharacterController;
     bool m_FireInputWasHeld;
 
     void Start()
     {
+        m_Actor = GetComponent<Actor>();
         m_PlayerCharacterController = GetComponent<ActorCharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<ActorCharacterController, PlayerInputHandler>(
             m_PlayerCharacterController, this, gameObject);
@@ -40,7 +42,7 @@ public class PlayerInputHandler : MonoBehaviour
 
     public bool CanProcessInput()
     {
-        return Cursor.lockState == CursorLockMode.Locked && !m_GameFlowManager.GameIsEnding;
+        return Cursor.lockState == CursorLockMode.Locked && !m_GameFlowManager.GameIsEnding && m_Actor.IsActive();
     }
 
     public Vector3 GetMoveInput()

@@ -96,7 +96,7 @@ public class EnemyController : MonoBehaviour
     public bool IsSeeingTarget => DetectionModule.IsSeeingTarget;
     public bool HadKnownTarget => DetectionModule.HadKnownTarget;
 
-    int m_PathDestinationNodeIndex;
+    private int m_PathDestinationNodeIndex;
     EnemyManager m_EnemyManager;
     ActorsManager m_ActorsManager;
     Health m_Health;
