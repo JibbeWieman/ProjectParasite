@@ -264,22 +264,22 @@ public class EnemyAI : MonoBehaviour
         {
             if (DetectionModule.IsSeeingTarget)
             {
-                if (DetectionModule.KnownDetectedTarget == player) 
-                {
+                //if (DetectionModule.KnownDetectedTarget == player) 
+                //{
                     enemyTarget = player;
-                }
-                else if (DetectionModule.KnownDetectedTarget.layer == LayerMask.NameToLayer("AI") && 
-                    DetectionModule.KnownDetectedTarget.GetComponent<ActorCharacterController>().IsDead &&
-                    DetectionModule.KnownDetectedTarget.GetComponent<Actor>().IsActive())
-                {
-                    enemyTarget = DetectionModule.KnownDetectedTarget;
-                }
+                //}
+                //else if (DetectionModule.KnownDetectedTarget.layer == LayerMask.NameToLayer("AI") && 
+                //    DetectionModule.KnownDetectedTarget.GetComponent<ActorCharacterController>().IsDead &&
+                //    DetectionModule.KnownDetectedTarget.GetComponent<Actor>().IsActive())
+                //{
+                //    enemyTarget = DetectionModule.KnownDetectedTarget;
+                //}
             }
 
             switch (state)
             {
                 case EnemyState.patrolling:
-                    NavMeshAgent.enabled = false;
+                    NavMeshAgent.enabled = true;
                     NavMeshAgent.speed = m_PatrolSpeed;
                     m_PatrolAgent.enabled = true;
 

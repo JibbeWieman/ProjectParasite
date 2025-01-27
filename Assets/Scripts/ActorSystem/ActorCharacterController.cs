@@ -9,7 +9,7 @@ public class ActorCharacterController : MonoBehaviour
     public static ActorCharacterController Instance { get { return s_Instance; } }
     
     [Header("References")]
-    [Tooltip("Reference to the main camera used for the actor"), HideInInspector]
+    [Tooltip("Reference to the main camera used for the actor")]
     public Camera ActorCamera;
 
     [Tooltip("Audio source for footsteps, jump, etc...")]
@@ -162,9 +162,12 @@ public class ActorCharacterController : MonoBehaviour
     protected virtual void Start()
     {
         s_Instance = this;
-        m_Abilities = GetComponents<AbilityBase>();
+        if (m_Abilities != null)
+        {
+            m_Abilities = GetComponents<AbilityBase>();
+        }
         ActorCamera = Camera.main;
-        
+
         m_Controller = GetComponent<CharacterController>();
         DebugUtility.HandleErrorIfNullGetComponent<CharacterController, ActorCharacterController>(m_Controller,
             this, gameObject);

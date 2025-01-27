@@ -1,8 +1,10 @@
 using UnityEngine;
+using UnityEngine.AI;
+
 /// <summary>
 /// Moves an agent along a patrol path with optional looping and random fallback movement.
 /// </summary>
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(NavMeshAgent))]
 public class PatrolAgent : MonoBehaviour
 {
     #region Variables
@@ -24,7 +26,7 @@ public class PatrolAgent : MonoBehaviour
 
     private int currentWaypointIndex = 0;
     private bool isReversing = false;
-    private CharacterController cc;
+    private NavMeshAgent m_NavMeshAgent;
 
     #endregion
 
@@ -32,7 +34,9 @@ public class PatrolAgent : MonoBehaviour
 
     private void Start()
     {
-        cc = GetComponent<CharacterController>();
+        m_NavMeshAgent = GetComponent<NavMeshAgent>();
+        m_NavMeshAgent.speed = speed;
+
         if (patrolPath == null || patrolPath.NodeCount == 0)
         {
             Debug.LogWarning($"{name} has no patrol path assigned. Switching to random pacing.");
@@ -58,7 +62,7 @@ public class PatrolAgent : MonoBehaviour
     private void Patrol()
     {
         Vector3 targetPosition = patrolPath.GetPositionOfWaypoint(currentWaypointIndex);
-        MoveTowards(targetPosition);
+        SetAgentDestination(targetPosition);
 
         if (Vector3.Distance(transform.position, targetPosition) < 0.5f)
         {
@@ -95,17 +99,13 @@ public class PatrolAgent : MonoBehaviour
         }
     }
 
-    private void MoveTowards(Vector3 targetPosition)
+    private void SetAgentDestination(Vector3 destination)
     {
-        Vector3 direction = (targetPosition - transform.position).normalized;
-        cc.Move(speed * Time.deltaTime * direction);
-
-        // Smooth rotation
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        if (m_NavMeshAgent.isOnNavMesh)
+        {
+            m_NavMeshAgent.SetDestination(destination);
+        }
     }
-
-
 
     #endregion
 
@@ -113,12 +113,13 @@ public class PatrolAgent : MonoBehaviour
 
     private void RandomPacing()
     {
-        Vector3 randomPosition = new Vector3(
-            Random.Range(-randomPaceRange, randomPaceRange),
-            transform.position.y,
-            Random.Range(-randomPaceRange, randomPaceRange));
+        Vector3 randomDirection = Random.insideUnitSphere * randomPaceRange;
+        randomDirection += transform.position;
 
-        MoveTowards(randomPosition);
+        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, randomPaceRange, NavMesh.AllAreas))
+        {
+            SetAgentDestination(hit.position);
+        }
     }
 
     #endregion
