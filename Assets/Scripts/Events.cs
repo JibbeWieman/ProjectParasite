@@ -18,6 +18,7 @@ public static class Events
     public static ActorPossesedEvent ActorPossesedEvent = new();
     public static AimEvent AimEvent = new();
     public static GameStartEvent GameStartEvent = new();
+    public static OnBodyFoundEvent OnBodyFoundEvent = new();
 }
 
 // Jibbe's Events
@@ -58,6 +59,22 @@ public class AimEvent : GameEvent
             isAiming = value;
             EventManager.Broadcast(Events.ActorPossesedEvent);
             Debug.Log($"I'm Aiming! Old Value: {isAiming}, New Value: {value}");
+        }
+    }
+}
+
+public class OnBodyFoundEvent : GameEvent
+{
+    private GameObject deadBody; // Backing field
+
+    public GameObject Body
+    {
+        get { return deadBody; }
+        set
+        {
+            deadBody = value;
+            EventManager.Broadcast(Events.OnBodyFoundEvent);
+            Debug.Log($"I'm Aiming! Old Value: {deadBody}, New Value: {value}");
         }
     }
 }

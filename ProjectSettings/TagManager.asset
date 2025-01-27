@@ -13,6 +13,7 @@ TagManager:
   - Bullet
   - Destructible
   - KeyHole
+  - DeadHost
   layers:
   - Default
   - TransparentFX

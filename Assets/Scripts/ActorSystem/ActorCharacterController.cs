@@ -123,7 +123,7 @@ public class ActorCharacterController : MonoBehaviour
     public Vector3 CharacterVelocity { get; set; }
     public bool IsGrounded { get; private set; }
     public bool HasJumpedThisFrame { get; private set; }
-    public bool IsDead { get; private set; }
+    public bool IsDead;
     public bool IsCrouching { get; private set; }
 
     [HideInInspector] public PatrolAgent m_PatrolAgent;

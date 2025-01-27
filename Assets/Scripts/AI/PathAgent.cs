@@ -9,14 +9,9 @@ public class PatrolAgent : MonoBehaviour
 {
     #region Variables
 
-    [Tooltip("The patrol path this agent will follow.")]
-    public PatrolPath patrolPath;
-
+    [Header("Values")]
     [SerializeField, Tooltip("Should the agent loop the path?")]
     private bool loop = true;
-
-    [SerializeField, Tooltip("Speed of the agent.")]
-    private float speed = 2f;
 
     [SerializeField, Tooltip("Rotation speed of the agent.")]
     private float rotationSpeed = 5f;
@@ -24,9 +19,18 @@ public class PatrolAgent : MonoBehaviour
     [SerializeField, Tooltip("Fallback random pacing range.")]
     private float randomPaceRange = 5f;
 
+    [Space(5)]
+    [Tooltip("The patrol path this agent will follow.")]
+    public PatrolPath patrolPath;
+
+    //Private Variables
     private int currentWaypointIndex = 0;
     private bool isReversing = false;
     private NavMeshAgent m_NavMeshAgent;
+
+    //Random pacing variables
+    private bool isRandomDestinationSet = false;
+    private Vector3 currentRandomDestination;
 
     #endregion
 
@@ -35,7 +39,6 @@ public class PatrolAgent : MonoBehaviour
     private void Start()
     {
         m_NavMeshAgent = GetComponent<NavMeshAgent>();
-        m_NavMeshAgent.speed = speed;
 
         if (patrolPath == null || patrolPath.NodeCount == 0)
         {
@@ -113,12 +116,24 @@ public class PatrolAgent : MonoBehaviour
 
     private void RandomPacing()
     {
-        Vector3 randomDirection = Random.insideUnitSphere * randomPaceRange;
-        randomDirection += transform.position;
-
-        if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, randomPaceRange, NavMesh.AllAreas))
+        // Check if the agent has reached the current random destination
+        if (isRandomDestinationSet && Vector3.Distance(transform.position, currentRandomDestination) < 0.5f)
         {
-            SetAgentDestination(hit.position);
+            isRandomDestinationSet = false; // Mark the destination as reached
+        }
+
+        // If no random destination is set, pick a new one
+        if (!isRandomDestinationSet)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere * randomPaceRange;
+            randomDirection += transform.position;
+
+            if (NavMesh.SamplePosition(randomDirection, out NavMeshHit hit, randomPaceRange, NavMesh.AllAreas))
+            {
+                currentRandomDestination = hit.position; // Store the new random destination
+                SetAgentDestination(currentRandomDestination);
+                isRandomDestinationSet = true; // Mark the destination as set
+            }
         }
     }
 

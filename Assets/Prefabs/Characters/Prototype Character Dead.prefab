@@ -58,6 +58,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -8381285943585103373, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
     - target: {fileID: -8186655719939300976, guid: 0bd0c0164a3d366429215ca05aa80908,
         type: 3}
       propertyPath: m_Materials.Array.data[0]
@@ -68,10 +73,75 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 6b38742730e330c488cc8d7964788813, type: 2}
+    - target: {fileID: -6223802425063045148, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: -1996182532865489067, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: -1284161153299741276, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: -970130414857956616, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 487433473881718248, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 893744512601121080, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 0bd0c0164a3d366429215ca05aa80908,
         type: 3}
       propertyPath: m_Name
       value: Prototype Character Dead
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 3715401805869393700, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 3946990067362994795, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 5115153074455402475, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 5188215276068967244, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 5527352097134044773, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
+      objectReference: {fileID: 0}
+    - target: {fileID: 9218023319388948674, guid: 0bd0c0164a3d366429215ca05aa80908,
+        type: 3}
+      propertyPath: m_TagString
+      value: DeadHost
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -4,7 +4,6 @@ using TMPro;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine.Events;
-using UnityEngine.ProBuilder.MeshOperations;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -90,7 +89,8 @@ public class EnemyAI : MonoBehaviour
         patrolling,
         chasing,
         attacking,
-        fleeing
+        fleeing,
+        regrouping,
     }
     #endregion
 
@@ -130,6 +130,8 @@ public class EnemyAI : MonoBehaviour
         onAttackTarget += DetectionModule.OnAttack;
 
         m_WasDamagedThisFrame = false;
+
+        EventManager.AddListener<OnBodyFoundEvent>(Regroup); 
     }
 
     private void OnEnable()
@@ -157,7 +159,7 @@ public class EnemyAI : MonoBehaviour
     {
         onLostTarget.Invoke();
     }
-    
+
     private void HandleDetectedTarget()
     {
         if (!IsScared())
@@ -183,10 +185,16 @@ public class EnemyAI : MonoBehaviour
         }
     }
 
-    public void ReGroup(Vector3 position)
+    public void Regroup(OnBodyFoundEvent evt)
     {
-        m_PatrolAgent.enabled = false;
-        SetAgentDestination(position);
+        state = EnemyState.regrouping;
+
+        SetAgentDestination(evt.Body.transform.position);
+
+        if (transform.position == evt.Body.transform.position)
+        {
+            state = EnemyState.patrolling;
+        }
     }
 
     void EnsureIsWithinLevelBounds()
@@ -264,16 +272,18 @@ public class EnemyAI : MonoBehaviour
         {
             if (DetectionModule.IsSeeingTarget)
             {
-                //if (DetectionModule.KnownDetectedTarget == player) 
-                //{
+                if (DetectionModule.KnownDetectedTarget.CompareTag("Host") &&
+                    DetectionModule.KnownDetectedTarget.GetComponentInParent<ActorCharacterController>().IsDead &&
+                    DetectionModule.KnownDetectedTarget.GetComponentInParent<Actor>().IsActive())
+                {
+                    enemyTarget = DetectionModule.KnownDetectedTarget;
+                }
+                else
+                {
                     enemyTarget = player;
-                //}
-                //else if (DetectionModule.KnownDetectedTarget.layer == LayerMask.NameToLayer("AI") && 
-                //    DetectionModule.KnownDetectedTarget.GetComponent<ActorCharacterController>().IsDead &&
-                //    DetectionModule.KnownDetectedTarget.GetComponent<Actor>().IsActive())
-                //{
-                //    enemyTarget = DetectionModule.KnownDetectedTarget;
-                //}
+                }
+
+                //Debug.Log(enemyTarget);
             }
 
             switch (state)
@@ -308,6 +318,14 @@ public class EnemyAI : MonoBehaviour
                     m_PatrolAgent.enabled = false;
 
                     Flee();
+                    break;
+
+                case EnemyState.regrouping:
+                    NavMeshAgent.enabled = true;
+                    NavMeshAgent.speed = m_PatrolSpeed;
+                    m_PatrolAgent.enabled = false;
+
+                    Regroup(Events.OnBodyFoundEvent);
                     break;
 
                 default:
@@ -412,7 +430,7 @@ public class EnemyAI : MonoBehaviour
 
         state = EnemyState.fleeing;
 
-        float distance = Vector3.Distance(transform.position, player.transform.position);
+        float distance = Vector3.Distance(transform.position, enemyTarget.transform.position);
 
         if (distance < DetectionModule.DetectionRange)
         {

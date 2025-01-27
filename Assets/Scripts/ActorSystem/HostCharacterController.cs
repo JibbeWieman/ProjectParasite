@@ -49,6 +49,8 @@ public class HostCharacterController : ActorCharacterController
 
     protected override void OnDie()
     {
+        base.OnDie();
+
         m_Animator = m_AnimatorDead;
 
         aliveModel.SetActive(false);

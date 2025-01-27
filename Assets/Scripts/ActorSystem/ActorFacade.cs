@@ -75,6 +75,11 @@ public class ActorFacade : MonoBehaviour
             return;
         }
 
+        if (!currentActor.IsPlayer())
+        {
+            currentActor.Affiliation = 0;
+        }
+
         ReviveActor(currentActor);
         DisableAIComponents(actorController);
         EnableWeaponsManager(currentActor);
@@ -95,6 +100,11 @@ public class ActorFacade : MonoBehaviour
 
         player.transform.SetPositionAndRotation(currentActor.transform.position + Vector3.left, currentActor.transform.rotation);
         player.SetActive(true);
+
+        if (!currentActor.IsPlayer())
+        {
+            currentActor.Affiliation = 1;
+        }
 
         DisableWeaponsManager();
         MoveHostToRefuge();

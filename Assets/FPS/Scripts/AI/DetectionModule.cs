@@ -24,9 +24,10 @@ public class DetectionModule : MonoBehaviour
 
     public GameObject KnownDetectedTarget { get; private set; }
     public bool IsTargetInAttackRange { get; private set; }
-    public bool IsTargetInDetectionRange { get; private set; } // New variable
+    public bool IsTargetInDetectionRange { get; private set; }
     public bool IsSeeingTarget { get; private set; }
     public bool HadKnownTarget { get; private set; }
+    public bool SpottedDeadBody { get; private set; }
 
     protected float TimeLastSeenTarget = Mathf.NegativeInfinity;
 
@@ -49,19 +50,40 @@ public class DetectionModule : MonoBehaviour
             KnownDetectedTarget = null;
         }
 
-        Debug.Log(KnownDetectedTarget);
-
-        // Find the closest visible hostile actor
+        // Find the closest visible hostile actor or detect dead bodies with the same affiliation
         float sqrDetectionRange = DetectionRange * DetectionRange;
         IsSeeingTarget = false;
         float closestSqrDistance = Mathf.Infinity;
         IsTargetInDetectionRange = false; // Reset each frame
 
+        bool spottedDeadBody = false; // Variable for detecting dead bodies
+
         foreach (Actor otherActor in m_ActorsManager.Actors)
         {
+            float sqrDistance = (otherActor.transform.position - DetectionSourcePoint.position).sqrMagnitude;
+
+            // Detect dead bodies with the same affiliation
+            if (otherActor.Affiliation == actor.Affiliation && otherActor.CompareTag("DeadHost"))
+            {
+                if (sqrDistance < sqrDetectionRange)
+                {
+                    // Check for obstructions
+                    RaycastHit[] hits = Physics.RaycastAll(DetectionSourcePoint.position,
+                        (otherActor.transform.position - DetectionSourcePoint.position).normalized, DetectionRange,
+                        -1, QueryTriggerInteraction.Ignore);
+                    bool isVisible = hits.All(hit => selfColliders.Contains(hit.collider) || hit.collider.GetComponentInParent<Actor>() == otherActor);
+
+                    if (isVisible && !spottedDeadBody)
+                    {
+                        spottedDeadBody = true;
+                        EventManager.Broadcast(Events.OnBodyFoundEvent); // Invoke the method when a dead body is spotted
+                    }
+                }
+            }
+
+            // Detect hostile targets
             if (otherActor.Affiliation != actor.Affiliation)
             {
-                float sqrDistance = (otherActor.transform.position - DetectionSourcePoint.position).sqrMagnitude;
                 if (sqrDistance < sqrDetectionRange && sqrDistance < closestSqrDistance)
                 {
                     // Check for obstructions
@@ -98,8 +120,7 @@ public class DetectionModule : MonoBehaviour
         }
 
         IsTargetInAttackRange = KnownDetectedTarget != null &&
-                                Vector3.Distance(transform.position, KnownDetectedTarget.transform.position) <=
-                                AttackRange;
+                                Vector3.Distance(transform.position, KnownDetectedTarget.transform.position) <= AttackRange;
 
         // Detection events
         if (!HadKnownTarget &&
@@ -117,6 +138,7 @@ public class DetectionModule : MonoBehaviour
         // Remember if we already knew a target (for next frame)
         HadKnownTarget = KnownDetectedTarget != null;
     }
+
 
     public virtual void OnLostTarget() => onLostTarget?.Invoke();
 
