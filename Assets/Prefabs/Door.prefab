@@ -60,6 +60,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8231624493043501243, guid: ea20427e39363de46840ad3ded8fec97,
         type: 3}
+      propertyPath: m_Name
+      value: R.Door.001
+      objectReference: {fileID: 0}
+    - target: {fileID: -8231624493043501243, guid: ea20427e39363de46840ad3ded8fec97,
+        type: 3}
       propertyPath: m_Layer
       value: 3
       objectReference: {fileID: 0}
@@ -108,6 +113,11 @@ PrefabInstance:
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 32c2a7cf5b297454bbaeddd3a52e7116, type: 2}
+    - target: {fileID: 5982941358440993999, guid: ea20427e39363de46840ad3ded8fec97,
+        type: 3}
+      propertyPath: m_Name
+      value: L.Door.001
+      objectReference: {fileID: 0}
     - target: {fileID: 5982941358440993999, guid: ea20427e39363de46840ad3ded8fec97,
         type: 3}
       propertyPath: m_Layer
@@ -361,7 +371,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.9999998, y: 1.9810293, z: 2.3606029}
+  m_Size: {x: 1.9999998, y: 1.9810293, z: 1.7041327}
   m_Center: {x: 0, y: 1.0040946, z: 0}
 --- !u!1 &6871323776922980376 stripped
 GameObject:

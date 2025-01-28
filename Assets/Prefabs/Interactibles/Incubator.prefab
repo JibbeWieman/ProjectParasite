@@ -75,23 +75,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 52b57034da1e50649805f79f2f02cd76,
+        type: 3}
       propertyPath: m_TagString
       value: Destructible
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_Range
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_Intensity
-      value: 200
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_Lightmapping
       value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
+        type: 3}
+      propertyPath: m_ShadowRadius
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5958438921693756439, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
@@ -102,12 +112,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 74a5de42c82244d4d9ecba8b8eac3a1e, type: 2}
+      objectReference: {fileID: 2100000, guid: 4c04dea89ae56d3419d24506836a8349, type: 2}
     - target: {fileID: 7202271454713460447, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 2100000, guid: 4fb04805772461e4191bfb94acc7ab91, type: 2}
+      objectReference: {fileID: 2100000, guid: 23d38016d7622524ba0b249b0a5272fe, type: 2}
     - target: {fileID: 7800219917424603212, guid: 52b57034da1e50649805f79f2f02cd76,
         type: 3}
       propertyPath: m_LocalPosition.x

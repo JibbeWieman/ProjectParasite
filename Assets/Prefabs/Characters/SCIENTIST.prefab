@@ -532,8 +532,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 11.127001}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8526462394457313955}
   - {fileID: 1498885176688208677}
@@ -646,10 +646,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ST_Player: {fileID: 11400000, guid: 91c9d415eb497534d9dfc670eb3cc76a, type: 2}
   enemyAudioHurt: {fileID: 0}
-  m_PatrolSpeed: 5
-  m_ChaseSpeed: 7
-  m_AttackSpeed: 6
-  m_FleeSpeed: 6
+  m_PatrolSpeed: 3
+  m_ChaseSpeed: 5
+  m_AttackSpeed: 5
+  m_FleeSpeed: 3
   timeBetweenAttacks: 0.5
   projectile: {fileID: 0}
   pistolProjectile: {fileID: 0}
@@ -786,7 +786,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 2
-  m_BaseOffset: -0.01
+  m_BaseOffset: 0.07
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!82 &737955596225528294
@@ -1809,7 +1809,7 @@ MonoBehaviour:
     Value: 0.02869121
     m_SpeedMode: 0
     m_MaxSpeed: 2
-    m_AccelTime: 0.2
+    m_AccelTime: 0.1
     m_DecelTime: 0.1
     m_InputAxisName: Mouse Y
     m_InputAxisValue: 0
@@ -1860,12 +1860,12 @@ MonoBehaviour:
   m_BindingMode: 4
   m_SplineCurvature: 0.3
   m_Orbits:
-  - m_Height: 6
-    m_Radius: 3
-  - m_Height: 2
-    m_Radius: 7
-  - m_Height: -1
-    m_Radius: 5
+  - m_Height: 3
+    m_Radius: 1.5
+  - m_Height: 1
+    m_Radius: 3.5
+  - m_Height: -0.5
+    m_Radius: 2.5
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
   - {fileID: 5964972544681523993}
@@ -2409,12 +2409,12 @@ MonoBehaviour:
   m_BindingMode: 4
   m_SplineCurvature: 0.3
   m_Orbits:
-  - m_Height: 3
-    m_Radius: 3
+  - m_Height: 1.5
+    m_Radius: 1.5
   - m_Height: 0
-    m_Radius: 5
-  - m_Height: -2
-    m_Radius: 3
+    m_Radius: 1.5
+  - m_Height: -1
+    m_Radius: 1.5
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
   - {fileID: 1216523442387866953}

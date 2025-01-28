@@ -246,6 +246,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Modular Vent Wall Center
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 631b061ba0edcc04a9d3f1ea9f4454d0,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

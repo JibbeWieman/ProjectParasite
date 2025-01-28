@@ -763,9 +763,9 @@ MonoBehaviour:
   RotationSpeed: 200
   AimingRotationMultiplier: 0.4
   JumpForce: 5
-  CameraHeightRatio: 0.5
-  CapsuleHeightStanding: 0.25
-  CapsuleHeightCrouching: 0.25
+  CameraHeightRatio: 0.12
+  CapsuleHeightStanding: 0.15
+  CapsuleHeightCrouching: 0.15
   CrouchingSharpness: 10
   FootstepSfxFrequency: 1
   FootstepSfxFrequencyWhileSprinting: 1
@@ -780,6 +780,7 @@ MonoBehaviour:
   FallDamageAtMaxSpeed: 50
   m_AnimatorAlive: {fileID: 150234741481491105}
   m_TransitionSpeed: 0.06
+  IsDead: 0
   m_PatrolAgent: {fileID: 0}
   m_NavMeshAgent: {fileID: 0}
 --- !u!114 &2020321848613042653
@@ -816,7 +817,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: beefb963d5214324cae07eac7d0dccf2, type: 3}
   cooldownTime: 3
   canUse: 1
-  bloodVfx: {fileID: 0}
+  bloodVfx: {fileID: 2236759683813918769, guid: 56c090e6179380748bb5428d878cf7c6,
+    type: 3}
   persistentHosts: {fileID: 0}
   ParasiteBasicCam: {fileID: 3387049651504999583}
   isLeeching: 0
@@ -864,12 +866,12 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 0.15
-  m_Radius: 0.15
+  m_Radius: 0.13
   m_SlopeLimit: 15
-  m_StepOffset: 0.3
+  m_StepOffset: 0.1
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.03, z: 0}
+  m_Center: {x: 0, y: 0.12, z: 0}
 --- !u!82 &1765793991923264421
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1636,7 +1638,7 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_YAxis:
-    Value: 0.054519445
+    Value: 0
     m_SpeedMode: 0
     m_MaxSpeed: 2
     m_AccelTime: 0.1
@@ -1690,12 +1692,12 @@ MonoBehaviour:
   m_BindingMode: 4
   m_SplineCurvature: 0.3
   m_Orbits:
-  - m_Height: 6
-    m_Radius: 3
-  - m_Height: 2
-    m_Radius: 7
+  - m_Height: 3
+    m_Radius: 1.5
+  - m_Height: 1
+    m_Radius: 3.5
   - m_Height: 0
-    m_Radius: 5
+    m_Radius: 2.5
   m_LegacyHeadingBias: 3.4028235e+38
   m_Rigs:
   - {fileID: 4718021392077687386}
@@ -1715,7 +1717,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_CollideAgainst:
     serializedVersion: 2
-    m_Bits: 768
+    m_Bits: 11008
   m_IgnoreTag: Host
   m_TransparentLayers:
     serializedVersion: 2
@@ -1837,17 +1839,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.15
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.15
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.15
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}
@@ -1857,7 +1859,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.1275
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a124ca5f05940984e9f86f72a5c2c51e,
         type: 3}

@@ -105,7 +105,5 @@ public class Actor : MonoBehaviour
         {
             m_ActorsManager.Actors.Remove(this);
         }
-
-        //EventManager.RemoveListener<AimEvent>(SwitchCamera);
     }
 }

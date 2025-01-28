@@ -86,7 +86,7 @@ PrefabInstance:
     - target: {fileID: -5076484507258936684, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
       propertyPath: m_Intensity
-      value: 50
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -5076484507258936684, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
@@ -116,12 +116,17 @@ PrefabInstance:
     - target: {fileID: -1071359958148435772, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
       propertyPath: m_Intensity
-      value: 45
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: -1071359958148435772, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
       propertyPath: m_SpotAngle
-      value: 47.765297
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: -1071359958148435772, guid: 01184762f635c17448c2ae58c1d9aee9,
+        type: 3}
+      propertyPath: m_Lightmapping
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -1071359958148435772, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
@@ -142,12 +147,12 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4fb04805772461e4191bfb94acc7ab91, type: 2}
+      objectReference: {fileID: 2100000, guid: b5345397cc6305d4590b118ab729242a, type: 2}
     - target: {fileID: 8442510506162454399, guid: 01184762f635c17448c2ae58c1d9aee9,
         type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 2100000, guid: 74a5de42c82244d4d9ecba8b8eac3a1e, type: 2}
+      objectReference: {fileID: 2100000, guid: 3542f8b1bd9e99c47a882933bcd7c2b4, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

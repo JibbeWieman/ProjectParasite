@@ -11,17 +11,17 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.7
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.7
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.7
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
@@ -97,7 +97,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: 4fb04805772461e4191bfb94acc7ab91, type: 2}
+      objectReference: {fileID: 2100000, guid: 53167ba58e93eed48b9191590ec2a998, type: 2}
     - target: {fileID: 3544541331817042242, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_StaticEditorFlags
@@ -121,11 +121,21 @@ PrefabInstance:
     - target: {fileID: 8912049515002365231, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_Intensity
-      value: 50
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 8912049515002365231, guid: 5a0dd5e4c266d3042a81782e51704c4e,
         type: 3}
       propertyPath: m_Lightmapping
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8912049515002365231, guid: 5a0dd5e4c266d3042a81782e51704c4e,
+        type: 3}
+      propertyPath: m_ShadowRadius
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8912049515002365231, guid: 5a0dd5e4c266d3042a81782e51704c4e,
+        type: 3}
+      propertyPath: m_Shadows.m_Type
       value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
