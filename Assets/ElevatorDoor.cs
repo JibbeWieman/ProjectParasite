@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class ElevatorDoor : MonoBehaviour
+public class ElevatorDoor : Door
 {
     public Collider trigger;
     public int keyRequirement;
@@ -12,8 +12,13 @@ public class ElevatorDoor : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI doorStatus;
 
-    private void Start()
+    private MovingPlatform Elevator;
+
+    public override void Start()
     {
+        base.Start();
+
+        Elevator = GetComponentInParent<MovingPlatform>();
         trigger = GetComponent<BoxCollider>();
         trigger.enabled = false;
     }
@@ -25,8 +30,21 @@ public class ElevatorDoor : MonoBehaviour
 
         if (keyAmount >= keyRequirement)
         {
-            trigger.enabled = true;
+            Unlock();
             doorStatus.text = "";
         }
+    }
+
+    public void Unlock()
+    {
+        trigger.enabled = true;
+        EventManager.Broadcast(Events.ElevatorUnlockedEvent);
+    }
+
+    public override void HandleDoorInteraction()
+    {
+        if (Elevator.isMoving) return;
+
+        base.HandleDoorInteraction();
     }
 }

@@ -19,6 +19,7 @@ public static class Events
     public static AimEvent AimEvent = new();
     public static GameStartEvent GameStartEvent = new();
     public static OnBodyFoundEvent OnBodyFoundEvent = new();
+    public static ElevatorUnlockedEvent ElevatorUnlockedEvent = new();
 }
 
 // Jibbe's Events
@@ -57,8 +58,8 @@ public class AimEvent : GameEvent
         set
         {
             isAiming = value;
-            EventManager.Broadcast(Events.ActorPossesedEvent);
-            Debug.Log($"I'm Aiming! Old Value: {isAiming}, New Value: {value}");
+            EventManager.Broadcast(Events.AimEvent);
+            //Debug.Log($"I'm Aiming! Old Value: {isAiming}, New Value: {value}");
         }
     }
 }
@@ -77,6 +78,10 @@ public class OnBodyFoundEvent : GameEvent
             Debug.Log($"I'm Aiming! Old Value: {deadBody}, New Value: {value}");
         }
     }
+}
+
+public class ElevatorUnlockedEvent : GameEvent
+{
 }
 
 public class GameStartEvent : GameEvent

@@ -29,34 +29,12 @@ public class DestructibleObject : MonoBehaviour
     [SerializeField, Range(1f, 20f), HideInInspector]
     private float maxDestroyTime = 10f;
     public float MaxDestroyTime { get => maxDestroyTime; set => maxDestroyTime = value; }
-
-    //private Rigidbody rb;
-    //private bool hasCollided = false;
     #endregion
 
     #region Unity Methods
-    //private void Start()
-    //{
-    //    rb = GetComponent<Rigidbody>();
-    //}
-
     private void OnCollisionEnter(Collision collision)
     {
-        //if (!hasCollided && rb.velocity.magnitude >= requiredBreakMagnitude)
-        //{
-        //    hasCollided = true;
-        //    DestroyObject();
-        //}
-        //else 
         if (collision.gameObject.CompareTag("Bullet"))
-        {
-            DestroyObject();
-        }
-    }
-
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.gameObject.CompareTag("Player"))
         {
             DestroyObject();
         }

@@ -36,4 +36,12 @@ public class PlayerCharacterController : ActorCharacterController
 
         EventManager.Broadcast(Events.PlayerDeathEvent);
     }
+
+    protected void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.CompareTag("Destructible") && isSprinting)
+        {
+            hit.gameObject.GetComponent<DestructibleObject>().DestroyObject();
+        }
+    }
 }

@@ -1,18 +1,17 @@
-using System.Collections;
 using UnityEngine;
+
+public enum KeycardType
+{
+    None,
+    Red,
+    Green,
+    Blue,
+    Yellow
+}
 
 public class HighAuthorityPass : MonoBehaviour
 {
-    public enum KeycardType
-    {
-        None,
-        Red,
-        Green,
-        Blue,
-        Yellow
-    }
-
-    private Animator animator;
+    //private Animator animator;
 
     public bool hasInsertedKey = false;
 
@@ -22,13 +21,12 @@ public class HighAuthorityPass : MonoBehaviour
 
     private ElevatorDoor doorToUnlock;
 
-    private MovingPlatform Elevator;
+    public KeycardType keycardType;
 
     private void Start()
     {
         // Cache the reference to the elevator door
         doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
-        Elevator = FindAnyObjectByType<MovingPlatform>();
     }
 
     private void OnTriggerEnter(Collider collider)
@@ -37,11 +35,11 @@ public class HighAuthorityPass : MonoBehaviour
         currentTrigger = collider;
 
         // Cache animator if it's a door
-        if (currentTrigger.CompareTag("Door"))
-        {
-            animator = collider.GetComponent<Animator>();
-            HandleDoorInteraction();
-        }
+        //if (currentTrigger.CompareTag("Door"))
+        //{
+        //    animator = collider.GetComponent<Animator>();
+        //    HandleDoorInteraction();
+        //}
     }
 
     private void OnTriggerExit(Collider collider)
@@ -53,10 +51,10 @@ public class HighAuthorityPass : MonoBehaviour
         }
 
         // Clear animator if leaving a door
-        if (collider.CompareTag("Door"))
-        {
-            StartCoroutine(CloseDoor());
-        }
+        //if (collider.CompareTag("Door"))
+        //{
+        //    StartCoroutine(CloseDoor());
+        //}
     }
 
     private void Update()
@@ -82,16 +80,6 @@ public class HighAuthorityPass : MonoBehaviour
         keyhole.InsertKey();
         InsertKey();
     }
-
-    private void HandleDoorInteraction()
-    {
-        if (animator == null || animator.GetBool("OpenDoor") || Elevator.isMoving) return;
-
-        Debug.Log("Opening door...");
-        animator.SetBool("OpenDoor", true);
-        //StartCoroutine(CloseDoor());
-    }
-
     private void InsertKey()
     {
         if (hasInsertedKey) return;
@@ -100,13 +88,22 @@ public class HighAuthorityPass : MonoBehaviour
         doorToUnlock.UpdateKeyAmount();
     }
 
-    private IEnumerator CloseDoor()
-    {
-        yield return new WaitForSeconds(.5f);
-        if (animator != null)
-        {
-            Debug.Log("Closing door...");
-            animator.SetBool("OpenDoor", false);
-        }
-    }
+    //private void HandleDoorInteraction()
+    //{
+    //    if (animator == null || animator.GetBool("OpenDoor") || Elevator.isMoving) return;
+
+    //    Debug.Log("Opening door...");
+    //    animator.SetBool("OpenDoor", true);
+    //    //StartCoroutine(CloseDoor());
+    //}
+
+    //private IEnumerator CloseDoor()
+    //{
+    //    yield return new WaitForSeconds(.5f);
+    //    if (animator != null)
+    //    {
+    //        Debug.Log("Closing door...");
+    //        animator.SetBool("OpenDoor", false);
+    //    }
+    //}
 }

@@ -134,6 +134,7 @@ public class ActorWeaponsManager : MonoBehaviour
             if (!activeWeapon.AutomaticReload && m_InputHandler.GetReloadButtonDown() && activeWeapon.CurrentAmmoRatio < 1.0f)
             {
                 Events.AimEvent.IsAiming = false;
+                activeWeapon.Reload();
                 activeWeapon.StartReloadAnimation();
                 return;
             }
@@ -154,7 +155,7 @@ public class ActorWeaponsManager : MonoBehaviour
             }
         }
 
-        // weapon switch handling
+        #region weapon switch handling
         if (!Events.AimEvent.IsAiming &&
             (activeWeapon == null || !activeWeapon.IsCharging) &&
             (m_WeaponSwitchState == WeaponSwitchState.Up || m_WeaponSwitchState == WeaponSwitchState.Down))
@@ -175,6 +176,7 @@ public class ActorWeaponsManager : MonoBehaviour
                 }
             }
         }
+        #endregion
 
         // Pointing at enemy handling
         IsPointingAtEnemy = false;

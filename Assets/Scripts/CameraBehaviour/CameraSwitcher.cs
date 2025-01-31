@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
-using static HostThirdPersonCam;
 
 public class CameraSwitcher : MonoBehaviour
 {
-    static List<CinemachineFreeLook> cameras = new List<CinemachineFreeLook>();
+    static List<CinemachineFreeLook> cameras = new();
 
     public static CinemachineFreeLook ActiveCamera = null;
 

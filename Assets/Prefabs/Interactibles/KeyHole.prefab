@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8951191129736315698}
   - component: {fileID: 3904887167489896678}
   - component: {fileID: 3322874827643267566}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: KeyHole
   m_TagString: KeyHole
   m_Icon: {fileID: 0}

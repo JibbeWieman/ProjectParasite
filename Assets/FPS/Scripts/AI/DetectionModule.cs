@@ -58,7 +58,7 @@ public class DetectionModule : MonoBehaviour
 
         bool spottedDeadBody = false; // Variable for detecting dead bodies
 
-        foreach (Actor otherActor in m_ActorsManager.Actors)
+        foreach (Actor otherActor in ActorsManager.Actors)
         {
             float sqrDistance = (otherActor.transform.position - DetectionSourcePoint.position).sqrMagnitude;
 
@@ -113,6 +113,7 @@ public class DetectionModule : MonoBehaviour
 
                             TimeLastSeenTarget = Time.time;
                             KnownDetectedTarget = otherActor.AimPoint.gameObject;
+                            //Debug.Log(KnownDetectedTarget);
                         }
                     }
                 }
@@ -123,6 +124,12 @@ public class DetectionModule : MonoBehaviour
                                 Vector3.Distance(transform.position, KnownDetectedTarget.transform.position) <= AttackRange;
 
         // Detection events
+        if (!HadKnownTarget &&
+            IsTargetInAttackRange)
+        {
+            OnAttack();
+        }
+
         if (!HadKnownTarget &&
             KnownDetectedTarget != null)
         {

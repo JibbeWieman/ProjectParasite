@@ -9,6 +9,7 @@ public class HostCharacterController : ActorCharacterController
     [SerializeField] protected GameObject aliveModel;
     [SerializeField] protected GameObject deadModel;
     ActorWeaponsManager m_WeaponsManager;
+    private EnemyAI m_EnemyAI;
 
     public float RotationMultiplier
     {
@@ -25,20 +26,16 @@ public class HostCharacterController : ActorCharacterController
 
     protected override void Start()
     {
-        Debug.Log($"Before base.Start(): {transform.position}");
+        //Debug.Log($"Before base.Start(): {transform.position}");
         base.Start();
-        Debug.Log($"After base.Start(): {transform.position}");
+        //Debug.Log($"After base.Start(): {transform.position}");
 
         m_WeaponsManager = GetComponent<ActorWeaponsManager>();
         DebugUtility.HandleErrorIfNullGetComponent<ActorWeaponsManager, ActorCharacterController>(
             m_WeaponsManager, this, gameObject);
 
-        m_PatrolAgent = GetComponent<PatrolAgent>();
-        DebugUtility.HandleErrorIfNullGetComponent<PatrolAgent, ActorCharacterController>(m_PatrolAgent,
-            this, gameObject);
-
-        m_NavMeshAgent = GetComponent<NavMeshAgent>();
-        DebugUtility.HandleErrorIfNullGetComponent<NavMeshAgent, ActorCharacterController>(m_NavMeshAgent,
+        m_EnemyAI = GetComponent<EnemyAI>();
+        DebugUtility.HandleErrorIfNullGetComponent<EnemyAI, ActorCharacterController>(m_EnemyAI,
             this, gameObject);
 
         // Ensure models and animation states are properly set
@@ -55,6 +52,8 @@ public class HostCharacterController : ActorCharacterController
 
         aliveModel.SetActive(false);
         deadModel.SetActive(true);
+
+        m_EnemyAI.enabled = false;
 
         //m_WeaponsManager.SwitchToWeaponIndex(-1, true); // Tell the weapons manager to switch to a non-existing weapon in order to lower the weapon
     }

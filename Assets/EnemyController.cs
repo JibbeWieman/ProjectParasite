@@ -397,8 +397,8 @@ public class EnemyController : MonoBehaviour
 
     public bool TryAtack(Vector3 enemyPosition)
     {
-        if (m_GameFlowManager.GameIsEnding)
-            return false;
+        //if (m_GameFlowManager.GameIsEnding)
+        //    return false;
 
         OrientWeaponsTowards(enemyPosition);
 

@@ -183,10 +183,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 7
-  Orientation: {fileID: 0}
-  CombatLookAt: {fileID: 0}
-  hostObj: {fileID: 0}
-  currentStyle: 0
 --- !u!114 &167398090281815885
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -12,13 +12,13 @@ public class MovingPlatform : MonoBehaviour
     private int i;
     public bool reverse;
 
-    private TriggerPlatform triggerPlatform;
+    //private TriggerPlatform triggerPlatform;
 
     private void Start()
     {
         transform.position = points[startPoint].position;
         i = startPoint;
-        triggerPlatform = GetComponent<TriggerPlatform>();
+        //triggerPlatform = GetComponent<TriggerPlatform>();
     }
 
     private void Update()

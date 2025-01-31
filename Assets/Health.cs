@@ -117,7 +117,8 @@ public class Health : MonoBehaviour
     private void ShowFloatingText(string textToShow)
     {
         //Can be optimized by Object Pooling
-        var go = Instantiate(floatingText, transform.position, Quaternion.identity, transform);
+        var go = Instantiate(floatingText, transform.position + new Vector3(0, 1f, 0), Quaternion.identity, transform);
+        go.transform.rotation = Quaternion.LookRotation(ActorsManager.FindActorById(Events.ActorPossesedEvent.CurrentActor).gameObject.transform.position);
         go.GetComponent<TextMeshPro>().text = textToShow;
     }
 }

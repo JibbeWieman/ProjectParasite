@@ -80,6 +80,11 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 52d1fb39120c4f94e99c4164ccad1d19, type: 2}
     - target: {fileID: -2818631016347784500, guid: ea20427e39363de46840ad3ded8fec97,
         type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -2818631016347784500, guid: ea20427e39363de46840ad3ded8fec97,
+        type: 3}
       propertyPath: m_TagString
       value: Door
       objectReference: {fileID: 0}
@@ -142,6 +147,10 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ea20427e39363de46840ad3ded8fec97,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 941013512692229338}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ea20427e39363de46840ad3ded8fec97,
         type: 3}
       insertIndex: -1
@@ -331,6 +340,19 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 5951715485334382429}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &941013512692229338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6798698632808831500}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b343d5a76225e0f4f9597621962fff7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  requiredKey: 1
 --- !u!95 &970748500301755879
 Animator:
   serializedVersion: 5
@@ -371,7 +393,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1.9999998, y: 1.9810293, z: 1.7041327}
+  m_Size: {x: 1.9999998, y: 1.9810293, z: 2.5185494}
   m_Center: {x: 0, y: 1.0040946, z: 0}
 --- !u!1 &6871323776922980376 stripped
 GameObject:

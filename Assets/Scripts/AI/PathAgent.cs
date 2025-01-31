@@ -32,6 +32,9 @@ public class PatrolAgent : MonoBehaviour
     private bool isRandomDestinationSet = false;
     private Vector3 currentRandomDestination;
 
+    private float timeSinceLastMove;
+    private const float maxTimeToReachDestination = 5f; // Max time to reach destination in seconds
+
     #endregion
 
     #region Unity Methods
@@ -120,6 +123,17 @@ public class PatrolAgent : MonoBehaviour
         if (isRandomDestinationSet && Vector3.Distance(transform.position, currentRandomDestination) < 0.5f)
         {
             isRandomDestinationSet = false; // Mark the destination as reached
+            timeSinceLastMove = 0f; // Reset the timer
+        }
+
+        // Handle stuck agent
+        if (isRandomDestinationSet)
+        {
+            timeSinceLastMove += Time.deltaTime;
+            if (timeSinceLastMove >= maxTimeToReachDestination)
+            {
+                isRandomDestinationSet = false; // Force pick a new destination
+            }
         }
 
         // If no random destination is set, pick a new one
@@ -136,6 +150,7 @@ public class PatrolAgent : MonoBehaviour
             }
         }
     }
+
 
     #endregion
 }

@@ -82,7 +82,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Materials.Array.data[1]
       value: 
-      objectReference: {fileID: 2100000, guid: 310b6ce8896a53a469a95f6a56da89fc, type: 2}
+      objectReference: {fileID: 2100000, guid: c1617948530888441a92c2b26cf571da, type: 2}
     - target: {fileID: -1071359958148435772, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0,
         type: 3}
       propertyPath: m_Intensity
@@ -112,14 +112,14 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1882030673547004938}
     - targetCorrespondingSourceObject: {fileID: 3472778375830378061, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0,
         type: 3}
       insertIndex: 2
       addedObject: {fileID: 8155931822315254907}
-    - targetCorrespondingSourceObject: {fileID: 3472778375830378061, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1990941240332154212}
   m_SourcePrefab: {fileID: 100100000, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0, type: 3}
 --- !u!1 &112598437921711688 stripped
 GameObject:
@@ -140,17 +140,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rotationSpeed: 250
-  rotationAxis: {x: 0, y: 70, z: 0}
-  rotationRangeDegrees: 90
---- !u!114 &1990941240332154212
+  rotationAxis: {x: 10, y: 0, z: 45}
+  rotationRangeDegrees: 30
+--- !u!1 &4422719516087962964 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: fb0fb2dc2ed89f043a8bec5ba81d22e0,
+    type: 3}
+  m_PrefabInstance: {fileID: 3576366242880122885}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1882030673547004938
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 112598437921711688}
-  m_Enabled: 0
+  m_GameObject: {fileID: 4422719516087962964}
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7989f954724441a4e9270ca0416c58de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lightOn_mat: {fileID: 2100000, guid: c1617948530888441a92c2b26cf571da, type: 2}
+  lightOff_mat: {fileID: 2100000, guid: eed490adfd47e5745ba89df958883bc1, type: 2}

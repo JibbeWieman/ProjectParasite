@@ -1,23 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Game_Manager : MonoBehaviour
 {
+    #region VARIABLES
     public static Game_Manager Instance { get; private set; }
 
-    #region VARIABLES
+    [Header("Lighting & Environment")]
+    [SerializeField] private Color _environmentColor = Color.black; // Default ambient light color
+    [SerializeField] private Material _skyboxMaterial; // Assign in Inspector
+    [SerializeField] private LightingSettings _lightingSettingsAsset; // Optional: Assign the scene's main directional light
 
-    [Header("Variables")]
-
-    //Player healthsystem
-    //static public HealthSystem playerHealth = new HealthSystem(100);
-    //[SerializeField] private CharacterWindow characterWindow;
-    //readonly Character character = new Character();
-
-    private GameObject player;
 
     #endregion
 
@@ -44,25 +43,69 @@ public class Game_Manager : MonoBehaviour
 
     private void Start()
     {
-        player = GetComponent<ActorsManager>().Player;
+        //player = GetComponent<ActorsManager>().Player;
+        EventManager.Broadcast(Events.GameStartEvent);
+
+        ApplyLightingSettingsToAllScenes();
     }
 
-    private void Update()
+    private void ApplyLightingSettingsToAllScenes()
     {
-        //if (player == null)
+        // Loop through all loaded scenes and apply lighting settings
+        for (int i = 0; i < SceneManager.sceneCount; i++)
+        {
+            Scene scene = SceneManager.GetSceneAt(i);
+            if (scene.isLoaded)
+            {
+                ApplyLightingToScene(scene);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies lighting settings to a specific scene.
+    /// </summary>
+    private void ApplyLightingToScene(Scene scene)
+    {
+        // Ensure the correct scene is active before applying settings
+        SceneManager.SetActiveScene(scene);
+
+        // Apply Skybox
+        if (_skyboxMaterial != null)
+        {
+            RenderSettings.skybox = _skyboxMaterial;
+        }
+
+        // Apply Ambient Lighting
+        RenderSettings.ambientMode = AmbientMode.Flat;
+        RenderSettings.ambientLight = _environmentColor;
+
+        // Apply Light Settings
+        //if (_lightingSettingsAsset != null)
         //{
-        //    player = GameObject.FindWithTag("Player").transform.root.gameObject;
+        //    Lightmapping.lightingSettings = _lightingSettingsAsset;
         //}
 
-        #region Swap to parasite onces host dies
-        //if (InfectAbility.inHost && InfectAbility.host == null)
-        //{
-        //    player.SetActive(true);
-        //    player.GetComponent<PlayerMovement>().enabled = true;
-        //    InfectAbility.inHost = false;
-        //}
-        #endregion
+        // Update global illumination
+        DynamicGI.UpdateEnvironment();
     }
+
+    //private void Update()
+    //{
+    //if (player == null)
+    //{
+    //    player = GameObject.FindWithTag("Player").transform.root.gameObject;
+    //}
+
+    //#region Swap to parasite onces host dies
+    //if (InfectAbility.inHost && InfectAbility.host == null)
+    //{
+    //    player.SetActive(true);
+    //    player.GetComponent<PlayerMovement>().enabled = true;
+    //    InfectAbility.inHost = false;
+    //}
+    //#endregion
+    //}
 
     // A method to start the cooldown
     public void StartCooldown(AbilityBase ability, float cooldown)

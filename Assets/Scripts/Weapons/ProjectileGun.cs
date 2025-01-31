@@ -1,56 +1,75 @@
 using UnityEngine;
 using TMPro;
 
+//public enum WeaponShootType
+//{
+//    Manual,
+//    Automatic,
+//    Charge,
+//}
+
+//[System.Serializable]
+//public struct CrosshairData
+//{
+//    [Tooltip("The image that will be used for this weapon's crosshair")]
+//    public Sprite CrosshairSprite;
+
+//    [Tooltip("The size of the crosshair image")]
+//    public int CrosshairSize;
+
+//    [Tooltip("The color of the crosshair image")]
+//    public Color CrosshairColor;
+//}
+
 public class ProjectileGun : MonoBehaviour
 {
     #region VARIABLES
-    public GameObject shooter; //Reference to the shooter of the gun
-
     //Bullet 
-    public GameObject bullet;
-    public Rigidbody gunRb;
+    [SerializeField] private GameObject bullet;
+    [SerializeField] private Rigidbody gunRb;
+    private float m_LastTimeShot = Mathf.NegativeInfinity;
 
-    //bullet force
-    public float shootForce, upwardForce;
-
-    //Bullet tag
-    //private string bulletTag = "Bullet";
+    [SerializeField] private float shootForce, upwardForce; //bullet force
 
     [Header("Gun stats")]
-    //
-    public float timeBetweenShooting, spread, reloadTime, timeBetweenShots;
-    public int magazineSize, bulletsPerTap;
-    public bool allowButtonHold;
+    [SerializeField] private float timeBetweenShooting, BulletSpreadAngle, reloadTime, DelayBetweenShots;
+    [SerializeField] private int magazineSize, bulletsPerTap;
+    [SerializeField] private bool allowButtonHold;
 
-    int bulletsLeft, bulletsShot;
+    [Tooltip("The type of weapon wil affect how it shoots")]
+    public WeaponShootType ShootType;
+
+    private int m_CurrentAmmo, m_AmmoFired;
 
     [Header("Recoil")]
-    //public Rigidbody playerRb;
-    public float recoilForce;
+    [SerializeField] private float recoilForce;
 
     [Header("Bools")]
-    //bools
-    bool shooting, readyToShoot, reloading;
+    [SerializeField]
+    private bool hasSpread;
+    private bool shooting, readyToShoot, reloading;
+    private bool m_FlashLightOn = false;
+    bool m_WantsToShoot = false;
 
     [Header("References")]
-    public Camera cam;
-    public Transform attackPoint;
+    private Camera cam;
+    [SerializeField] private Transform attackPoint;
 
     [Header("Graphics")]
-    public GameObject muzzleFlash;
-    public GameObject bulletHoleGraphic;
-    public GameObject flashLight;
-    private bool m_FlashLightOn = true;
-    public TextMeshProUGUI ammoDisplay;
+    [SerializeField] private GameObject muzzleFlash, bulletHoleGraphic, flashLight;
+    [SerializeField] private TextMeshProUGUI ammoDisplay; // should be done in weaponsmanager
 
     //bug fixing :D
     public bool allowInvoke = true;
     #endregion
 
-    private void Awake()
+    private void Start()
     {
+        cam = Camera.main;
+        ammoDisplay = GameObject.FindWithTag("AmmoCount")?.GetComponent<TextMeshProUGUI>();
+
         //Make sure magazine is full
-        bulletsLeft = magazineSize;
+        m_CurrentAmmo = magazineSize;
         readyToShoot = true;
 
         flashLight = gameObject.GetComponentInChildren<Light>().gameObject;
@@ -58,66 +77,96 @@ public class ProjectileGun : MonoBehaviour
 
     private void Update()
     {
-        #region ASSIGN VARIABLES
-        if (cam == null)
+        //Set ammo display, if it exists
+        if (ammoDisplay != null)
         {
-            cam = GameObject.FindWithTag("MainCamera")?.GetComponent<Camera>();
+            ammoDisplay.SetText(m_CurrentAmmo / bulletsPerTap + " / " + magazineSize / bulletsPerTap);
         }
 
-        if (ammoDisplay == null)
-        {
-            ammoDisplay = GameObject.FindWithTag("AmmoCount")?.GetComponent<TextMeshProUGUI>();
-        }
-        #endregion
-
-        if (gameObject.GetComponentsInParent<Infected>().Length > 0)
-        {
-            MyInput();
-
-            //Set ammo display, if it exists
-            if (ammoDisplay != null)
-            {
-                ammoDisplay.SetText(bulletsLeft / bulletsPerTap + " / " + magazineSize / bulletsPerTap);
-            }
-        }
-
-        //Flashlight activation
-        if (m_FlashLightOn) { flashLight.gameObject.SetActive(false); }
-        else { flashLight.gameObject.SetActive(true); }
+        MyInput();
     }
 
     private void MyInput()
     {
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            m_FlashLightOn = !m_FlashLightOn;
-        }
-
         //Check if allowed to hold down button and take corresponding input
         if (allowButtonHold) shooting = Input.GetKey(KeyCode.Mouse0);
         else shooting = Input.GetKeyDown(KeyCode.Mouse0);
 
-        //Reloading
-        if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !reloading) Reload();
-        //Reload automatically when trying to shoot without ammo
-        if (readyToShoot && shooting && !reloading && bulletsLeft <= 0) Reload();
+        if (Input.GetKeyDown(KeyCode.R) && m_CurrentAmmo < magazineSize && !reloading) Reload();
+        if (readyToShoot && shooting && !reloading && m_CurrentAmmo <= 0) Reload();
 
         //Shooting
-        if (readyToShoot && shooting && !reloading && bulletsLeft > 0)
+        if (readyToShoot && shooting && !reloading && m_CurrentAmmo > 0)
         {
             //Set bullets shot to 0
-            bulletsShot = bulletsPerTap;
+            m_AmmoFired = bulletsPerTap;
 
-            Shoot();
+            HandleShoot();
+        }
+
+        if (Input.GetKeyDown(KeyCode.L)) { flashLight.gameObject.SetActive(!m_FlashLightOn); }
+    }
+
+    public bool HandleShootInputs(bool inputDown, bool inputHeld, bool inputUp)
+    {
+        if (Input.GetKeyDown(KeyCode.R) && m_CurrentAmmo < magazineSize && !reloading) Reload();
+        if (readyToShoot && shooting && !reloading && m_CurrentAmmo <= 0) Reload();               //Reload automatically when trying to shoot without ammo
+
+        m_WantsToShoot = inputDown || inputHeld;
+        switch (ShootType)
+        {
+            case WeaponShootType.Manual:
+                if (inputDown)
+                {
+                    return TryShoot();
+                }
+
+                return false;
+
+            case WeaponShootType.Automatic:
+                if (inputHeld)
+                {
+                    return TryShoot();
+                }
+
+                return false;
+
+            case WeaponShootType.Charge:
+                if (inputHeld)
+                {
+                    //TryBeginCharge();
+                }
+
+                // Check if we released charge or if the weapon shoot autmatically when it's fully charged
+                //if (inputUp || (AutomaticReleaseOnCharged && CurrentCharge >= 1f))
+                //{
+                //    return TryReleaseCharge();
+                //}
+
+                return false;
+
+            default:
+                return false;
         }
     }
 
-    #region GUN FUNCTIONS
-    private void Shoot()
+    bool TryShoot()
     {
-        shooter = gameObject.transform.root.GetChild(0).gameObject; //Get the second highest gameobject from the hierachy
-        Debug.Log(shooter);
+        if (m_CurrentAmmo >= 1f
+            && m_LastTimeShot + DelayBetweenShots < Time.time)
+        {
+            HandleShoot();
+            m_CurrentAmmo -= 1;
 
+            return true;
+        }
+
+        return false;
+    }
+
+    #region GUN FUNCTIONS
+    private void HandleShoot()
+    {
         //Debug.Log("I'm Shooting!");
         readyToShoot = false;
 
@@ -132,15 +181,17 @@ public class ProjectileGun : MonoBehaviour
         else
             targetPoint = ray.GetPoint(75); //Just a point far way from the player
 
+        Vector3 bulletDirection = GetShotDirection();
+
         //Calculate direction from attackPoint to targetPoint
-        Vector3 directionWithoutSpread = targetPoint - attackPoint.position;
+        //Vector3 directionWithoutSpread = targetPoint - attackPoint.position;
 
-        //Calculate spread
-        float x = Random.Range(-spread, spread);
-        float y = Random.Range(-spread, spread);
+        ////Calculate spread
+        //float x = Random.Range(-bulletSpread, bulletSpread);
+        //float y = Random.Range(-bulletSpread, bulletSpread);
 
-        //Calculate Direction with Spread
-        Vector3 directionWithSpread = directionWithoutSpread + new Vector3(x, y, 0); //Just add spread to last direction
+        ////Calculate Direction with Spread
+        //Vector3 directionWithSpread = directionWithoutSpread + new Vector3(x, y, 0); //Just add spread to last direction
 
         //Instantiate bullet/projectile
         GameObject currentBullet = Instantiate(bullet, attackPoint.position, Quaternion.identity); //Store instantiated bullet
@@ -153,18 +204,18 @@ public class ProjectileGun : MonoBehaviour
         //{
 
         //Rotate bullet to shoot direction
-        currentBullet.transform.forward = directionWithSpread.normalized;
+        currentBullet.transform.forward = bulletDirection.normalized;
 
         //Add forces to bullet 
-        currentBullet.GetComponent<Rigidbody>().AddForce(directionWithSpread.normalized * shootForce, ForceMode.Impulse);
+        currentBullet.GetComponent<Rigidbody>().AddForce(bulletDirection.normalized * shootForce, ForceMode.Impulse);
         currentBullet.GetComponent<Rigidbody>().AddForce(cam.transform.up * upwardForce, ForceMode.Impulse);
 
         //Instantiate muzzle flash
         if (muzzleFlash != null)
             Instantiate(muzzleFlash, attackPoint.position, Quaternion.identity);
 
-        bulletsLeft--;
-        bulletsShot++;
+        m_CurrentAmmo--;
+        m_AmmoFired++;
 
         //Invoke resetShot function (if not already invoked)
         if (allowInvoke)
@@ -177,8 +228,8 @@ public class ProjectileGun : MonoBehaviour
         }
 
         //if more than one bulletsPerTap make sure to repeat shoot function
-        if (bulletsShot < bulletsPerTap && bulletsLeft > 0)
-            Invoke("Shoot", timeBetweenShots);
+        if (m_AmmoFired < bulletsPerTap && m_CurrentAmmo > 0)
+            Invoke("Shoot", DelayBetweenShots);
         //}
     }
         private void ResetShot()
@@ -194,8 +245,37 @@ public class ProjectileGun : MonoBehaviour
     }
     private void ReloadFinished()
     {
-        bulletsLeft = magazineSize;
+        m_CurrentAmmo = magazineSize;
         reloading = false;
+    }
+
+    Vector3 GetShotDirection()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning("No main camera found. Using WeaponMuzzle direction.");
+            return attackPoint.forward;
+        }
+
+        Vector3 shotDirection = cam.transform.forward;
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of screen
+
+        // Layer mask to ignore AI layer
+        int layerMask = ~LayerMask.GetMask("AI");
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, layerMask))
+        {
+            shotDirection = (hit.point - attackPoint.position).normalized;
+        }
+
+        if (hasSpread)
+        {
+            float spreadAngleRatio = BulletSpreadAngle / 180f;
+            Vector3 spreadDirection = Vector3.Slerp(shotDirection, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+        }
+
+        return shotDirection;
     }
     #endregion
 }

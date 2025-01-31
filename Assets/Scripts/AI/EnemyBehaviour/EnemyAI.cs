@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
-using TMPro;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine.Events;
+using Unity.Services.Analytics.Internal;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -11,8 +11,9 @@ public class EnemyAI : MonoBehaviour
     [Header("References")]
     [SerializeField]
     private SceneTypeObject ST_Player;
+    private Animator m_Animator;
     private GameObject player;
-    private GameObject enemyTarget;
+    public GameObject enemyTarget { get; private set; }
     public AudioSource enemyAudioHurt;
     private LayerMask TargetLayer;
     float m_LastTimeDamaged = float.NegativeInfinity;
@@ -25,12 +26,13 @@ public class EnemyAI : MonoBehaviour
     public UnityAction onLostTarget;
     public UnityAction onDamaged;
 
-    private Actor m_Actor;
-    private PatrolAgent m_PatrolAgent;
+    public Actor m_Actor;
     private EnemyManager m_EnemyManager;
+    private ActorWeaponsManager m_ActorWeaponsManager;
     private ActorsManager m_ActorsManager;
     private Health m_Health;
     private DetectionModule DetectionModule;
+    public PatrolAgent m_PatrolAgent { get; private set; }
     public NavMeshAgent NavMeshAgent { get; private set; }
 
     [Header("Variables")]
@@ -50,10 +52,10 @@ public class EnemyAI : MonoBehaviour
     [Header("Attacking")]
     public float timeBetweenAttacks;
     private bool alreadyAttacked;
-    public GameObject projectile;
-    public GameObject pistolProjectile;
-    public GameObject GunContainer;
-    [HideInInspector] public bool friendlyFire = false;
+    //public GameObject projectile;
+    [SerializeField] private GameObject pistolProjectile;
+    //public GameObject GunContainer;
+    //[HideInInspector] public bool friendlyFire = false;
     Collider[] m_SelfColliders;
 
     [Header("States")]
@@ -97,6 +99,9 @@ public class EnemyAI : MonoBehaviour
     private void Start()
     {
         player = ST_Player.Objects[0];
+        enemyTarget = player;
+
+        m_Animator = GetComponentInChildren<Animator>();
 
         m_Health = GetComponent<Health>();
         DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyController>(m_Health, this, gameObject);
@@ -114,7 +119,11 @@ public class EnemyAI : MonoBehaviour
         DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
 
         m_ActorsManager = FindObjectOfType<ActorsManager>();
-        DebugUtility.HandleErrorIfNullFindObject<ActorsManager, EnemyController>(m_ActorsManager, this);
+        DebugUtility.HandleErrorIfNullFindObject<EnemyAI, EnemyController>(m_ActorsManager, this);
+
+        m_ActorWeaponsManager = GetComponent<ActorWeaponsManager>();
+        DebugUtility.HandleErrorIfNullFindObject<EnemyAI, ActorWeaponsManager>(m_ActorWeaponsManager, this);
+
 
         m_EnemyManager.RegisterEnemy(this);
 
@@ -128,6 +137,7 @@ public class EnemyAI : MonoBehaviour
         DetectionModule.onDetectedTarget += OnDetectedTarget;
         DetectionModule.onLostTarget += OnLostTarget;
         onAttackTarget += DetectionModule.OnAttack;
+        m_Health.OnDie += OnDie;
 
         m_WasDamagedThisFrame = false;
 
@@ -164,12 +174,10 @@ public class EnemyAI : MonoBehaviour
     {
         if (!IsScared())
         {
-            Debug.Log("Target detected: Chasing.");
             Chase();
         }
         else
         {
-            Debug.Log("Target detected: Fleeing.");
             Flee();
         }
     }
@@ -229,7 +237,7 @@ public class EnemyAI : MonoBehaviour
     void OnDie()
     {
         // spawn a particle system when dying
-        var vfx = Instantiate(DeathVfx, DeathVfxSpawnPoint.position, Quaternion.identity);
+        GameObject vfx = Instantiate(DeathVfx, DeathVfxSpawnPoint.position, Quaternion.identity);
         Destroy(vfx, 5f);
 
         // tells the game flow manager to handle the enemy destuction
@@ -242,107 +250,91 @@ public class EnemyAI : MonoBehaviour
         DetectionModule = null;
     }
 
-    //private void Update()
-    //{
-    //        if (DetectionModule.IsTargetInDetectionRange && DetectionModule.IsSeeingTarget)
-    //        {
-    //            if (!m_IsScared)
-    //            {
-    //                if (DetectionModule.IsTargetInAttackRange) Attack();
-    //                else Chase();
-    //            }
-    //            else Flee();
-    //        }
-    //        else Patrol();
-    //    }
-    //}
-
     private void Update()
     {
         EnsureIsWithinLevelBounds();
 
         DetectionModule?.HandleTargetDetection(m_Actor, m_SelfColliders);
-
-        enemyTarget = player;
+        if (m_Health.CurrentHealth <= 0f)
+        {
+            SetAgentState(0f, false, false);
+            return;
+        }
 
         //Arm the ai with a projectile if it as a gun
-        projectile = !IsStunned || !IsScared() ? pistolProjectile : null;
+        //projectile = !IsStunned || !IsScared() ? pistolProjectile : null;
 
-        if (!IsStunned && Events.ActorPossesedEvent.CurrentActor != GetComponent<Actor>().id)
+        if (!IsStunned && !GetComponent<Actor>().IsActive())
         {
             if (DetectionModule.IsSeeingTarget)
             {
-                if (DetectionModule.KnownDetectedTarget.CompareTag("Host") &&
-                    DetectionModule.KnownDetectedTarget.GetComponentInParent<ActorCharacterController>().IsDead &&
-                    DetectionModule.KnownDetectedTarget.GetComponentInParent<Actor>().IsActive())
-                {
-                    enemyTarget = DetectionModule.KnownDetectedTarget;
-                }
-                else
-                {
-                    enemyTarget = player;
-                }
-
-                //Debug.Log(enemyTarget);
+                HandleTargetDetection();
             }
 
-            switch (state)
-            {
-                case EnemyState.patrolling:
-                    NavMeshAgent.enabled = true;
-                    NavMeshAgent.speed = m_PatrolSpeed;
-                    m_PatrolAgent.enabled = true;
-
-                    Patrol();
-                    break;
-
-                case EnemyState.chasing:
-                    NavMeshAgent.enabled = true;
-                    NavMeshAgent.speed = m_ChaseSpeed;
-                    m_PatrolAgent.enabled = false;
-
-                    Chase();
-                    break;
-
-                case EnemyState.attacking:
-                    NavMeshAgent.enabled = true;
-                    NavMeshAgent.speed = m_AttackSpeed;
-                    m_PatrolAgent.enabled = false;
-
-                    Attack();
-                    break;
-
-                case EnemyState.fleeing:
-                    NavMeshAgent.enabled = true;
-                    NavMeshAgent.speed = m_FleeSpeed;
-                    m_PatrolAgent.enabled = false;
-
-                    Flee();
-                    break;
-
-                case EnemyState.regrouping:
-                    NavMeshAgent.enabled = true;
-                    NavMeshAgent.speed = m_PatrolSpeed;
-                    m_PatrolAgent.enabled = false;
-
-                    Regroup(Events.OnBodyFoundEvent);
-                    break;
-
-                default:
-                    // Optional: handle unexpected states
-                    Debug.LogWarning($"Unhandled state: {state}");
-                    break;
-            }
-
-            if (m_Health.CurrentHealth <= 0f)
-            {
-                NavMeshAgent.enabled = false;
-                m_PatrolAgent.enabled = false;
-            }
+            StateHandler();
         }
+    }
+    private void HandleTargetDetection()
+    {
+        if (DetectionModule.KnownDetectedTarget.CompareTag("Host") &&
+            DetectionModule.KnownDetectedTarget.GetComponentInParent<ActorCharacterController>().IsDead &&
+            DetectionModule.KnownDetectedTarget.GetComponentInParent<Actor>().IsActive())
+        {
+            enemyTarget = DetectionModule.KnownDetectedTarget;
+        }
+        else if (DetectionModule.KnownDetectedTarget.transform.root.CompareTag("Player"))
+        {
+            enemyTarget = player;
+        }
+        else if (!DetectionModule.KnownDetectedTarget.CompareTag("Host") &&
+            !DetectionModule.KnownDetectedTarget.GetComponentInParent<ActorCharacterController>().IsDead &&
+            !DetectionModule.KnownDetectedTarget.GetComponentInParent<Actor>().IsActive() &&
+            !DetectionModule.KnownDetectedTarget.transform.root.CompareTag("Player"))
+        {
+            enemyTarget = null;
+            OnLostTarget();
+        }
+
+        //Debug.Log($"Enemy target set to: {enemyTarget}");
     }
 
     #region STATE FUNCTIONS
+    private void StateHandler()
+{
+    switch (state)
+    {
+        case EnemyState.patrolling:
+            SetAgentState(m_PatrolSpeed, true, true);
+            Patrol();
+            break;
+        case EnemyState.chasing:
+            SetAgentState(m_ChaseSpeed, true, false);
+            Chase();
+            break;
+        case EnemyState.attacking:
+            SetAgentState(m_AttackSpeed, true, false);
+            Attack();
+            break;
+        case EnemyState.fleeing:
+            SetAgentState(m_FleeSpeed, true, false);
+            Flee();
+            break;
+        case EnemyState.regrouping:
+            SetAgentState(m_PatrolSpeed, true, false);
+            Regroup(Events.OnBodyFoundEvent);
+            break;
+        default:
+            Debug.LogWarning($"Unhandled state: {state}");
+            break;
+    }
+}
+    private void SetAgentState(float speed, bool navEnabled, bool patrolEnabled)
+    {
+        NavMeshAgent.enabled = navEnabled;
+        NavMeshAgent.speed = speed;
+        m_PatrolAgent.enabled = patrolEnabled;
+    }
+
     private void Patrol()
     {
         if (state != EnemyState.patrolling)
@@ -358,6 +350,14 @@ public class EnemyAI : MonoBehaviour
 
         state = EnemyState.chasing;
 
+        float distanceToTarget = Vector3.Distance(transform.position, enemyTarget.transform.position);
+
+        if (distanceToTarget <= DetectionModule.AttackRange)
+        {
+            state = EnemyState.attacking;
+            return;
+        }
+
         SetAgentDestination(enemyTarget.transform.position);
     }
 
@@ -370,58 +370,53 @@ public class EnemyAI : MonoBehaviour
 
         //Make sure enemy doesn't move
         SetAgentDestination(transform.position);
-
         transform.LookAt(enemyTarget.transform);
 
         if (!alreadyAttacked)
         {
-            ///Attack code here
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
-            rb.AddForce(transform.up * 8f, ForceMode.Impulse);
+            WeaponController weapon = m_ActorWeaponsManager.GetActiveWeapon();
+
+            weapon.AIShoot(enemyTarget);
+            Debug.Log(enemyTarget);
 
             alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }
+        Invoke(nameof(ResetAttack), timeBetweenAttacks);
+
+        /* ///Attack code here
+        //Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+        //rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
+        //rb.AddForce(transform.up * 8f, ForceMode.Impulse);
+        //} */
     }
     private void ResetAttack()
     {
         alreadyAttacked = false;
     }
-    public void AttackShooter(GameObject shooter)
-    {
-        if (shooter == null) return;
+    //public void AttackShooter(GameObject shooter)
+    //{
+    //    if (shooter == null) return;
 
-        // Set the enemytarget to the shooter
-        enemyTarget = shooter;
-        TargetLayer = LayerMask.GetMask("Host");
-        StopAllCoroutines();
-        StartCoroutine(SwitchTarget(shooter));
-    }
-    private IEnumerator SwitchTarget(GameObject shooter)
-    {
-        float elapsedTime = 0f;
-        float focusTime = 10f; //Time to focus on the shooter
+    //    // Set the enemytarget to the shooter
+    //    enemyTarget = shooter;
+    //    TargetLayer = LayerMask.GetMask("Host");
+    //    StopAllCoroutines();
+    //    StartCoroutine(SwitchTarget(shooter));
+    //}
+    //private IEnumerator SwitchTarget(GameObject shooter, float focusTime = 10f)
+    //{
+    //    float elapsedTime = 0f;
 
-        // Continue checking the conditions for 5 seconds
-        while (elapsedTime < focusTime)
-        {
-            if (shooter.IsDestroyed())
-            {
-                break;
-            }
+    //    while (elapsedTime < focusTime && shooter != null && !shooter.IsDestroyed())
+    //    {
+    //        elapsedTime += Time.deltaTime;
+    //        yield return null;
+    //    }
 
-            // Wait for the next frame
-            yield return null;
-
-            // Increment the elapsed time
-            elapsedTime += Time.deltaTime;
-        }
-
-        // After the focus time, switch back to the player
-        enemyTarget = player;
-        TargetLayer = LayerMask.GetMask("Player");
-    }
+    //    // Reset to player
+    //    enemyTarget = player;
+    //    TargetLayer = LayerMask.GetMask("Player");
+    //}
 
     private void Flee()
     {

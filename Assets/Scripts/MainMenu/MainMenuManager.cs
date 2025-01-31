@@ -13,7 +13,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private GameObject _loadingBarObject;
     [SerializeField] private Image _menuBackground;
     [SerializeField] private Image _loadingBar;
-    [SerializeField, Tooltip("MainMenu UI elements which need to be hidden upon clicking start")] 
+    [SerializeField, Tooltip("MainMenu UI elements which need to be hidden upon clicking start")]
     private GameObject[] _objectsToHide;
 
     [Header("Scenes to Load")]
@@ -44,7 +44,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void HideMenu()
     {
-        for (int i = 0; i < _objectsToHide.Length; i++) 
+        for (int i = 0; i < _objectsToHide.Length; i++)
         {
             _objectsToHide[i].SetActive(false);
         }

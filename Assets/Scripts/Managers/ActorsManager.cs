@@ -6,7 +6,7 @@ public class ActorsManager : MonoBehaviour
     private int ActorAmount = 1;
 
     [Tooltip("List of all actors in the scene.")]
-    public List<Actor> Actors { get; private set; } = new();
+    public static List<Actor> Actors { get; private set; } = new();
     public GameObject Player { get; private set; }
 
     public void SetPlayer(GameObject player) => Player = player;
@@ -26,8 +26,5 @@ public class ActorsManager : MonoBehaviour
         Player.GetComponent<Actor>().SetID(0);
     }
 
-    public Actor FindActorById(int id)
-    {
-        return Actors.Find(actor => actor.id == id);
-    }
+    public static Actor FindActorById(int id) => Actors.Find(actor => actor.id == id);
 }

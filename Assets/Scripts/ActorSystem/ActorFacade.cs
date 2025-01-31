@@ -1,4 +1,6 @@
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.AI;
 using static HostThirdPersonCam;
 
 public class ActorFacade : MonoBehaviour
@@ -52,7 +54,7 @@ public class ActorFacade : MonoBehaviour
     #region ACTOR MANAGEMENT
     public void SwitchActor(ActorPossesedEvent evt)
     {
-        var targetActor = actorManager.FindActorById(evt.CurrentActor);
+        var targetActor = ActorsManager.FindActorById(evt.CurrentActor);
         if (targetActor == null)
         {
             Debug.LogError($"Actor with ID {evt.CurrentActor} not found!");
@@ -80,8 +82,13 @@ public class ActorFacade : MonoBehaviour
             currentActor.Affiliation = 0;
         }
 
+        if (!currentActor.GetComponent<AudioListener>())
+        {
+            currentActor.AddComponent<AudioListener>();
+        }
+
         ReviveActor(currentActor);
-        DisableAIComponents(actorController);
+        DisableAIComponents(currentActor);
         EnableWeaponsManager(currentActor);
 
         actorController.transform.SetPositionAndRotation(currentActor.transform.position, currentActor.transform.rotation);
@@ -104,6 +111,11 @@ public class ActorFacade : MonoBehaviour
         if (!currentActor.IsPlayer())
         {
             currentActor.Affiliation = 1;
+        }
+
+        if (currentActor.TryGetComponent<AudioListener>(out var audioListener))
+        {
+            Destroy(audioListener);
         }
 
         DisableWeaponsManager();
@@ -161,18 +173,20 @@ public class ActorFacade : MonoBehaviour
         }
     }
 
-    private void DisableAIComponents(ActorCharacterController controller)
+    private void DisableAIComponents(Actor actor)
     {
-        if (controller.m_PatrolAgent != null)
-            controller.m_PatrolAgent.enabled = false;
-        if (controller.m_NavMeshAgent != null)
-            controller.m_NavMeshAgent.enabled = false;
+        actor.TryGetComponent(out PatrolAgent _patrolAgent);
+        actor.TryGetComponent(out NavMeshAgent _navMeshAgent);
+
+        if (_patrolAgent != null)
+            _patrolAgent.enabled = false;
+        if (_navMeshAgent != null)
+            _navMeshAgent.enabled = false;
     }
 
     private void EnableWeaponsManager(Actor actor)
     {
-        actorWeaponsManager = actor.GetComponent<ActorWeaponsManager>();
-        if (actorWeaponsManager != null)
+        if (actor.TryGetComponent(out actorWeaponsManager))
         {
             actorWeaponsManager.enabled = true;
         }

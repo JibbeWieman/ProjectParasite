@@ -73,6 +73,7 @@ public class WeaponController : MonoBehaviour
     public Vector3 AimOffset;
 
     [Header("Ammo Parameters")]
+    public bool UsesPooling = true;
     [Tooltip("Should the player manually reload")]
     public bool AutomaticReload = true;
     [Tooltip("Has physical clip on the weapon and ammo shells are ejected when firing")]
@@ -84,7 +85,8 @@ public class WeaponController : MonoBehaviour
     [Tooltip("Weapon Ejection Port for physical ammo")]
     public Transform EjectionPort;
     [Tooltip("Force applied on the shell")]
-    [Range(0.0f, 5.0f)] public float ShellCasingEjectionForce = 2.0f;
+    //[Range(0.0f, 5.0f)] public float ShellCasingEjectionForce = 2.0f;
+    [Range(0.0f, 100.0f)] public float ShootingForce = 40.0f;
     [Tooltip("Maximum number of shell that can be spawned before reuse")]
     [Range(1, 30)] public int ShellPoolSize = 1;
     [Tooltip("Amount of ammo reloaded per second")]
@@ -163,7 +165,8 @@ public class WeaponController : MonoBehaviour
 
     const string k_AnimAttackParameter = "Attack";
 
-    private Queue<Rigidbody> m_PhysicalAmmoPool;
+    private Queue<ProjectileBase> m_PhysicalAmmoPool;
+    private Queue<ProjectileBase> m_ActiveAmmoPool;
 
     void Awake()
     {
@@ -172,8 +175,7 @@ public class WeaponController : MonoBehaviour
         m_LastMuzzlePosition = WeaponMuzzle.position;
 
         m_ShootAudioSource = GetComponent<AudioSource>();
-        DebugUtility.HandleErrorIfNullGetComponent<AudioSource, WeaponController>(m_ShootAudioSource, this,
-            gameObject);
+        DebugUtility.HandleErrorIfNullGetComponent<AudioSource, WeaponController>(m_ShootAudioSource, this, gameObject);
 
         if (UseContinuousShootSound)
         {
@@ -187,40 +189,210 @@ public class WeaponController : MonoBehaviour
 
         if (HasPhysicalBullets)
         {
-            m_PhysicalAmmoPool = new Queue<Rigidbody>(ShellPoolSize);
+            m_PhysicalAmmoPool = new Queue<ProjectileBase>(ShellPoolSize);
+            m_ActiveAmmoPool = new Queue<ProjectileBase>();
 
-            for (int i = 0; i < ShellPoolSize; i++)
+            for (int i = 0; i < MaxAmmo; i++)
             {
-                GameObject shell = Instantiate(ShellCasing, transform);
-                shell.SetActive(false);
-                m_PhysicalAmmoPool.Enqueue(shell.GetComponent<Rigidbody>());
+                ProjectileBase newProjectile = Instantiate(ProjectilePrefab);
+                newProjectile.transform.SetParent(transform.parent, false);
+                newProjectile.gameObject.SetActive(false);
+                m_PhysicalAmmoPool.Enqueue(newProjectile);
             }
         }
     }
 
     public void AddCarriablePhysicalBullets(int count) => m_CarriedPhysicalBullets = Mathf.Max(m_CarriedPhysicalBullets + count, MaxAmmo);
 
-    void ShootShell()
+    void Shoot()
     {
-        Rigidbody nextShell = m_PhysicalAmmoPool.Dequeue();
+        if (m_PhysicalAmmoPool.Count > 0)
+        {
+            ProjectileBase nextShell = m_PhysicalAmmoPool.Dequeue();
+            m_ActiveAmmoPool.Enqueue(nextShell);
 
-        nextShell.transform.position = EjectionPort.transform.position;
-        nextShell.transform.rotation = EjectionPort.transform.rotation;
-        nextShell.gameObject.SetActive(true);
-        nextShell.transform.SetParent(null);
-        nextShell.collisionDetectionMode = CollisionDetectionMode.Continuous;
-        nextShell.AddForce(nextShell.transform.up * ShellCasingEjectionForce, ForceMode.Impulse);
+            nextShell.transform.SetPositionAndRotation(EjectionPort.transform.position, EjectionPort.transform.rotation);
+            nextShell.gameObject.SetActive(true);
+            nextShell.Shoot(this);
+            nextShell.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Continuous;
+            nextShell.GetComponent<Rigidbody>().AddForce(GetShotDirection() * ShootingForce, ForceMode.VelocityChange);
+        }
+        else if (m_PhysicalAmmoPool.Count <= 0)
+        {
+            Reload();
+        }
+    }
 
-        m_PhysicalAmmoPool.Enqueue(nextShell);
+    void HandleShoot()
+    {
+        int bulletsPerShotFinal = ShootType == WeaponShootType.Charge
+            ? Mathf.CeilToInt(CurrentCharge * BulletsPerShot)
+            : BulletsPerShot;
+
+        if (HasPhysicalBullets && m_CurrentAmmo > 0)
+        {
+            for (int i = 0; i < bulletsPerShotFinal; i++)
+            {
+                Vector3 shotDirection = GetShotDirection();
+
+                ProjectileBase newProjectile;
+
+                if (UsesPooling && m_PhysicalAmmoPool.Count > 0)
+                {
+                    newProjectile = m_PhysicalAmmoPool.Dequeue();
+                    newProjectile.transform.SetParent(null);
+                    newProjectile.transform.position = WeaponMuzzle.position;
+                    newProjectile.transform.rotation = Quaternion.LookRotation(shotDirection);
+                    newProjectile.gameObject.SetActive(true);
+                }
+                else
+                {
+                    newProjectile = Instantiate(ProjectilePrefab, WeaponMuzzle.position, Quaternion.LookRotation(shotDirection));
+                }
+
+                newProjectile.transform.forward = shotDirection;
+                newProjectile.Shoot(this);
+
+                Shoot();
+                m_CarriedPhysicalBullets--;
+            }
+            if (MuzzleFlashPrefab != null)
+            {
+                GameObject muzzleFlashInstance = Instantiate(MuzzleFlashPrefab, WeaponMuzzle.position, WeaponMuzzle.rotation, WeaponMuzzle.transform);
+                if (UnparentMuzzleFlash)
+                {
+                    muzzleFlashInstance.transform.SetParent(null);
+                }
+                Destroy(muzzleFlashInstance, 2f);
+            }
+            else
+            {
+                Reload();
+            }
+        }
+
+        m_LastTimeShot = Time.time;
+
+        if (ShootSfx && !UseContinuousShootSound)
+        {
+            m_ShootAudioSource.PlayOneShot(ShootSfx);
+        }
+
+        if (WeaponAnimator)
+        {
+            WeaponAnimator.SetTrigger(k_AnimAttackParameter);
+        }
+
+        OnShoot?.Invoke();
+        OnShootProcessed?.Invoke();
+    }
+
+    public void AIShoot(GameObject target)
+    {
+        Debug.Log($"Trying to Shoot: {target}");
+        Vector3 aiShotDirection = GetAIShotDirection(target);
+
+        ProjectileBase newProjectile;
+
+        if (UsesPooling)
+        {
+            newProjectile = m_PhysicalAmmoPool.Dequeue();
+            newProjectile.transform.SetParent(null);
+            newProjectile.transform.position = WeaponMuzzle.position;
+            newProjectile.transform.rotation = Quaternion.LookRotation(aiShotDirection);
+            newProjectile.gameObject.SetActive(true);
+        }
+        else
+        {
+            newProjectile = Instantiate(ProjectilePrefab, WeaponMuzzle.position, Quaternion.LookRotation(aiShotDirection));
+        }
+
+        newProjectile.Shoot(this);
+        newProjectile.transform.SetPositionAndRotation(EjectionPort.transform.position, EjectionPort.transform.rotation);
+        newProjectile.transform.forward = aiShotDirection;
+        newProjectile.gameObject.SetActive(true);
+        newProjectile.GetComponent<Rigidbody>().collisionDetectionMode = CollisionDetectionMode.Continuous;
+        newProjectile.GetComponent<Rigidbody>().AddForce(GetAIShotDirection(target) * ShootingForce, ForceMode.VelocityChange);
+
+        if (MuzzleFlashPrefab != null)
+        {
+            GameObject muzzleFlashInstance = Instantiate(MuzzleFlashPrefab, WeaponMuzzle.position, WeaponMuzzle.rotation, WeaponMuzzle.transform);
+            if (UnparentMuzzleFlash)
+            {
+                muzzleFlashInstance.transform.SetParent(null);
+            }
+            Destroy(muzzleFlashInstance, 2f);
+        }
+        else
+        {
+            Reload();
+        }
+
+        if (ShootSfx && !UseContinuousShootSound)
+        {
+            m_ShootAudioSource.PlayOneShot(ShootSfx);
+        }
+
+        if (WeaponAnimator)
+        {
+            WeaponAnimator.SetTrigger(k_AnimAttackParameter);
+        }
+    }
+
+    public Vector3 GetShotDirection()
+    {
+        Camera cam = Camera.main;
+        if (cam == null)
+        {
+            Debug.LogWarning("No main camera found. Using WeaponMuzzle direction.");
+            return WeaponMuzzle.forward;
+        }
+
+        Vector3 shotDirection = cam.transform.forward;
+        Ray ray = cam.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Center of screen
+
+        // Layer mask to ignore AI layer
+        int layerMask = ~LayerMask.GetMask("AI");
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, layerMask))
+        {
+            shotDirection = (hit.point - WeaponMuzzle.position).normalized;
+        }
+
+        // Apply bullet spread
+        float spreadAngleRatio = BulletSpreadAngle / 180f;
+        Vector3 spreadWorldDirection = Vector3.Slerp(shotDirection, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+
+        return spreadWorldDirection;
+    }
+    public Vector3 GetAIShotDirection(GameObject target)
+    {
+        Vector3 aiShotDirection = target.transform.position;
+
+        // Apply bullet spread
+        float spreadAngleRatio = BulletSpreadAngle / 180f;
+        Vector3 spreadWorldDirection = Vector3.Slerp(aiShotDirection, UnityEngine.Random.insideUnitSphere, spreadAngleRatio);
+
+        return spreadWorldDirection;
     }
 
     void PlaySFX(AudioClip sfx) => AudioUtility.CreateSFX(sfx, transform.position, AudioUtility.AudioGroups.WeaponShoot, 0.0f);
 
-
-    void Reload()
+    public void Reload()
     {
-        if (m_CarriedPhysicalBullets > 0)
+        if (m_PhysicalAmmoPool.Count < MaxAmmo)
         {
+            IsReloading = true;
+
+            // Return active projectiles to pool
+            while (m_ActiveAmmoPool.Count > 0)
+            {
+                ProjectileBase projectile = m_ActiveAmmoPool.Dequeue();
+                projectile.gameObject.SetActive(false);
+                m_PhysicalAmmoPool.Enqueue(projectile);
+            }
+
+            // Restore ammo from physical bullets
             m_CurrentAmmo = Mathf.Min(m_CarriedPhysicalBullets, ClipSize);
         }
 
@@ -229,11 +401,11 @@ public class WeaponController : MonoBehaviour
 
     public void StartReloadAnimation()
     {
-        if (m_CurrentAmmo < m_CarriedPhysicalBullets)
-        {
-            GetComponent<Animator>().SetTrigger("Reload");
-            IsReloading = true;
-        }
+        //if (m_CurrentAmmo < m_CarriedPhysicalBullets)
+        //{
+        //    GetComponent<Animator>().SetTrigger("Reload");
+        //    IsReloading = true;
+        //}
     }
 
     void Update()
@@ -439,65 +611,14 @@ public class WeaponController : MonoBehaviour
         return false;
     }
 
-    void HandleShoot()
+    void OnDrawGizmos()
     {
-        int bulletsPerShotFinal = ShootType == WeaponShootType.Charge
-            ? Mathf.CeilToInt(CurrentCharge * BulletsPerShot)
-            : BulletsPerShot;
+        if (WeaponMuzzle == null || Camera.main == null)
+            return;
 
-        // spawn all bullets with random direction
-        for (int i = 0; i < bulletsPerShotFinal; i++)
-        {
-            Vector3 shotDirection = GetShotDirectionWithinSpread(WeaponMuzzle);
-            ProjectileBase newProjectile = Instantiate(ProjectilePrefab, WeaponMuzzle.position,
-                Quaternion.LookRotation(shotDirection));
-            newProjectile.Shoot(this);
-        }
+        Vector3 shotDirection = GetShotDirection();
 
-        // muzzle flash
-        if (MuzzleFlashPrefab != null)
-        {
-            GameObject muzzleFlashInstance = Instantiate(MuzzleFlashPrefab, WeaponMuzzle.position,
-                WeaponMuzzle.rotation, WeaponMuzzle.transform);
-            // Unparent the muzzleFlashInstance
-            if (UnparentMuzzleFlash)
-            {
-                muzzleFlashInstance.transform.SetParent(null);
-            }
-
-            Destroy(muzzleFlashInstance, 2f);
-        }
-
-        if (HasPhysicalBullets)
-        {
-            ShootShell();
-            m_CarriedPhysicalBullets--;
-        }
-
-        m_LastTimeShot = Time.time;
-
-        // play shoot SFX
-        if (ShootSfx && !UseContinuousShootSound)
-        {
-            m_ShootAudioSource.PlayOneShot(ShootSfx);
-        }
-
-        // Trigger attack animation if there is any
-        if (WeaponAnimator)
-        {
-            WeaponAnimator.SetTrigger(k_AnimAttackParameter);
-        }
-
-        OnShoot?.Invoke();
-        OnShootProcessed?.Invoke();
-    }
-
-    public Vector3 GetShotDirectionWithinSpread(Transform shootTransform)
-    {
-        float spreadAngleRatio = BulletSpreadAngle / 180f;
-        Vector3 spreadWorldDirection = Vector3.Slerp(shootTransform.forward, UnityEngine.Random.insideUnitSphere,
-            spreadAngleRatio);
-
-        return spreadWorldDirection;
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(WeaponMuzzle.position, WeaponMuzzle.position + shotDirection * 10f);
     }
 }

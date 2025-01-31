@@ -30,9 +30,9 @@ public class Actor : MonoBehaviour
         AssignCameras();
 
         // Register as an actor
-        if (!m_ActorsManager.Actors.Contains(this))
+        if (!ActorsManager.Actors.Contains(this))
         {
-            m_ActorsManager.Actors.Add(this);
+            ActorsManager.Actors.Add(this);
         }
 
         //EventManager.AddListener<AimEvent>(SwitchCamera);
@@ -101,9 +101,6 @@ public class Actor : MonoBehaviour
     void OnDestroy()
     {
         // Unregister as an actor
-        if (m_ActorsManager)
-        {
-            m_ActorsManager.Actors.Remove(this);
-        }
+        ActorsManager.Actors.Remove(this);
     }
 }

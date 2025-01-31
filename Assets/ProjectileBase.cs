@@ -1,6 +1,8 @@
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 using UnityEngine.Events;
+using UnityEngine.Rendering.UI;
 
 /// <summary>
 /// Base class for all projectile behaviours, handles common projectile properties and shooting logic.
@@ -9,17 +11,18 @@ using UnityEngine.Events;
 public abstract class ProjectileBase : MonoBehaviour
 {
     [Header("Bullet Properties")]
-    [SerializeField]
+    [SerializeField, Tooltip("The base amount of damage of the bullet")]
     protected int baseDMG;
-    [SerializeField]
+    [SerializeField, Tooltip("How much the bullet bounces against objects")]
     protected float bounciness;
-    [SerializeField]
+    [SerializeField, Tooltip("The maximum amount of time before the bullet gets destroyed")]
     protected float maxLifetime;
-    [SerializeField]
+    [SerializeField, Tooltip("The maximum amount of collisions before the bullet gets destroyed")]
     protected int maxCollisions;
     [Space(5)]
-    [SerializeField]
+    [SerializeField, Tooltip("Does the bullet get affected by gravity")]
     protected bool useGravity;
+    [Tooltip("If the bullet explodes upon contact or end of lifetime")]
     public bool explodes;
 
     [SerializeField] protected GameObject explosion;
@@ -51,8 +54,31 @@ public abstract class ProjectileBase : MonoBehaviour
         InitialDirection = transform.forward;
         InheritedMuzzleVelocity = controller.MuzzleWorldVelocity;
         InitialCharge = controller.CurrentCharge;
+        
+        if (!enabled)
+            enabled = true;
 
         OnShoot?.Invoke();
+
+        //Rigidbody rb = GetComponent<Rigidbody>();
+        //if (rb)
+        //{
+        //    Vector3 shotDirection;
+        //    if (Owner.GetComponent<Actor>().IsActive())
+        //    {
+        //        shotDirection = controller.GetShotDirection();
+        //    }
+        //    else
+        //    {
+        //        shotDirection = controller.GetAIShotDirection(controller.GetComponent<EnemyAI>().enemyTarget);
+        //    }
+        //    rb.AddForce(shotDirection * 40f, ForceMode.VelocityChange);
+        //}
+
+        if (!controller.UsesPooling)
+        {
+            Destroy(gameObject, 5f);
+        }
     }
 
     protected virtual void Start()
@@ -74,7 +100,7 @@ public abstract class ProjectileBase : MonoBehaviour
             }
             else
             {
-                Destroy(gameObject);
+                Deactivate(gameObject);  //'Destroy' object and add it back to the pool
             }
         }
     }
@@ -89,7 +115,22 @@ public abstract class ProjectileBase : MonoBehaviour
         {
             Instantiate(explosion, transform.position, Quaternion.identity);
         }
-        Destroy(gameObject);
+
+        Collider[] affectedObjects = Physics.OverlapSphere(transform.position, explosionRange);
+
+        foreach (var obj in affectedObjects)
+        {
+            if (obj.TryGetComponent(out Health enemy))
+            {
+                enemy.TakeDamage(explosionDMG, this.transform.root.gameObject);
+                if (obj.attachedRigidbody != null)
+                {
+                    obj.attachedRigidbody.AddExplosionForce(explosionForce, transform.position, explosionRange);
+                }
+            }
+        }
+
+        Deactivate(gameObject);  //'Destroy' object and add it back to the pool
     }
 
     private void SetupPhysicsMaterial()
@@ -110,6 +151,31 @@ public abstract class ProjectileBase : MonoBehaviour
 
         rb.useGravity = useGravity;
     }
+
+    protected void Deactivate(GameObject bullet)
+    {
+        bullet.SetActive(false);
+    }
+
+    protected void OnCollisionEnter(Collision collision)
+    {
+        //Debug.Log($"Collision with: {collision.gameObject.name}");
+
+        if (collision.gameObject == Owner) return;
+        else if (collision.gameObject.TryGetComponent(out Health hitActor))
+        {
+            if (hitActor != null)
+                hitActor.TakeDamage(baseDMG, transform.root.gameObject);
+        }
+
+        collisions++;
+
+        if (explodeOnTouch)
+        {
+            Explode();
+        }
+    }
+
 }
 
 #region Custom Inspector
