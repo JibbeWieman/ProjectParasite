@@ -1,11 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.AI;
-using Unity.AI.Navigation;
 
 public class MainMenuManager : MonoBehaviour
 {
@@ -20,7 +17,7 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private SceneField _persistentGameplay;
     [SerializeField] private SceneField _levelScene;
 
-    private List<AsyncOperation> _scenesToLoad = new List<AsyncOperation>();
+    private List<AsyncOperation> _scenesToLoad = new();
 
     private void Awake()
     {
@@ -29,44 +26,73 @@ public class MainMenuManager : MonoBehaviour
 
     public void StartGame()
     {
-        //Hide button and text
-        HideMenu();
+        Debug.Log("StartGame() called - Starting game sequence.");
 
+        // Hide the menu UI
+        HideMenu();
         _loadingBarObject.SetActive(true);
 
-        //Start loading the scenes we need
-        _scenesToLoad.Add(SceneManager.LoadSceneAsync(_persistentGameplay));
-        _scenesToLoad.Add(SceneManager.LoadSceneAsync(_levelScene, LoadSceneMode.Additive));
+        // Start loading the main level scene first
+        StartCoroutine(LoadScenes());
+    }
 
-        //Update the loading bar
-        StartCoroutine(ProgressLoadingBar());
+    private IEnumerator LoadScenes()
+    {
+        Debug.Log($"Loading level scene: {_levelScene.SceneName}");
+
+        AsyncOperation levelLoad = SceneManager.LoadSceneAsync(_levelScene.SceneName, LoadSceneMode.Additive);
+        if (levelLoad == null)
+        {
+            Debug.LogError($"Failed to load scene: {_levelScene.SceneName}. Check if it's added to Build Settings.");
+            yield break;
+        }
+
+        _scenesToLoad.Add(levelLoad);
+
+        while (!levelLoad.isDone)
+        {
+            Debug.Log($"Loading {_levelScene.SceneName}: {levelLoad.progress * 100}%");
+            _loadingBar.fillAmount = levelLoad.progress;
+            yield return null;
+        }
+
+        Debug.Log($"Level scene {_levelScene.SceneName} loaded successfully!");
+
+        // Now load the persistent gameplay scene
+        Debug.Log($"Loading persistent gameplay scene: {_persistentGameplay.SceneName}");
+
+        AsyncOperation persistentLoad = SceneManager.LoadSceneAsync(_persistentGameplay.SceneName, LoadSceneMode.Additive);
+        if (persistentLoad == null)
+        {
+            Debug.LogError($"Failed to load scene: {_persistentGameplay.SceneName}. Check if it's added to Build Settings.");
+            yield break;
+        }
+
+        _scenesToLoad.Add(persistentLoad);
+
+        while (!persistentLoad.isDone)
+        {
+            Debug.Log($"Loading {_persistentGameplay.SceneName}: {persistentLoad.progress * 100}%");
+            _loadingBar.fillAmount = 0.5f + (persistentLoad.progress * 0.5f); // Adjust for second scene
+            yield return null;
+        }
+
+        Debug.Log($"Persistent gameplay scene {_persistentGameplay.SceneName} loaded successfully!");
+
+        // Finalize loading
+        _loadingBar.fillAmount = 1f;
+        _menuBackground.color = Color.black;
+        Debug.Log("All scenes loaded successfully.");
+
+        SceneManager.UnloadSceneAsync("MainMenu");
     }
 
     private void HideMenu()
     {
-        for (int i = 0; i < _objectsToHide.Length; i++)
+        Debug.Log("Hiding menu UI elements.");
+        foreach (var obj in _objectsToHide)
         {
-            _objectsToHide[i].SetActive(false);
-        }
-    }
-
-    private IEnumerator ProgressLoadingBar()
-    {
-        float loadProgress = 0f;
-        for (int i = 0; i < _scenesToLoad.Count; i++)
-        {
-            while (!_scenesToLoad[i].isDone)
-            {
-                loadProgress += _scenesToLoad[i].progress;
-                _loadingBar.fillAmount = loadProgress / _scenesToLoad.Count;
-
-                if (loadProgress >= 0.95f)
-                {
-                    _menuBackground.color = Color.black;
-                }
-
-                yield return null;
-            }
+            obj.SetActive(false);
         }
     }
 }

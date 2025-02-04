@@ -85,7 +85,7 @@ public class EnemyController : MonoBehaviour
     public UnityAction onLostTarget;
     public UnityAction onDamaged;
 
-    List<RendererIndexData> m_BodyRenderers = new List<RendererIndexData>();
+    List<RendererIndexData> m_BodyRenderers = new();
     MaterialPropertyBlock m_BodyFlashMaterialPropertyBlock;
     float m_LastTimeDamaged = float.NegativeInfinity;
 

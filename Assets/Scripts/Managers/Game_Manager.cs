@@ -46,7 +46,7 @@ public class Game_Manager : MonoBehaviour
         //player = GetComponent<ActorsManager>().Player;
         EventManager.Broadcast(Events.GameStartEvent);
 
-        ApplyLightingSettingsToAllScenes();
+        //ApplyLightingSettingsToAllScenes();
     }
 
     private void ApplyLightingSettingsToAllScenes()
