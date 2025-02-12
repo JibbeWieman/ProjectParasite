@@ -19,15 +19,8 @@ public class HighAuthorityPass : MonoBehaviour
 
     private Collider currentTrigger;
 
-    private ElevatorDoor doorToUnlock;
-
     public KeycardType keycardType;
 
-    private void Start()
-    {
-        // Cache the reference to the elevator door
-        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
-    }
 
     private void OnTriggerEnter(Collider collider)
     {
@@ -74,18 +67,10 @@ public class HighAuthorityPass : MonoBehaviour
 
     private void HandleKeyHoleInteraction(Keyhole keyhole)
     {
-        if (keyhole == null || hasInsertedKey) return;
+        if (keyhole == null) return;
 
         Debug.Log("Inserting key into keyhole...");
         keyhole.InsertKey();
-        InsertKey();
-    }
-    private void InsertKey()
-    {
-        if (hasInsertedKey) return;
-
-        hasInsertedKey = true;
-        doorToUnlock.UpdateKeyAmount();
     }
 
     //private void HandleDoorInteraction()

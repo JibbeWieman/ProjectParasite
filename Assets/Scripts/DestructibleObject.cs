@@ -10,6 +10,10 @@ public class DestructibleObject : MonoBehaviour
     [SerializeField]
     private GameObject destroyedVersion;
 
+    [SerializeField]
+    private AudioClip[] destructionSfx;
+    private AudioSource m_AudioSource;
+
     //[SerializeField, Range(1, 10)]
     //private float requiredBreakMagnitude = 7f;
 
@@ -52,6 +56,12 @@ public class DestructibleObject : MonoBehaviour
         // Instantiate the prefab in the target scene
         GameObject instantiatedObject = Instantiate(destroyedVersion, transform.position, transform.rotation);
 
+        // Play Destruction Sound
+        m_AudioSource = instantiatedObject.GetComponent<AudioSource>();
+        DebugUtility.HandleErrorIfNullGetComponent<AudioSource, DestructibleObject>(m_AudioSource, instantiatedObject.transform, instantiatedObject);
+        
+        Game_Manager.PlayRandomSfx(m_AudioSource, destructionSfx);
+
         // Set the parent of the instantiated object to ensure it's in the correct scene hierarchy
         SceneManager.MoveGameObjectToScene(instantiatedObject, currentScene);
         instantiatedObject.transform.SetParent(transform.parent);
@@ -67,14 +77,11 @@ public class DestructibleObject : MonoBehaviour
 
     private IEnumerator SelfDestructRoutine(GameObject targetObject)
     {
-        Transform[] children = targetObject.GetComponentsInChildren<Transform>();
+        DestructionTarget[] destructionTargets = targetObject.GetComponentsInChildren<DestructionTarget>();
 
-        foreach (Transform child in children)
+        foreach (DestructionTarget target in destructionTargets)
         {
-            if (child != targetObject.transform)
-            {
-                Destroy(child.gameObject, Random.Range(minDestroyTime, maxDestroyTime));
-            }
+            Destroy(target.gameObject, Random.Range(minDestroyTime, maxDestroyTime));
         }
 
         if (destroyRoot)
@@ -83,6 +90,7 @@ public class DestructibleObject : MonoBehaviour
             Destroy(targetObject);
         }
     }
+
     #endregion
 }
 

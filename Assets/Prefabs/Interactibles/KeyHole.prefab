@@ -336,4 +336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc2398f4a079e4b41b034fa736c0b3ad, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AudioSource: {fileID: 0}
+  CorrectKey: {fileID: 8300000, guid: 47fe52a351f900243837dd09fc3c5ec9, type: 3}
+  WrongKey: {fileID: 8300000, guid: e355ee6026d4f254ca4d3fae1a5b51d4, type: 3}
   insertText: {fileID: 0}

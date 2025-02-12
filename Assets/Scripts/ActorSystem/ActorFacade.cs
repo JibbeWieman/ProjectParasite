@@ -1,7 +1,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using static HostThirdPersonCam;
 
 public class ActorFacade : MonoBehaviour
 {
@@ -33,21 +32,22 @@ public class ActorFacade : MonoBehaviour
         infectAbility = FindOrLogError<InfectAbility>();
     }
 
-    private void FixedUpdate()
-    {
-        actorController?.AdjustAnimationSpeed();
-        actorController?.HandleCharacterMovement();
-    }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.F) && Events.ActorPossesedEvent.InHost)
             LeaveHost();
     }
 
+    private void FixedUpdate()
+    {
+        actorController?.AdjustAnimationSpeed();
+        actorController?.HandleCharacterMovement();
+    }
+
     private void OnDestroy()
     {
         EventManager.RemoveListener<ActorPossesedEvent>(SwitchActor);
+        EventManager.RemoveListener<AimEvent>(HandleCameraSwitching);
     }
     #endregion
 

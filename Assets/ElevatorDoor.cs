@@ -12,6 +12,9 @@ public class ElevatorDoor : Door
     [SerializeField]
     private TextMeshProUGUI doorStatus;
 
+    [SerializeField]
+    private AudioClip unlockedSfx;
+
     private MovingPlatform Elevator;
 
     public override void Start()
@@ -31,7 +34,7 @@ public class ElevatorDoor : Door
         if (keyAmount >= keyRequirement)
         {
             Unlock();
-            doorStatus.text = "";
+            doorStatus.text = "\n";
         }
     }
 
@@ -39,6 +42,8 @@ public class ElevatorDoor : Door
     {
         trigger.enabled = true;
         EventManager.Broadcast(Events.ElevatorUnlockedEvent);
+
+        m_AudioSource.PlayOneShot(unlockedSfx, 1.5f);
     }
 
     public override void HandleDoorInteraction()

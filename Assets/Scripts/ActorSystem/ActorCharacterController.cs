@@ -5,6 +5,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler), typeof(AudioSource))]
 public class ActorCharacterController : MonoBehaviour
 {
+    #region VARIABLES
     protected static ActorCharacterController s_Instance;
     public static ActorCharacterController Instance { get { return s_Instance; } }
     
@@ -66,15 +67,27 @@ public class ActorCharacterController : MonoBehaviour
     [Tooltip("Force applied upward when jumping")]
     public float JumpForce = 9f;
 
+    [Header("Jump")]
+    [Tooltip("Force applied upward when jumping")]
+    protected bool toggleCrouch = false;
+
     [Header("Stance")]
     [Tooltip("Ratio (0-1) of the character height where the camera will be at")]
     public float CameraHeightRatio = 0.9f;
 
     [Tooltip("Height of character when standing")]
-    public float CapsuleHeightStanding = 1.8f;
+    public float CapsuleHeightStanding = 1.2f;
+
+    [Tooltip("Height of character when standing")]
+    [SerializeField]
+    protected float CapsuleScaleStanding = 1f;
 
     [Tooltip("Height of character when crouching")]
     public float CapsuleHeightCrouching = 0.9f;
+
+    [Tooltip("Height of character when crouching")]
+    [SerializeField]
+    protected float CapsuleScaleCrouching = 0.8f;
 
     [Tooltip("Speed of crouching transitions")]
     public float CrouchingSharpness = 10f;
@@ -87,10 +100,10 @@ public class ActorCharacterController : MonoBehaviour
     public float FootstepSfxFrequencyWhileSprinting = 1f;
 
     [Tooltip("Sound played for footsteps")]
-    public AudioClip FootstepSfx;
+    public AudioClip[] FootstepSfx;
 
-    [Tooltip("Sound played when jumping")] public AudioClip JumpSfx;
-    [Tooltip("Sound played when landing")] public AudioClip LandSfx;
+    [Tooltip("Sound played when jumping")] public AudioClip[] JumpSfx;
+    [Tooltip("Sound played when landing")] public AudioClip[] LandSfx;
 
     [Tooltip("Sound played when taking damage froma fall")]
     public AudioClip FallDamageSfx;
@@ -120,10 +133,11 @@ public class ActorCharacterController : MonoBehaviour
     public UnityAction<bool> OnStanceChanged;
 
     public Vector3 CharacterVelocity { get; set; }
-    public bool IsGrounded { get; private set; }
-    public bool HasJumpedThisFrame { get; private set; }
+    public bool IsGrounded { get; protected set; }
+    public bool HasJumpedThisFrame { get; protected set; }
     public bool IsDead;
-    public bool IsCrouching { get; private set; }
+    [SerializeField] protected bool VisiblyDead = false;
+    public bool IsCrouching { get; protected set; }
 
     protected Actor m_Actor;
     protected Animator m_Animator;
@@ -131,17 +145,18 @@ public class ActorCharacterController : MonoBehaviour
     protected PlayerInputHandler m_InputHandler;
     protected CharacterController m_Controller;
 
-    Vector3 m_GroundNormal;
+    protected Vector3 m_GroundNormal;
     //Vector3 m_CharacterVelocity;
-    Vector3 m_LatestImpactSpeed;
-    float m_LastTimeJumped = 0f;
+    protected Vector3 m_LatestImpactSpeed;
+    protected float m_LastTimeJumped = 0f;
     //float m_CameraVerticalAngle = 0f;
-    float m_FootstepDistanceCounter;
-    float m_TargetCharacterHeight;
+    protected float m_FootstepDistanceCounter;
+    protected float m_TargetCharacterHeight;
     protected bool isSprinting;
 
-    const float k_JumpGroundingPreventionTime = 0.2f;
-    const float k_GroundCheckDistanceInAir = 0.07f;
+    protected const float k_JumpGroundingPreventionTime = 0.2f;
+    protected const float k_GroundCheckDistanceInAir = 0.07f;
+    #endregion
 
     protected void OnTriggerEnter(Collider other)
     {
@@ -183,6 +198,12 @@ public class ActorCharacterController : MonoBehaviour
         UpdateCharacterHeight(true);
 
         m_Animator = m_AnimatorAlive;
+
+        Debug.Log("Start(): FootstepSfx Length = " + FootstepSfx.Length);
+        for (int i = 0; i < FootstepSfx.Length; i++)
+        {
+            Debug.Log($"Start(): FootstepSfx[{i}] = {FootstepSfx[i]}");
+        }
     }
 
     protected virtual void Update()
@@ -216,15 +237,14 @@ public class ActorCharacterController : MonoBehaviour
             else
             {
                 // land SFX
-                if (!AudioSource.isPlaying)
-                    AudioSource.PlayOneShot(LandSfx);
+                if (AudioSource.clip != LandSfx[0])
+                    Game_Manager.PlayRandomSfx(AudioSource, LandSfx);
             }
         }
 
-        // crouching
-        if ((bool)(m_InputHandler?.GetCrouchInputDown()))
+        if (IsGrounded) 
         {
-            SetCrouchingState(!IsCrouching, false);
+            HandleFootsteps();
         }
 
         UpdateCharacterHeight(false);
@@ -252,6 +272,7 @@ public class ActorCharacterController : MonoBehaviour
     protected virtual void OnDie()
     {
         IsDead = true;
+        VisiblyDead = true;
     }
 
     protected virtual void GroundCheck()
@@ -296,11 +317,7 @@ public class ActorCharacterController : MonoBehaviour
     public virtual void HandleCharacterMovement()
     {
         // character movement handling
-        isSprinting = (bool)(m_InputHandler?.GetSprintInputHeld());
-        if (isSprinting)
-        {
-            isSprinting = SetCrouchingState(false, false);
-        }
+        HandleSprinting();
 
         float speedModifier = isSprinting ? SprintSpeedModifier : 1f; //* MovementSpeedModifier;
 
@@ -308,11 +325,6 @@ public class ActorCharacterController : MonoBehaviour
         Vector3 moveDirection = orientation.forward * Input.GetAxis("Vertical") +
                                 orientation.right * Input.GetAxis("Horizontal");
         moveDirection.Normalize(); // Normalise to ensure consistent magnitude
-        //Debug.Log($"Vertical: {Input.GetAxis("Vertical")}, Horizontal: {Input.GetAxis("Horizontal")}");
-        //if (moveDirection == Vector3.zero)
-        //    Debug.Log("MoveDirection is zero, no input detected.");
-        //Debug.Log($"IsGrounded: {IsGrounded}");
-        //Debug.Log($"CharacterVelocity: {CharacterVelocity}");
 
         // handle grounded movement
         if (IsGrounded)
@@ -332,43 +344,7 @@ public class ActorCharacterController : MonoBehaviour
                 MovementSharpnessOnGround * Time.deltaTime);
             //CharacterVelocity = Vector3.MoveTowards(CharacterVelocity, targetVelocity, MovementSharpnessOnGround * Time.deltaTime);
 
-
-            // jumping
-            if (IsGrounded && (bool)(m_InputHandler?.GetJumpInputDown()))
-            {
-                // force the crouch state to false
-                if (SetCrouchingState(false, false))
-                {
-                    // start by canceling out the vertical component of our velocity
-                    CharacterVelocity = new Vector3(CharacterVelocity.x, 0f, CharacterVelocity.z);
-
-                    // then, add the jumpSpeed value upwards
-                    CharacterVelocity += Vector3.up * JumpForce;
-
-                    // play sound
-                    AudioSource.PlayOneShot(JumpSfx);
-
-                    // remember last time we jumped because we need to prevent snapping to ground for a short time
-                    m_LastTimeJumped = Time.time;
-                    HasJumpedThisFrame = true;
-
-                    // Force grounding to false
-                    IsGrounded = false;
-                    m_GroundNormal = Vector3.up;
-                }
-            }
-
-            // footsteps sound
-            float chosenFootstepSfxFrequency =
-                (isSprinting ? FootstepSfxFrequencyWhileSprinting : FootstepSfxFrequency);
-            if (m_FootstepDistanceCounter >= 1f / chosenFootstepSfxFrequency)
-            {
-                m_FootstepDistanceCounter = 0f;
-                AudioSource.PlayOneShot(FootstepSfx);
-            }
-
-            // keep track of distance traveled for footsteps sound
-            m_FootstepDistanceCounter += CharacterVelocity.magnitude * Time.deltaTime;
+            HandleJump();
         }
         // handle air movement
         else
@@ -404,6 +380,63 @@ public class ActorCharacterController : MonoBehaviour
         }
     }
 
+    protected virtual void HandleFootsteps()
+    {
+        if (FootstepSfx.Length > 0)
+        {
+            // Update the footstep counter based on movement speed
+            m_FootstepDistanceCounter += CharacterVelocity.magnitude * Time.deltaTime;
+
+            // Footsteps sound logic
+            float chosenFootstepSfxFrequency =
+                (isSprinting ? FootstepSfxFrequencyWhileSprinting : FootstepSfxFrequency);
+
+            if (m_FootstepDistanceCounter >= 1f / chosenFootstepSfxFrequency)
+            {
+                m_FootstepDistanceCounter = 0f;
+
+                Game_Manager.PlayRandomSfx(AudioSource, FootstepSfx, .4f);
+            }
+        }
+    }
+
+    protected void HandleSprinting()
+    {
+        isSprinting = (bool)(m_InputHandler?.GetSprintInputHeld());
+        if (isSprinting)
+        {
+            isSprinting = SetCrouchingState(false, false);
+        }
+    }
+
+    protected void HandleJump()
+    {
+        if (IsGrounded && (bool)(m_InputHandler?.GetJumpInputDown()))
+        {
+            Debug.Log("Trying to jump 2");
+            // force the crouch state to false
+            if (SetCrouchingState(false, false) || SetCrouchingState(false, true))
+            {
+                Debug.Log("Trying to jump 3");
+                // start by canceling out the vertical component of our velocity
+                CharacterVelocity = new Vector3(CharacterVelocity.x, 0f, CharacterVelocity.z);
+
+                // then, add the jumpSpeed value upwards
+                CharacterVelocity += Vector3.up * JumpForce;
+
+                // play sound
+                Game_Manager.PlayRandomSfx(AudioSource, JumpSfx);
+
+                // remember last time we jumped because we need to prevent snapping to ground for a short time
+                m_LastTimeJumped = Time.time;
+                HasJumpedThisFrame = true;
+
+                // Force grounding to false
+                IsGrounded = false;
+                m_GroundNormal = Vector3.up;
+            }
+        }
+    }
 
     // Returns true if the slope angle represented by the given normal is under the slope angle limit of the character controller
     protected bool IsNormalUnderSlopeLimit(Vector3 normal)

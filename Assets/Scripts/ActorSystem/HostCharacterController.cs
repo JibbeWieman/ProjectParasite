@@ -43,6 +43,18 @@ public class HostCharacterController : ActorCharacterController
         m_Animator.SetBool("isWalking", true);
     }
 
+    protected override void Update()
+    {
+        base.Update();
+
+        if (!IsGrounded && IsDead && !m_Actor.IsActive())
+        {
+            CharacterVelocity += GravityDownForce * Time.deltaTime * Vector3.down;
+            m_Controller.Move(CharacterVelocity * Time.deltaTime);
+            return; // Prevent movement logic but allow gravity
+        }
+    }
+
 
     protected override void OnDie()
     {
@@ -54,6 +66,8 @@ public class HostCharacterController : ActorCharacterController
         deadModel.SetActive(true);
 
         m_EnemyAI.enabled = false;
+
+        m_TargetCharacterHeight = CapsuleHeightCrouching;
 
         //m_WeaponsManager.SwitchToWeaponIndex(-1, true); // Tell the weapons manager to switch to a non-existing weapon in order to lower the weapon
     }
@@ -77,4 +91,75 @@ public class HostCharacterController : ActorCharacterController
         }
     }
 
+    public override void HandleCharacterMovement()
+    {
+        base.HandleCharacterMovement();
+
+        HandleCrouching();
+    }
+
+    protected void HandleCrouching()
+    {
+        if (!IsGrounded || IsDead || VisiblyDead) return;
+
+        if (toggleCrouch)
+        {
+            if (m_InputHandler.GetCrouchInputDown())
+            {
+                IsCrouching = !IsCrouching;
+                SetCrouchingState(IsCrouching, false);
+                m_TargetCharacterHeight = IsCrouching ? CapsuleHeightCrouching : CapsuleHeightStanding;
+            }
+        }
+        else
+        {
+            // Ensure crouch state only changes when the key is explicitly released
+            bool crouchHeld = m_InputHandler.GetCrouchInputHeld();
+            bool crouchReleased = m_InputHandler.GetCrouchInputReleased(); // Explicit check for key release
+
+            if (crouchHeld && !IsCrouching)
+            {
+                // Start crouching
+                SetCrouchingState(true, false);
+                IsCrouching = true;
+                m_TargetCharacterHeight = CapsuleHeightCrouching;
+            }
+            else if (!crouchHeld && crouchReleased && IsCrouching)
+            {
+                // Ensure standing up happens only when the key is actually released
+                SetCrouchingState(false, false);
+                IsCrouching = false;
+                m_TargetCharacterHeight = CapsuleHeightStanding;
+            }
+        }
+
+        // Smoothly transition to target height
+        m_Controller.height = Mathf.Lerp(m_Controller.height, m_TargetCharacterHeight, CrouchingSharpness * Time.deltaTime);
+        transform.localScale = new Vector3(
+            transform.localScale.x,
+            Mathf.Lerp(transform.localScale.y, IsCrouching ? CapsuleScaleCrouching : CapsuleScaleStanding, CrouchingSharpness * Time.deltaTime),
+            transform.localScale.z
+        );
+    }
+
+
+    protected override void HandleFootsteps()
+    {
+        if (FootstepSfx.Length > 0)
+        {
+            // Update the footstep counter based on movement speed
+            m_FootstepDistanceCounter += CharacterVelocity.magnitude * Time.deltaTime;
+
+            // Footsteps sound logic
+            float chosenFootstepSfxFrequency =
+                (isSprinting ? FootstepSfxFrequencyWhileSprinting : FootstepSfxFrequency);
+
+            if (m_FootstepDistanceCounter >= 1f / chosenFootstepSfxFrequency)
+            {
+                m_FootstepDistanceCounter = 0f;
+
+                Game_Manager.PlayRandomSfx(AudioSource, FootstepSfx, 0.02f);
+            }
+        }
+    }
 }

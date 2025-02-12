@@ -769,9 +769,15 @@ MonoBehaviour:
   CrouchingSharpness: 10
   FootstepSfxFrequency: 1
   FootstepSfxFrequencyWhileSprinting: 1
-  FootstepSfx: {fileID: 0}
-  JumpSfx: {fileID: 0}
-  LandSfx: {fileID: 0}
+  FootstepSfx: []
+  JumpSfx:
+  - {fileID: 8300000, guid: 9fee6078681192b44869e5522492af6e, type: 3}
+  - {fileID: 8300000, guid: 2a0e8a7b5befb21458c1cb074c28f4e9, type: 3}
+  - {fileID: 8300000, guid: d8f745b4a4274a74baa665a12638f9b1, type: 3}
+  LandSfx:
+  - {fileID: 8300000, guid: 1e8352a582a7e824eb6363b05a74cce9, type: 3}
+  - {fileID: 8300000, guid: 6d0083bf5a297144da725a850646a70b, type: 3}
+  - {fileID: 8300000, guid: 87e0001d41f1b1b409bda01c2adb09ca, type: 3}
   FallDamageSfx: {fileID: 0}
   RecievesFallDamage: 0
   MinSpeedForFallDamage: 10
@@ -781,8 +787,6 @@ MonoBehaviour:
   m_AnimatorAlive: {fileID: 150234741481491105}
   m_TransitionSpeed: 0.06
   IsDead: 0
-  m_PatrolAgent: {fileID: 0}
-  m_NavMeshAgent: {fileID: 0}
 --- !u!114 &2020321848613042653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -819,6 +823,10 @@ MonoBehaviour:
   canUse: 1
   bloodVfx: {fileID: 2236759683813918769, guid: 56c090e6179380748bb5428d878cf7c6,
     type: 3}
+  infectSfx:
+  - {fileID: 8300000, guid: 03b1d70f1e5db194a96323e689cf45c9, type: 3}
+  - {fileID: 8300000, guid: 0883c163dcea2124db741c47dbc9e278, type: 3}
+  - {fileID: 8300000, guid: c83eb5e4722249241b11192267347591, type: 3}
   persistentHosts: {fileID: 0}
   ParasiteBasicCam: {fileID: 3387049651504999583}
   isLeeching: 0
@@ -829,7 +837,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5220795088517806239}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18f3a8155f931524383943208bae6256, type: 3}
   m_Name: 
@@ -884,7 +892,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 1
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -892,7 +900,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 0.1225
+  MinDistance: 0.13999999
   MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0

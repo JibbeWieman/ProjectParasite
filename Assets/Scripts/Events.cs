@@ -17,6 +17,7 @@ public static class Events
     // Jibbe's Events
     public static ActorPossesedEvent ActorPossesedEvent = new();
     public static AimEvent AimEvent = new();
+    public static ExitHostEvent ExitHostEvent = new();
     public static GameStartEvent GameStartEvent = new();
     public static OnBodyFoundEvent OnBodyFoundEvent = new();
     public static ElevatorUnlockedEvent ElevatorUnlockedEvent = new();
@@ -48,6 +49,11 @@ public class ActorPossesedEvent : GameEvent
     /// </summary>
     public bool InHost;
 }
+
+public class ExitHostEvent : GameEvent
+{
+}
+
 public class AimEvent : GameEvent
 {
     private bool isAiming = false; // Backing field

@@ -117,6 +117,16 @@ public class PlayerInputHandler : MonoBehaviour
         return false;
     }
 
+    public bool GetCrouchInputHeld()
+    {
+        if (CanProcessInput())
+        {
+            return Input.GetButton(GameConstants.k_ButtonNameCrouch);
+        }
+
+        return false;
+    }
+
     public bool GetFireInputDown()
     {
         return GetFireInputHeld() && !m_FireInputWasHeld;

@@ -96,7 +96,7 @@ public class EnemyController : MonoBehaviour
     public bool IsSeeingTarget => DetectionModule.IsSeeingTarget;
     public bool HadKnownTarget => DetectionModule.HadKnownTarget;
 
-    private int m_PathDestinationNodeIndex;
+    //private int m_PathDestinationNodeIndex;
     EnemyManager m_EnemyManager;
     ActorsManager m_ActorsManager;
     Health m_Health;
@@ -305,7 +305,7 @@ public class EnemyController : MonoBehaviour
     }
     public void ResetPathDestination()
     {
-        m_PathDestinationNodeIndex = 0;
+        //m_PathDestinationNodeIndex = 0;
     }
 
     private void Flee()

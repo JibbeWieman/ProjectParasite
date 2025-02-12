@@ -49,6 +49,15 @@ public class Game_Manager : MonoBehaviour
         //ApplyLightingSettingsToAllScenes();
     }
 
+    public static void PlayRandomSfx(AudioSource audioSource, AudioClip[] audioClips, float volumeScale = 1)
+    {
+        if (audioClips.Length > 0) // Ensure the array is not empty
+        {
+            AudioClip randomSound = audioClips[Random.Range(0, audioClips.Length)];
+            audioSource.PlayOneShot(randomSound, volumeScale);
+        }
+    }
+
     private void ApplyLightingSettingsToAllScenes()
     {
         // Loop through all loaded scenes and apply lighting settings

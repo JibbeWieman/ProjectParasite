@@ -5,18 +5,28 @@ public class Keyhole : MonoBehaviour
 {
     private bool isKeyInserted = false;
 
+    private ElevatorDoor doorToUnlock;
+
+    [SerializeField]
+    private AudioSource AudioSource;
+
+    [SerializeField] private AudioClip CorrectKey;
+    [SerializeField] private AudioClip WrongKey;
+
     [SerializeField]
     private TextMeshProUGUI insertText;
 
     private void Start()
     {
         insertText.enabled = false;
+        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
     }
 
     public void InsertKey()
     {
         if (isKeyInserted)
         {
+            AudioSource.PlayOneShot(WrongKey);
             Debug.Log("Key already inserted in this keyhole.");
             return;
         }
@@ -30,6 +40,8 @@ public class Keyhole : MonoBehaviour
             renderer.material.color = Color.green;
         }
 
+        AudioSource.PlayOneShot(CorrectKey);
+        doorToUnlock.UpdateKeyAmount();
         Debug.Log("Key inserted into keyhole.");
     }
 

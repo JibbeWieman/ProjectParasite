@@ -13,8 +13,8 @@ public class PatrolAgent : MonoBehaviour
     [SerializeField, Tooltip("Should the agent loop the path?")]
     private bool loop = true;
 
-    [SerializeField, Tooltip("Rotation speed of the agent.")]
-    private float rotationSpeed = 5f;
+    //[SerializeField, Tooltip("Rotation speed of the agent.")]
+    //private float rotationSpeed = 5f;
 
     [SerializeField, Tooltip("Fallback random pacing range.")]
     private float randomPaceRange = 5f;

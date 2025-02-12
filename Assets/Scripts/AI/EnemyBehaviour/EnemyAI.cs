@@ -14,7 +14,6 @@ public class EnemyAI : MonoBehaviour
     private Animator m_Animator;
     private GameObject player;
     public GameObject enemyTarget { get; private set; }
-    public AudioSource enemyAudioHurt;
     private LayerMask TargetLayer;
     float m_LastTimeDamaged = float.NegativeInfinity;
     bool m_WasDamagedThisFrame;
@@ -26,7 +25,8 @@ public class EnemyAI : MonoBehaviour
     public UnityAction onLostTarget;
     public UnityAction onDamaged;
 
-    public Actor m_Actor;
+    private Actor m_Actor;
+    private AudioSource m_AudioSource;
     private EnemyManager m_EnemyManager;
     private ActorWeaponsManager m_ActorWeaponsManager;
     private ActorsManager m_ActorsManager;
@@ -69,6 +69,9 @@ public class EnemyAI : MonoBehaviour
     [Tooltip("Sound played when recieving damages")]
     public AudioClip DamageTick;
 
+    [SerializeField]
+    private AudioClip[] dieSfx;
+
     [Header("VFX")]
     [Tooltip("The VFX prefab spawned when the enemy dies")]
     public GameObject DeathVfx;
@@ -103,11 +106,14 @@ public class EnemyAI : MonoBehaviour
 
         m_Animator = GetComponentInChildren<Animator>();
 
+        m_AudioSource = GetComponent<AudioSource>();
+        DebugUtility.HandleErrorIfNullGetComponent<AudioSource, EnemyAI>(m_AudioSource, this, gameObject);
+
         m_Health = GetComponent<Health>();
-        DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyController>(m_Health, this, gameObject);
+        DebugUtility.HandleErrorIfNullGetComponent<Health, EnemyAI>(m_Health, this, gameObject);
 
         m_Actor = GetComponent<Actor>();
-        DebugUtility.HandleErrorIfNullGetComponent<Actor, EnemyController>(m_Actor, this, gameObject);
+        DebugUtility.HandleErrorIfNullGetComponent<Actor, EnemyAI>(m_Actor, this, gameObject);
 
         NavMeshAgent = GetComponent<NavMeshAgent>();
         m_PatrolAgent = GetComponent<PatrolAgent>();
@@ -116,10 +122,10 @@ public class EnemyAI : MonoBehaviour
         TargetLayer = LayerMask.GetMask("Player");
 
         m_EnemyManager = FindObjectOfType<EnemyManager>();
-        DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyController>(m_EnemyManager, this);
+        DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyAI>(m_EnemyManager, this);
 
         m_ActorsManager = FindObjectOfType<ActorsManager>();
-        DebugUtility.HandleErrorIfNullFindObject<EnemyAI, EnemyController>(m_ActorsManager, this);
+        DebugUtility.HandleErrorIfNullFindObject<EnemyAI, EnemyAI>(m_ActorsManager, this);
 
         m_ActorWeaponsManager = GetComponent<ActorWeaponsManager>();
         DebugUtility.HandleErrorIfNullFindObject<EnemyAI, ActorWeaponsManager>(m_ActorWeaponsManager, this);
@@ -240,11 +246,15 @@ public class EnemyAI : MonoBehaviour
         GameObject vfx = Instantiate(DeathVfx, DeathVfxSpawnPoint.position, Quaternion.identity);
         Destroy(vfx, 5f);
 
+        Game_Manager.PlayRandomSfx(m_AudioSource, dieSfx);
+
         // tells the game flow manager to handle the enemy destuction
         m_EnemyManager.UnregisterEnemy(this);
 
         // this will call the OnDestroy function
         //Destroy(gameObject, DeathDuration);
+        //Destroy(m_PatrolAgent);
+        //Destroy(NavMeshAgent);
         NavMeshAgent = null;
         m_PatrolAgent = null;
         DetectionModule = null;
@@ -370,13 +380,16 @@ public class EnemyAI : MonoBehaviour
 
         //Make sure enemy doesn't move
         SetAgentDestination(transform.position);
-        transform.LookAt(enemyTarget.transform);
+
+        Vector3 targetPosition = new Vector3(enemyTarget.transform.position.x, transform.position.y, enemyTarget.transform.position.z); //Make sure the AI only rotates on the y axis to prevent Neo Dodges
+        transform.LookAt(targetPosition);
+
 
         if (!alreadyAttacked)
         {
             WeaponController weapon = m_ActorWeaponsManager.GetActiveWeapon();
 
-            weapon.AIShoot(enemyTarget);
+            weapon.TryShoot(enemyTarget);
             Debug.Log(enemyTarget);
 
             alreadyAttacked = true;

@@ -9,11 +9,17 @@ public class InfectAbility : AbilityBase
     [SerializeField]
     ParticleSystem bloodVfx;
 
+    [SerializeField]
+    private AudioClip[] infectSfx;
+
+    [Space(10)]
     [SerializeField, Tooltip("Parent object for persistent hosts.")]
     private GameObject persistentHosts;
 
     [SerializeField]
     private CinemachineFreeLook ParasiteBasicCam;
+
+    private AudioSource AudioSource;
 
     public bool isLeeching = false;
 
@@ -63,6 +69,9 @@ public class InfectAbility : AbilityBase
             ParticleSystem blood = Instantiate(bloodVfx, hit.point, Quaternion.LookRotation(hit.normal));
             blood.transform.SetParent(hit.gameObject.transform);
             Destroy(blood, 1f);
+
+            AudioSource =  hit.gameObject.GetComponentInParent<AudioSource>();
+            Game_Manager.PlayRandomSfx(AudioSource, infectSfx);
 
             Debug.Log($"Attempting to possess: {hit.gameObject.name}");
             Events.ActorPossesedEvent.CurrentActor = hit.gameObject.GetComponent<Actor>().id;
