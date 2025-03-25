@@ -6,8 +6,8 @@ public class InfectAbility : AbilityBase
 {
     #region VARIABLES
     [Header("References")]
-    [SerializeField] 
-    ParticleSystem bloodParticles;
+    [SerializeField]
+    ParticleSystem bloodVfx;
 
     [SerializeField, Tooltip("Parent object for persistent hosts.")] 
     private GameObject persistentHosts;
@@ -15,8 +15,7 @@ public class InfectAbility : AbilityBase
     [SerializeField]
     private CinemachineFreeLook ParasiteBasicCam;
 
-    private bool isLeeching = false;
-    private GameObject player;
+    public bool isLeeching = false;
 
     #endregion
 
@@ -30,11 +29,6 @@ public class InfectAbility : AbilityBase
     //{
     //    CameraSwitcher.Unregister(ParasiteBasicCam);
     //}
-
-    private void Start()
-    {
-        player = gameObject;
-    }
 
     private void Update()
     {
@@ -53,8 +47,8 @@ public class InfectAbility : AbilityBase
     {
         Debug.Log("Possession triggered.");
 
-        // Disable the parasite character
-        player.SetActive(false);
+        // Disable the parasite
+        this.gameObject.SetActive(false);
     }
     /// <summary>
     /// Coroutine for leeching effect before possession.
@@ -75,7 +69,7 @@ public class InfectAbility : AbilityBase
         if (isLeeching && hit.gameObject.layer == LayerMask.NameToLayer("AI"))
         {
             // Instantiate blood effect
-            ParticleSystem blood = Instantiate(bloodParticles, hit.point, Quaternion.LookRotation(hit.normal));
+            ParticleSystem blood = Instantiate(bloodVfx, hit.point, Quaternion.LookRotation(hit.normal));
             blood.transform.SetParent(hit.gameObject.transform);
             Destroy(blood, 1f);
 

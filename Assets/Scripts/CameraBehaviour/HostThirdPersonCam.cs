@@ -26,7 +26,7 @@ public class HostThirdPersonCam : MonoBehaviour
         CombatLookAt = Orientation?.Find("CombatLookAt");
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (Events.ActorPossesedEvent.InHost && hostObj != null)
         {

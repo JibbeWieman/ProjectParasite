@@ -47,13 +47,11 @@ public class ActorCharacterController : MonoBehaviour
     [Tooltip("Multiplicator for the sprint speed (based on grounded speed)")]
     public float SprintSpeedModifier = 2f;
 
-    // Jibbe
     //[Tooltip("Multiplicator for the base movement speed")]
     //[Range(1f, 3f)]
     //public float MovementSpeedModifier = 1f;
-    //
 
-    [Tooltip("Height at which the player dies instantly when falling off the map")]
+    [Tooltip("Height at which the actor dies instantly when falling off the map")]
     public float KillHeight = -50f;
 
     [Header("Rotation")]
