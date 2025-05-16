@@ -3,46 +3,28 @@ using UnityEngine;
 
 public class Keyhole : MonoBehaviour
 {
-    private bool isKeyInserted = false;
-
-    private ElevatorDoor doorToUnlock;
-
+    #region VARIABLES
     [SerializeField]
     private AudioSource AudioSource;
 
-    [SerializeField] private AudioClip CorrectKey;
-    [SerializeField] private AudioClip WrongKey;
+    [SerializeField] 
+    private AudioClip CorrectKey, WrongKey;
 
-    [SerializeField]
+    private ElevatorDoor doorToUnlock;
+
     private TextMeshProUGUI insertText;
 
+    private bool isKeyInserted = false;
+
+    #endregion
+
+    #region UNITY METHODS
     private void Start()
     {
+        insertText = transform.parent.GetComponentInChildren<TextMeshProUGUI>();
+
         insertText.enabled = false;
         doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
-    }
-
-    public void InsertKey()
-    {
-        if (isKeyInserted)
-        {
-            AudioSource.PlayOneShot(WrongKey);
-            Debug.Log("Key already inserted in this keyhole.");
-            return;
-        }
-
-        isKeyInserted = true;
-
-        // Change the material colour to green
-        Renderer renderer = GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            renderer.material.color = Color.green;
-        }
-
-        AudioSource.PlayOneShot(CorrectKey);
-        doorToUnlock.UpdateKeyAmount();
-        Debug.Log("Key inserted into keyhole.");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -74,4 +56,31 @@ public class Keyhole : MonoBehaviour
             Debug.LogWarning("insertText is not assigned in the Inspector.");
         }
     }
+    #endregion
+
+    #region KEY METHODS
+    public void InsertKey()
+    {
+        if (isKeyInserted)
+        {
+            AudioSource.PlayOneShot(WrongKey);
+            Debug.Log("Key already inserted in this keyhole.");
+            return;
+        }
+
+        isKeyInserted = true;
+
+        // Change the material colour to green
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material.color = Color.green;
+        }
+
+        AudioSource.PlayOneShot(CorrectKey);
+        doorToUnlock.UpdateKeyAmount();
+        Debug.Log("Key inserted into keyhole.");
+    }
+
+    #endregion
 }
