@@ -5,7 +5,7 @@ using UnityEditor;
 
 public class DestructibleObject : MonoBehaviour
 {
-    #region Fields and Properties
+    #region VARIABLES
     [Header("Destructible Settings")]
     [SerializeField]
     private GameObject destroyedVersion;
@@ -35,7 +35,7 @@ public class DestructibleObject : MonoBehaviour
     public float MaxDestroyTime { get => maxDestroyTime; set => maxDestroyTime = value; }
     #endregion
 
-    #region Unity Methods
+    #region UNITY METHODS
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Bullet"))
@@ -45,7 +45,7 @@ public class DestructibleObject : MonoBehaviour
     }
     #endregion
 
-    #region Destruction Logic
+    #region DESTRUCTION METHODS
     public void DestroyObject()
     {
         // Find the scene

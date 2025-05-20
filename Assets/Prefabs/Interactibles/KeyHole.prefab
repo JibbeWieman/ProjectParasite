@@ -339,4 +339,4 @@ MonoBehaviour:
   AudioSource: {fileID: 0}
   CorrectKey: {fileID: 8300000, guid: 47fe52a351f900243837dd09fc3c5ec9, type: 3}
   WrongKey: {fileID: 8300000, guid: e355ee6026d4f254ca4d3fae1a5b51d4, type: 3}
-  insertText: {fileID: 0}
+  ST_ElevatorDoor: {fileID: 11400000, guid: eca0794e2474ebf4980b38ac917b45e8, type: 2}

@@ -17,6 +17,8 @@ public class Game_Manager : MonoBehaviour
     [SerializeField] private Material _skyboxMaterial; // Assign in Inspector
     [SerializeField] private LightingSettings _lightingSettingsAsset; // Optional: Assign the scene's main directional light
 
+    private bool CursorMode = false;
+
 
     #endregion
 
@@ -47,6 +49,25 @@ public class Game_Manager : MonoBehaviour
         EventManager.Broadcast(Events.GameStartEvent);
 
         //ApplyLightingSettingsToAllScenes();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CursorMode = !CursorMode;
+        }
+
+        if (CursorMode)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
     }
 
     public static void PlayRandomSfx(AudioSource audioSource, AudioClip[] audioClips, float volumeScale = 1)

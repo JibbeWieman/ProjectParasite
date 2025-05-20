@@ -10,6 +10,9 @@ public class Keyhole : MonoBehaviour
     [SerializeField] 
     private AudioClip CorrectKey, WrongKey;
 
+    [SerializeField]
+    private SceneTypeObject ST_ElevatorDoor;
+
     private ElevatorDoor doorToUnlock;
 
     private TextMeshProUGUI insertText;
@@ -22,9 +25,9 @@ public class Keyhole : MonoBehaviour
     private void Start()
     {
         insertText = transform.parent.GetComponentInChildren<TextMeshProUGUI>();
-
         insertText.enabled = false;
-        doorToUnlock = FindAnyObjectByType<ElevatorDoor>();
+
+        doorToUnlock = ST_ElevatorDoor.Objects[0].GetComponent<ElevatorDoor>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -78,6 +81,7 @@ public class Keyhole : MonoBehaviour
         }
 
         AudioSource.PlayOneShot(CorrectKey);
+        Debug.Log(doorToUnlock);
         doorToUnlock.UpdateKeyAmount();
         Debug.Log("Key inserted into keyhole.");
     }

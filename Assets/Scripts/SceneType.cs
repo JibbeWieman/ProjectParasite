@@ -11,7 +11,7 @@ public class SceneType : MonoBehaviour
         return type;
     }
 
-    private void Awake()
+    private void Start()
     {
         if (type != null)
         {

@@ -24,6 +24,8 @@ public class ElevatorDoor : Door
         Elevator = GetComponentInParent<MovingPlatform>();
         trigger = GetComponent<BoxCollider>();
         trigger.enabled = false;
+
+        Debug.Log(Elevator, doorStatus);
     }
 
     public void UpdateKeyAmount()
