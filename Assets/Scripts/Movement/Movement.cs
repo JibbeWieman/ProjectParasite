@@ -5,6 +5,7 @@ using Cinemachine;
 [RequireComponent(typeof(Rigidbody))]
 public class Movement : MonoBehaviour
 {
+    /*
     private Rigidbody RB;
 
     float moveSpeed = 2;
@@ -37,7 +38,7 @@ public class Movement : MonoBehaviour
 
     void FixedUpdate()
     {
-        /*  Controller Mappings */
+        // Controller Mappings
         vaxis = Input.GetAxis("Vertical");
         haxis = Input.GetAxis("Horizontal");
         isJumping = Input.GetButton("Jump");
@@ -100,5 +101,5 @@ public class Movement : MonoBehaviour
         {
             isGrounded = false;
         }
-    }
+    } */
 }

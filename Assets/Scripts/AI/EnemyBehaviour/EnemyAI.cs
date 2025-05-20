@@ -121,10 +121,10 @@ public class EnemyAI : MonoBehaviour
 
         TargetLayer = LayerMask.GetMask("Player");
 
-        m_EnemyManager = FindObjectOfType<EnemyManager>();
+        m_EnemyManager = FindFirstObjectByType<EnemyManager>();
         DebugUtility.HandleErrorIfNullFindObject<EnemyManager, EnemyAI>(m_EnemyManager, this);
 
-        m_ActorsManager = FindObjectOfType<ActorsManager>();
+        m_ActorsManager = FindFirstObjectByType<ActorsManager>();
         DebugUtility.HandleErrorIfNullFindObject<EnemyAI, EnemyAI>(m_ActorsManager, this);
 
         m_ActorWeaponsManager = GetComponent<ActorWeaponsManager>();

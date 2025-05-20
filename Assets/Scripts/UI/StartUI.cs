@@ -29,7 +29,7 @@ public class StartUI : MonoBehaviour
             Cursor.visible = true;
         }
 
-        m_Directors = FindObjectsOfType<PlayableDirector>();
+        m_Directors = FindObjectsByType<PlayableDirector>(FindObjectsSortMode.None);
     }
 
     public void Quit()

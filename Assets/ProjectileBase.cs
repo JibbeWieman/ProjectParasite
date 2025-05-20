@@ -33,7 +33,7 @@ public abstract class ProjectileBase : MonoBehaviour
     [SerializeField] protected bool explodeOnTouch;
 
     protected int collisions;
-    protected PhysicMaterial physicsMat;
+    protected PhysicsMaterial physicsMat;
     protected Rigidbody rb;
 
     public GameObject Owner { get; private set; }
@@ -137,11 +137,11 @@ public abstract class ProjectileBase : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
 
-        physicsMat = new PhysicMaterial
+        physicsMat = new PhysicsMaterial
         {
             bounciness = bounciness,
-            frictionCombine = PhysicMaterialCombine.Minimum,
-            bounceCombine = PhysicMaterialCombine.Maximum
+            frictionCombine = PhysicsMaterialCombine.Minimum,
+            bounceCombine = PhysicsMaterialCombine.Maximum
         };
 
         if (TryGetComponent(out SphereCollider sphereCollider))

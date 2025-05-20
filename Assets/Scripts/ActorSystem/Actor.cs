@@ -23,7 +23,7 @@ public class Actor : MonoBehaviour
 
     void Awake()
     {
-        m_ActorsManager = GameObject.FindObjectOfType<ActorsManager>();
+        m_ActorsManager = GameObject.FindFirstObjectByType<ActorsManager>();
         DebugUtility.HandleErrorIfNullFindObject<ActorsManager, Actor>(m_ActorsManager, this);
 
         // Automatically assign cameras based on child names

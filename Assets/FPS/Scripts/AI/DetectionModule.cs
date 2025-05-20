@@ -38,7 +38,7 @@ public class DetectionModule : MonoBehaviour
 
     protected virtual void Start()
     {
-        m_ActorsManager = FindObjectOfType<ActorsManager>();
+        m_ActorsManager = FindFirstObjectByType<ActorsManager>();
         DebugUtility.HandleErrorIfNullFindObject<ActorsManager, DetectionModule>(m_ActorsManager, this);
     }
 

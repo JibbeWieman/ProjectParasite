@@ -141,7 +141,7 @@ public class ActorFacade : MonoBehaviour
     #region HELPER METHODS
     private T FindOrLogError<T>() where T : MonoBehaviour
     {
-        var component = FindObjectOfType<T>();
+        var component = FindFirstObjectByType<T>();
         DebugUtility.HandleErrorIfNullFindObject<T, ActorFacade>(component, this);
         return component;
     }

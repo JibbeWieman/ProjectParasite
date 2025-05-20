@@ -6,7 +6,7 @@ public class PlayerCharacterController : ActorCharacterController
 {
     private void Awake()
     {
-        ActorsManager actorsManager = FindObjectOfType<ActorsManager>();
+        ActorsManager actorsManager = FindFirstObjectByType<ActorsManager>();
 
         if (actorsManager != null && gameObject.CompareTag("Player"))
             actorsManager.SetPlayer(gameObject);
